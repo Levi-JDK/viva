@@ -1,4 +1,9 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(0, '/');
+    session_start();
+}
+
 try {
     require_once(__DIR__ . '/Database.php');
 } catch (Error $e) {
@@ -12,8 +17,8 @@ try {
 header('Content-Type: application/json');
 
 try {
-    $db = new Database(require(__DIR__ . '/config.php'), $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']);
-    $pdo = $db->connection;
+    // Usar Singleton pattern
+    $db = Database::getInstance();
 } catch (Exception $e) {
     echo json_encode([
         "mensaje" => "Error al inicializar la base de datos: " . $e->getMessage(),
@@ -21,6 +26,7 @@ try {
     ]);
     exit;
 }
+
 
 // Manejar solicitud GET para verificar sesión
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
@@ -70,10 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $hash = password_hash($contrasena, PASSWORD_ARGON2ID);
 
         try {
-            $sqlcheck = "SELECT fun_val_mail(:email)";
-            $stmtcheck = $pdo->prepare($sqlcheck);
-            $stmtcheck->bindParam(':email', $email, PDO::PARAM_STR);
-            $stmtcheck->execute();
+            // Validar email usando consulta preparada
+            $stmtcheck = $db->ejecutar('validarEmail', [':email' => $email]);
             $result = $stmtcheck->fetchColumn();
 
             if (!$result) {
@@ -84,13 +88,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             }
 
-            $sql = "SELECT fun_c_user(:email, :contrasena, :nombre, :apellido)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-            $stmt->bindParam(':contrasena', $hash, PDO::PARAM_STR);
-            $stmt->bindParam(':nombre', $nombre, PDO::PARAM_STR);
-            $stmt->bindParam(':apellido', $apellido, PDO::PARAM_STR);
-            $stmt->execute();
+            // Crear usuario usando consulta preparada
+            $stmt = $db->ejecutar('crearUsuario', [
+                ':email' => $email,
+                ':contrasena' => $hash,
+                ':nombre' => $nombre,
+                ':apellido' => $apellido
+            ]);
 
             echo json_encode([
                 "mensaje" => "Usuario registrado correctamente.",
@@ -102,6 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "clase" => "mensaje-error"
             ]);
         }
+
     } elseif ($accion === 'login') {
         // Login
         $email = $_POST['email'] ?? '';
@@ -124,23 +129,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
-            // Usar fun_val_log para obtener el hash
-            $sqlpass = "SELECT fun_val_log(:email)";
-            $stmt = $pdo->prepare($sqlpass);
-            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
-            $stmt->execute();
+            // Obtener hash de contraseña usando consulta preparada
+            $stmt = $db->ejecutar('obtenerHashLogin', [':email' => $email]);
             $hash = $stmt->fetchColumn();
 
             if ($hash && password_verify($contrasena, $hash)) {
                 // Iniciar sesión
-                session_start();
+                // Iniciar sesión (ya iniciada arriba)
+                if (session_status() === PHP_SESSION_NONE) {
+                    session_start();
+                }
                 $_SESSION['email'] = $email;
 
-                // Consulta adicional para obtener el nombre y el ID del usuario
-                $sqlUsuario = "SELECT id_user, nom_user FROM tab_users WHERE mail_user = :email";
-                $stmtUsuario = $pdo->prepare($sqlUsuario);
-                $stmtUsuario->bindParam(':email', $email, PDO::PARAM_STR);
-                $stmtUsuario->execute();
+                // Obtener datos del usuario usando consulta preparada
+                $stmtUsuario = $db->ejecutar('obtenerUsuarioPorEmail', [':email' => $email]);
                 $usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
                 if ($usuario) {
@@ -166,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 "clase" => "mensaje-error"
             ]);
         }
+
     } else {
         echo json_encode([
             "mensaje" => "Acción no válida.",

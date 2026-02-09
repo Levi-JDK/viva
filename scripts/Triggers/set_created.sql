@@ -19,7 +19,7 @@ DECLARE
         'tab_paises',
         'tab_ciudades',
         'tab_grupos',
-        'tab_regiones',
+        'tab_departamentos',
         'tab_pais_tipos_doc',
         'tab_tipos_doc',
         'tab_bancos',

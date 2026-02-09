@@ -127,18 +127,21 @@ BEGIN
   END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION fun_softdel_tab_regiones(
-  p_id tab_regiones.id_region%TYPE,
-  p_deleted tab_regiones.is_deleted%TYPE
+CREATE OR REPLACE FUNCTION fun_softdel_tab_departamentos(
+  p_id_pais tab_departamentos.id_pais%TYPE,
+  p_id_departamento tab_departamentos.id_departamento%TYPE,
+  p_deleted tab_departamentos.is_deleted%TYPE
 ) RETURNS BOOLEAN AS $$
-DECLARE w_id tab_regiones.id_region%TYPE;
+DECLARE w_id_pais tab_departamentos.id_pais%TYPE;
 BEGIN
-  SELECT id_region INTO w_id FROM tab_regiones WHERE id_region = p_id;
+  SELECT id_pais INTO w_id_pais FROM tab_departamentos 
+   WHERE id_pais = p_id_pais AND id_departamento = p_id_departamento;
   IF NOT FOUND THEN
-    RAISE NOTICE 'No existe region %', p_id;
+    RAISE NOTICE 'No existe departamento (pais %, departamento %)', p_id_pais, p_id_departamento;
     RETURN FALSE;
   ELSE
-    UPDATE tab_regiones SET is_deleted = p_deleted WHERE id_region = p_id;
+    UPDATE tab_departamentos SET is_deleted = p_deleted 
+     WHERE id_pais = p_id_pais AND id_departamento = p_id_departamento;
     RETURN TRUE;
   END IF;
 END; $$ LANGUAGE plpgsql;

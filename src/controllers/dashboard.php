@@ -10,15 +10,17 @@ if (!isset($_SESSION['id_user']) && isset($_SESSION['email'])) {
     try {
         require_once ROOT_PATH . 'vendor/autoload.php';
         require_once ROOT_PATH . 'src/functions/Database.php';
-        require_once ROOT_PATH . 'src/functions/config.php';
+        
         $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
         $dotenv->load();
-        $config = require ROOT_PATH . 'src/functions/config.php';
-        $db = new Database($config, $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']);
-        $pdo = $db->connection;
-        $stmt = $pdo->prepare("SELECT id_user FROM tab_users WHERE mail_user = :email");
-        $stmt->execute([':email' => $_SESSION['email']]);
+        
+        // Usar Singleton pattern
+        $db = Database::getInstance();
+        
+        // Obtener ID de usuario usando consulta preparada
+        $stmt = $db->ejecutar('obtenerIdPorEmail', [':email' => $_SESSION['email']]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
         if ($result) {
             $_SESSION['id_user'] = $result['id_user'];
         } else {
@@ -44,17 +46,14 @@ if (!isset($_SESSION['id_user'])) {
 // Cargar las dependencias necesarias
 require_once ROOT_PATH . 'vendor/autoload.php';
 require_once ROOT_PATH . 'src/functions/Database.php';
-require_once ROOT_PATH . 'src/functions/config.php';
 
 // Cargar variables de entorno
 $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
 $dotenv->load();
 
-// Conectar a la base de datos
+// Conectar a la base de datos usando Singleton
 try {
-    $config = require ROOT_PATH . 'src/functions/config.php';
-    $db = new Database($config, $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']);
-    $pdo = $db->connection;
+    $db = Database::getInstance();
 } catch (Exception $e) {
     die("Error de conexión a base de datos: " . $e->getMessage());
 }
@@ -84,9 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         try {
-            $sql = "UPDATE tab_users SET nom_user = :nombre, ape_user = :apellido WHERE id_user = :id";
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
+            // Actualizar perfil usando consulta preparada
+            $stmt = $db->ejecutar('actualizarPerfil', [
                 ':nombre' => $nombre,
                 ':apellido' => $apellido,
                 ':id' => $id_usuario
@@ -101,6 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo json_encode(['clase' => 'mensaje-error', 'mensaje' => 'Error al actualizar: ' . $e->getMessage()]);
             exit;
         }
+
     }
     
     // Si la acción no es válida
@@ -111,8 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Obtener datos del usuario actual
 try {
     $id_usuario = $_SESSION['id_user'];
-    $stmt = $pdo->prepare("SELECT nom_user,ape_user, mail_user, foto_user, created_at FROM tab_users WHERE id_user = :id");
-    $stmt->execute([':id' => $id_usuario]);
+    
+    // Obtener datos del usuario usando consulta preparada
+    $stmt = $db->ejecutar('obtenerUsuarioPorId', [':id' => $id_usuario]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     
     // Si no se encuentra el usuario, cerrar sesión

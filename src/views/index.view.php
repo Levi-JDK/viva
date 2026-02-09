@@ -62,6 +62,7 @@
                                              class="w-full h-full object-cover">
                                     </div>
                                     <span class="hidden md:block font-medium text-tierra-oscuro"><?= htmlspecialchars($nombre_usuario) ?></span>
+        
                                     <i class="fas fa-chevron-down text-sm text-gray-600"></i>
                                 </button>
                                 
@@ -94,6 +95,15 @@
                                             <a href="<?= BASE_URL ?>dashboard#settings" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
                                                 <i class="fas fa-cog w-5"></i>
                                                 <span class="ml-3">Configuración</span>
+                                            </a>
+                                        </li>
+                                        <li class="border-t border-gray-100 mt-2 pt-2">
+                                            <a href="<?= BASE_URL ?>vender" class="flex items-center px-4 py-2.5 text-sm text-green-700 font-semibold hover:bg-green-50 transition-colors rounded-lg group">
+                                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                                                    <i class="fas fa-store text-green-600"></i>
+                                                </div>
+                                                <span class="ml-3">Vender productos</span>
+                                                <i class="fas fa-arrow-right ml-auto text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                                             </a>
                                         </li>
                                         <li class="border-t border-gray-100 mt-2 pt-2">

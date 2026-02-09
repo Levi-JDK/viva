@@ -30,6 +30,12 @@ if ($relative_uri === '/' || $relative_uri === '/index.php'){
     require_once ROOT_PATH . "src/controllers/login.php";
 }else if($relative_uri === '/dashboard' || $relative_uri === '/perfil'){
     require_once ROOT_PATH . "src/controllers/dashboard.php";
+}else if($relative_uri === '/vender'){
+    require_once ROOT_PATH . "src/controllers/registro_vendedor.php";
+}else if($relative_uri === '/logout'){
+    require_once ROOT_PATH . "src/controllers/logout.php";
+}else if($relative_uri === '/misproductos'){
+    require_once ROOT_PATH . "src/controllers/misproductos.php";
 }else{
     require_once ROOT_PATH . "src/views/404.php";
 }

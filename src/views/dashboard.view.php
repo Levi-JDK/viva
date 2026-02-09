@@ -68,44 +68,7 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    <!-- Header Simple -->
-    <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <a href="<?= BASE_URL ?>" class="flex items-center space-x-3">
-                    <div class="w-10 h-10 bg-gradient-to-br from-tierra-oscuro to-verde-artesanal rounded-lg flex items-center justify-center">
-                        <img src="<?= BASE_URL ?>images/Logo.png" alt="VIVA">
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-tierra-oscuro">VIVA</h1>
-                        <p class="text-xs text-tierra-medio">Artesanías Colombianas</p>
-                    </div>
-                </a>
-
-                <!-- User Info -->
-                <div class="flex items-center space-x-4">
-                    <div class="hidden md:flex items-center space-x-3">
-                        <!-- Avatar: Siempre muestra la imagen desde foto_user (default: images/default.jpg) -->
-                        <div class="w-10 h-10 rounded-full overflow-hidden">
-                            
-                            <img src="<?= BASE_URL . $foto_usuario ?>?v=<?= time() ?>" 
-                                 alt="<?= htmlspecialchars($nombre_usuario) ?>" 
-                                 class="w-full h-full object-cover">
-                        </div>
-                        <div>
-                            <p class="text-sm font-semibold text-gray-800"><?= htmlspecialchars($nombre_completo) ?></p>
-                            <p class="text-xs text-gray-500"><?= htmlspecialchars($email_usuario) ?></p>
-                        </div>
-                    </div>
-                    <button id="mobile-menu-btn" class="lg:hidden text-gray-700">
-                        <i class="fas fa-bars text-xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
+    <?php include_once ROOT_PATH . "src/views/partials/header.php"; ?>
     <!-- Dashboard Container -->
     <div class="container mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-6">

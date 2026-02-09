@@ -1,5 +1,5 @@
 <?php require_once ROOT_PATH . "/src/views/partials/headhtml.php"; 
-	require_once ROOT_PATH . "/src/views/partials/header_login.php"; ?>
+	require_once ROOT_PATH . "/src/views/partials/header.php"; ?>
 	<!-- Toast Container -->
 	<div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
 

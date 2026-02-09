@@ -1,6 +1,7 @@
 <?php 
 // Iniciar sesión si no está iniciada
 if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(0, '/');
     session_start();
 }
 
@@ -18,21 +19,17 @@ if (isset($_SESSION['id_user'])) {
         // Cargar las dependencias necesarias
         require_once ROOT_PATH . 'vendor/autoload.php';
         require_once ROOT_PATH . 'src/functions/Database.php';
-        require_once ROOT_PATH . 'src/functions/config.php';
         
         // Cargar variables de entorno
         $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
         $dotenv->load();
         
-        // Conectar a la base de datos
-        $config = require ROOT_PATH . 'src/functions/config.php';
-        $db = new Database($config, $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']);
-        $pdo = $db->connection;
+        // Usar Singleton pattern
+        $db = Database::getInstance();
         
-        // Obtener datos del usuario
+        // Obtener datos del usuario usando consulta preparada
         $id_usuario = $_SESSION['id_user'];
-        $stmt = $pdo->prepare("SELECT nom_user, ape_user, mail_user, foto_user FROM tab_users WHERE id_user = :id");
-        $stmt->execute([':id' => $id_usuario]);
+        $stmt = $db->ejecutar('obtenerUsuarioPorId', [':id' => $id_usuario]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
         
         if ($usuario) {

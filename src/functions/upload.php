@@ -56,27 +56,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {
 
         if ($id_usuario) {
             try {
-                // Incluir configuración de base de datos (están en el mismo directorio)
+                // Incluir configuración de base de datos
                 require_once 'Database.php';
-                $config = require 'config.php';
                 
-                // Cargar variables de entorno - ya cargadas arriba con dotenv
-                $db = new Database($config, $_ENV['DB_USERNAME'], $_ENV['DB_PASSWORD']);
-                $pdo = $db->connection;
+                // Usar Singleton pattern
+                $db = Database::getInstance();
 
-                // 2. Preparar la consulta SQL para actualizar la foto del usuario
-                // IMPORTANTE: El orden de parámetros debe coincidir con la definición de la función SQL
-                // fun_u_foto_user(p_id_user integer, p_foto_user varchar)
-                $sql = "SELECT fun_u_foto_user(:id, :foto) as resultado";
+                // Actualizar foto del usuario usando consulta preparada
+                $stmt = $db->ejecutar('actualizarFotoUsuario', [
+                    ':id' => $id_usuario,
+                    ':foto' => $ruta_imagen_final
+                ]);
                 
-                // 3. Ejecutar la sentencia
-                $stmt = $pdo->prepare($sql);
-                // Bind en el orden correcto: primero id, luego foto
-                $stmt->bindParam(':id', $id_usuario, PDO::PARAM_INT);
-                $stmt->bindParam(':foto', $ruta_imagen_final, PDO::PARAM_STR);
-                $stmt->execute();
-                
-                // 4. Obtener el resultado de la función
+                // Obtener el resultado de la función
                 $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
                 
                 // Verificar si la actualización fue exitosa
