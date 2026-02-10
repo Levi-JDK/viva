@@ -19,4 +19,3 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-SELECT * FROM tab_users

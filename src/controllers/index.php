@@ -40,6 +40,9 @@ if (isset($_SESSION['id_user'])) {
             $email_usuario = $usuario['mail_user'] ?? '';
             $foto_usuario = $usuario['foto_user'] ?? 'images/default.jpg';
         }
+        // Verificar si es productor
+        $stmt_productor = $db->ejecutar('validarProductor', [':id_user' => $id_usuario]);
+        $es_productor = $stmt_productor->fetchColumn(); 
     } catch (Exception $e) {
         // Si hay error, simplemente no mostrar datos de usuario
         error_log("Error al obtener datos de usuario en index: " . $e->getMessage());

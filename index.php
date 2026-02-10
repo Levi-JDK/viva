@@ -34,8 +34,8 @@ if ($relative_uri === '/' || $relative_uri === '/index.php'){
     require_once ROOT_PATH . "src/controllers/registro_vendedor.php";
 }else if($relative_uri === '/logout'){
     require_once ROOT_PATH . "src/controllers/logout.php";
-}else if($relative_uri === '/misproductos'){
-    require_once ROOT_PATH . "src/controllers/misproductos.php";
+}else if($relative_uri === '/mis_productos'){
+    require_once ROOT_PATH . "src/controllers/mis_productos.php";
 }else{
     require_once ROOT_PATH . "src/views/404.php";
 }

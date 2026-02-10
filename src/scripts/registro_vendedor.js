@@ -100,7 +100,7 @@ async function handleFormSubmit(event) {
         if (data.success) {
             // Éxito: Mostrar mensaje y redirigir
             alert(data.message + '\n\nDatos guardados: ' + JSON.stringify(data.debug_params, null, 2));
-            window.location.href = (typeof BASE_URL !== 'undefined' ? BASE_URL : '') + 'misproductos';
+            window.location.href = (typeof BASE_URL !== 'undefined' ? BASE_URL : '') + 'mis_productos';
         } else {
             // Error: Mostrar mensaje y datos debug
             console.error('Debug Params:', data.debug_params);

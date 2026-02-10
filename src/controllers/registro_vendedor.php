@@ -18,6 +18,16 @@ try {
     // Usar Singleton pattern
     $db = Database::getInstance();
     
+    // Verificar si ya es vendedor
+    $params = [':id_user' => $_SESSION['id_user']];
+    $stmt = $db->ejecutar('validarProductor', $params);
+    $es_productor = $stmt->fetchColumn();
+
+    if ($es_productor) {
+        header('Location: ' . BASE_URL . 'mis_productos');
+        exit();
+    }
+    
     // Ejecutar consulta preparada
     $stmt = $db->ejecutar('obtenerTiposDocumento');
     $tipos_doc = $stmt->fetchAll(PDO::FETCH_ASSOC);

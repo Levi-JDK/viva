@@ -98,13 +98,25 @@
                                             </a>
                                         </li>
                                         <li class="border-t border-gray-100 mt-2 pt-2">
-                                            <a href="<?= BASE_URL ?>vender" class="flex items-center px-4 py-2.5 text-sm text-green-700 font-semibold hover:bg-green-50 transition-colors rounded-lg group">
-                                                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
-                                                    <i class="fas fa-store text-green-600"></i>
-                                                </div>
-                                                <span class="ml-3">Vender productos</span>
-                                                <i class="fas fa-arrow-right ml-auto text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                                            </a>
+                                        <li class="border-t border-gray-100 mt-2 pt-2">
+                                            <?php if (!empty($es_productor)): ?>
+                                                <a href="<?= BASE_URL ?>mis_productos" class="flex items-center px-4 py-2.5 text-sm text-naranja-artesanal font-semibold hover:bg-orange-50 transition-colors rounded-lg group">
+                                                    <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                                                        <i class="fas fa-box text-naranja-artesanal"></i>
+                                                    </div>
+                                                    <span class="ml-3">Mis productos</span>
+                                                    <i class="fas fa-arrow-right ml-auto text-naranja-artesanal opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                                </a>
+                                            <?php else: ?>
+                                                <a href="<?= BASE_URL ?>vender" class="flex items-center px-4 py-2.5 text-sm text-green-700 font-semibold hover:bg-green-50 transition-colors rounded-lg group">
+                                                    <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center group-hover:bg-green-200 transition-colors">
+                                                        <i class="fas fa-store text-green-600"></i>
+                                                    </div>
+                                                    <span class="ml-3">Vender productos</span>
+                                                    <i class="fas fa-arrow-right ml-auto text-green-600 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                                </a>
+                                            <?php endif; ?>
+                                        </li>
                                         </li>
                                         <li class="border-t border-gray-100 mt-2 pt-2">
                                             <a href="<?= BASE_URL ?>logout" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
