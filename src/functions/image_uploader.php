@@ -1,15 +1,15 @@
 <?php
 /**
- * VIVA - Profile Picture Upload Handler
+ * VIVA - Generic Image Upload Handler
  * 
- * Maneja la carga, validación y procesamiento de fotos de perfil.
+ * Maneja la carga, validación y procesamiento de imágenes.
  * Flujo optimizado con conversión automática a WebP.
  */
 
 require_once __DIR__ . '/image_processing.php';
 
 /**
- * Procesa la subida de una imagen de perfil.
+ * Procesa la subida de una imagen.
  * 
  * FLUJO OPTIMIZADO:
  * 1. Validar archivo (tipo, tamaño, formato)
@@ -22,9 +22,11 @@ require_once __DIR__ . '/image_processing.php';
  *
  * @param array $file Archivo de $_FILES (ej: $_FILES['imagen_perfil'])
  * @param string $target_dir Ruta ABSOLUTA del directorio de destino
+ * @param string $prefix Prefijo para el nombre del archivo (default: 'img_')
+ * @param string $web_path_folder Carpeta para la ruta relativa (ej: 'images/profiles/')
  * @return array ['success' => bool, 'path' => string, 'message' => string]
  */
-function handleProfilePictureUpload($file, $target_dir) {
+function handleImageUpload($file, $target_dir, $prefix = 'img_', $web_path_folder = 'images/') {
     
     // ============================================================================
     // PASO 1: VALIDACIONES INICIALES
@@ -45,9 +47,9 @@ function handleProfilePictureUpload($file, $target_dir) {
     $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     
     // Formatos permitidos
-    $allowed_formats = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    $allowed_formats = ['jpg', 'jpeg', 'png', 'webp'];
     if (!in_array($file_extension, $allowed_formats)) {
-        return ['success' => false, 'message' => 'Formato no permitido. Use: JPG, PNG, GIF o WEBP'];
+        return ['success' => false, 'message' => 'Formato no permitido. Use: JPG, PNG o WEBP'];
     }
 
     // Validar tamaño máximo (5MB)
@@ -70,7 +72,7 @@ function handleProfilePictureUpload($file, $target_dir) {
     
     /**
      * Estrategia de naming:
-     * - Prefijo: "user_" para identificación
+     * - Prefijo: Personalizable para identificación
      * - Timestamp: Evita colisiones por tiempo
      * - Random: 8 caracteres hex para unicidad adicional
      * - Sin extensión: Permite cambiar formato después
@@ -79,7 +81,7 @@ function handleProfilePictureUpload($file, $target_dir) {
      */
     $timestamp = time();
     $random = bin2hex(random_bytes(4));
-    $base_name = "user_{$timestamp}_{$random}";
+    $base_name = "{$prefix}{$timestamp}_{$random}";
 
     // ============================================================================
     // PASO 4: GUARDAR TEMPORALMENTE CON EXTENSIÓN ORIGINAL
@@ -134,7 +136,9 @@ function handleProfilePictureUpload($file, $target_dir) {
      * Ejemplo: images/profiles/user_1707331440_a1b2c3d4.webp
      * URL final: http://localhost:3000/vivaServer/images/profiles/user_1707331440_a1b2c3d4.webp
      */
-    $relative_path = 'images/profiles/' . $final_filename;
+    // Asegurar que termine en /
+    $web_path_folder = rtrim($web_path_folder, '/') . '/';
+    $relative_path = $web_path_folder . $final_filename;
     
     return [
         'success' => true,

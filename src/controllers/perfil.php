@@ -155,5 +155,5 @@ if ($fecha_registro) {
 $inicial_usuario = strtoupper(substr($nombre_usuario, 0, 1));
 
 // Usamos ROOT_PATH para que el include sea absoluto desde el disco
-require_once ROOT_PATH . "src/views/dashboard.view.php";
+require_once ROOT_PATH . "src/views/perfil.view.php";
 ?>

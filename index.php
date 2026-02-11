@@ -28,8 +28,11 @@ if ($relative_uri === '/' || $relative_uri === '/index.php'){
     require_once ROOT_PATH . "src/controllers/index.php";
 }else if($relative_uri === '/login'){
     require_once ROOT_PATH . "src/controllers/login.php";
-}else if($relative_uri === '/dashboard' || $relative_uri === '/perfil'){
-    require_once ROOT_PATH . "src/controllers/dashboard.php";
+}else if($relative_uri === '/dashboard'){
+    header('Location: ' . BASE_URL . 'perfil');
+    exit;
+}else if($relative_uri === '/perfil'){
+    require_once ROOT_PATH . "src/controllers/perfil.php";
 }else if($relative_uri === '/vender'){
     require_once ROOT_PATH . "src/controllers/registro_vendedor.php";
 }else if($relative_uri === '/logout'){

@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Vendedor | VIVA - Artesanías Colombianas</title>
-    <script>const BASE_URL = '<?= BASE_URL ?>';</script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <?php require_once __DIR__ . '/partials/tailwind_head.php'; ?>
     <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/web.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/dash_productos.css">
 </head>
@@ -55,9 +52,9 @@
                     <i class="fas fa-cog w-5 text-center"></i>
                     <span class="font-semibold">Opciones</span>
                 </button>
-                <a href="<?= BASE_URL ?>dashboard" class="menu-item w-full flex items-center space-x-4 px-6 py-3.5 text-left text-white/80 hover:text-white">
+                <a href="<?= BASE_URL ?>perfil" class="menu-item w-full flex items-center space-x-4 px-6 py-3.5 text-left text-white/80 hover:text-white">
                     <i class="fas fa-user-circle w-5 text-center"></i>
-                    <span class="font-semibold">Mi Perfil (Comprador)</span>
+                    <span class="font-semibold">Mi Perfil</span>
                 </a>
             </nav>
 
@@ -108,7 +105,7 @@
             </header>
 
             <!-- Main Scrollable Content -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent),url('<?= BASE_URL ?>images/background_registro_vender.webp')] bg-cover bg-center">
                 
                 <!-- Section: Mis Productos -->
                 <section id="productos" class="content-section active">
@@ -204,31 +201,35 @@
                 <section id="subir" class="content-section">
                     <div class="max-w-4xl mx-auto">
                         <div class="mb-6">
-                             <a href="#" onclick="showSection('productos')" class="text-gray-500 hover:text-naranja-artesanal text-sm mb-2 inline-block"><i class="fas fa-arrow-left mr-1"></i> Volver a productos</a>
-                             <h2 class="text-2xl font-bold text-tierra-oscuro">Subir Nuevo Producto</h2>
+                             <h2 class="text-2xl font-bold text-white">Subir Nuevo Producto</h2>
                         </div>
                    
                         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                            <form class="space-y-8">
+                            <form id="product-upload-form" class="space-y-8">
                                 <!-- Image Upload Area -->
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-3">Imágenes del Producto</label>
                                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <div class="border-2 border-dashed border-naranja-artesanal/30 rounded-lg aspect-square flex flex-col items-center justify-center text-center hover:bg-orange-50 transition-colors cursor-pointer bg-orange-50/30">
-                                            <i class="fas fa-plus text-2xl text-naranja-artesanal mb-2"></i>
+                                        <!-- Main Image Upload -->
+                                        <div onclick="document.getElementById('product-image-input').click()" class="border-2 border-dashed border-naranja-artesanal/30 rounded-lg aspect-square flex flex-col items-center justify-center text-center hover:bg-orange-50 transition-colors cursor-pointer bg-orange-50/30 relative overflow-hidden group">
+                                            <i class="fas fa-plus text-2xl text-naranja-artesanal mb-2 group-hover:scale-110 transition-transform"></i>
                                             <span class="text-xs text-naranja-artesanal font-medium">Principal</span>
+                                            <input type="file" id="product-image-input" name="imagen_producto" accept="image/*" class="hidden">
+                                            <!-- Preview Container -->
+                                            <img id="product-image-preview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
                                         </div>
-                                         <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer">
+                                        
+                                         <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer opacity-50">
                                             <i class="fas fa-image text-gray-300"></i>
                                         </div>
-                                        <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer">
+                                        <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer opacity-50">
                                             <i class="fas fa-image text-gray-300"></i>
                                         </div>
-                                        <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer">
+                                        <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer opacity-50">
                                             <i class="fas fa-image text-gray-300"></i>
                                         </div>
                                     </div>
-                                    <p class="text-xs text-gray-400 mt-2">Formatos permitidos: JPG, PNG. Máx 5MB.</p>
+                                    <p class="text-xs text-gray-400 mt-2">Formatos permitidos: JPG, PNG, WEBP. Máx 5MB.</p>
                                 </div>
 
                                 <div class="grid md:grid-cols-2 gap-6">
@@ -358,7 +359,7 @@
 
                 <!-- Section: Estadísticas -->
                 <section id="estadisticas" class="content-section">
-                    <h2 class="text-2xl font-bold text-tierra-oscuro mb-6">Resumen de Estadísticas</h2>
+                    <h2 class="text-2xl font-bold text-white mb-6">Resumen de Estadísticas</h2>
                     
                     <!-- KPI Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -460,7 +461,7 @@
                 <!-- Section: Configuración (Opciones) -->
                 <section id="configuracion" class="content-section">
                     <div class="max-w-2xl mx-auto">
-                        <h2 class="text-2xl font-bold text-tierra-oscuro mb-6">Opciones de Vendedor</h2>
+                        <h2 class="text-2xl font-bold text-white mb-6">Opciones de Vendedor</h2>
                         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 space-y-8">
                             
                             <div>
@@ -517,6 +518,8 @@
         </div>
     </div>
 
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
+    <script src="<?= BASE_URL ?>src/scripts/toast.js"></script>
     <script src="<?= BASE_URL ?>src/scripts/dash_productos.js"></script>
 </body>
 </html>

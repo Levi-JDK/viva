@@ -74,25 +74,25 @@
                                     </div>
                                     <ul class="py-2">
                                         <li>
-                                            <a href="<?= BASE_URL ?>dashboard#profile" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
+                                            <a href="<?= BASE_URL ?>perfil#profile" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
                                                 <i class="fas fa-user w-5"></i>
                                                 <span class="ml-3">Mi Perfil</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="<?= BASE_URL ?>dashboard#orders" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
+                                            <a href="<?= BASE_URL ?>perfil#orders" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
                                                 <i class="fas fa-shopping-bag w-5"></i>
                                                 <span class="ml-3">Mis Pedidos</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="<?= BASE_URL ?>dashboard#favorites" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
+                                            <a href="<?= BASE_URL ?>perfil#favorites" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
                                                 <i class="fas fa-heart w-5"></i>
                                                 <span class="ml-3">Favoritos</span>
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="<?= BASE_URL ?>dashboard#settings" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
+                                            <a href="<?= BASE_URL ?>perfil#settings" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-beige-suave transition-colors">
                                                 <i class="fas fa-cog w-5"></i>
                                                 <span class="ml-3">Configuración</span>
                                             </a>

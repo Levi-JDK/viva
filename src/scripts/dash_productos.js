@@ -108,3 +108,74 @@ function toggleSidebar() {
 // Make functions globally available
 window.showSection = showSection;
 window.toggleSidebar = toggleSidebar;
+
+// ==========================================
+// Product Image Upload Logic
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const productInput = document.getElementById('product-image-input');
+    const productPreview = document.getElementById('product-image-preview');
+    const uploadForm = document.getElementById('product-upload-form'); // Just in case we need it
+
+    if (productInput) {
+        productInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                // 1. Client-side Validation
+                if (!allowedExtensions.includes(fileExtension)) {
+                    showToast('Formato no permitido. Usa JPG, PNG o WEBP.', 'error');
+                    this.value = ''; // Clear input
+                    productPreview.classList.add('hidden');
+                    return;
+                }
+
+                if (file.size > 5 * 1024 * 1024) { // 5MB
+                    showToast('La imagen es demasiado pesada (Máx 5MB).', 'error');
+                    this.value = '';
+                    return;
+                }
+
+                // 2. Auto-Upload via AJAX
+                const formData = new FormData();
+                formData.append('imagen_producto', file);
+
+                // Show loading state (optional)
+                showToast('Subiendo imagen...', 'info');
+
+                fetch('src/functions/upload_product.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Imagen cargada correctamente.', 'success');
+
+                            // Show Preview
+                            const reader = new FileReader();
+                            reader.onload = function (e) {
+                                productPreview.src = e.target.result;
+                                productPreview.classList.remove('hidden');
+                            }
+                            reader.readAsDataURL(file);
+
+                            // Here you would typically store data.path in a hidden input
+                            // const hiddenInput = document.getElementById('product-image-path');
+                            // if(hiddenInput) hiddenInput.value = data.path;
+
+                        } else {
+                            showToast(data.message || 'Error al subir la imagen.', 'error');
+                            this.value = ''; // Clear input on error
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        showToast('Error de conexión con el servidor.', 'error');
+                    });
+            }
+        });
+    }
+});

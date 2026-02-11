@@ -15,7 +15,7 @@ if (!defined('BASE_URL')) {
 }
 
 // Incluir archivos necesarios (estamos en el mismo directorio)
-require_once 'profile_upload.php';
+require_once 'image_uploader.php';
 
 // Cargar variables de entorno desde .env usando Composer autoload
 require_once __DIR__ . '/../../vendor/autoload.php';
@@ -31,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {
      */
     $target_directory = __DIR__ . '/../../images/profiles/'; // Dos niveles arriba desde src/functions/
     
-    // Llamar a la función de upload pasando el directorio correcto
-    $result = handleProfilePictureUpload($_FILES['imagen_perfil'], $target_directory);
+    // Llamar a la función de upload pasando el directorio correcto y prefijo 'user_'
+    $result = handleImageUpload($_FILES['imagen_perfil'], $target_directory, 'user_', 'images/profiles/');
     
     if ($result['success']) {
         // VARIABLE: $ruta_imagen_final
@@ -87,15 +87,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {
             }
         }
 
-        // Redirigir con éxito al dashboard, agregando un parámetro en la URL para mostrar mensajes
-        header("Location: " . BASE_URL . "dashboard#profile?success=photo_updated");
+        // Redirigir con éxito al perfil
+        header("Location: " . BASE_URL . "perfil?success=photo_updated#profile");
         exit;
     } else {
-        // Manejar error (podrías pasarlo por URL también)
-        die("Error: " . $result['message']);
+        // Manejar error redirigiendo con mensaje
+        $errorMsg = urlencode($result['message']);
+        header("Location: " . BASE_URL . "perfil?error=" . $errorMsg . "#profile");
+        exit;
     }
 } else {
-    header("Location: " . BASE_URL . "dashboard");
+    header("Location: " . BASE_URL . "perfil");
     exit;
 }
 ?>
