@@ -1,4 +1,5 @@
 -- DROPS
+
 DROP VIEW IF EXISTS bancos_view;
 DROP VIEW IF EXISTS grupos_view;
 DROP VIEW IF EXISTS departamentos_col_view;
@@ -8,6 +9,7 @@ DROP TABLE IF EXISTS tab_envios;
 DROP TABLE IF EXISTS tab_det_fact;
 DROP TABLE IF EXISTS tab_enc_fact;
 DROP TABLE IF EXISTS tab_transito;
+DROP TABLE IF EXISTS tab_clientes;
 DROP TABLE IF EXISTS tab_formas_pago;
 DROP TABLE IF EXISTS tab_transportadoras;
 DROP TABLE IF EXISTS tab_producto_productor;
@@ -15,9 +17,9 @@ DROP TABLE IF EXISTS tab_productos;
 DROP TABLE IF EXISTS tab_categorias;
 DROP TABLE IF EXISTS tab_materia_prima;
 DROP TABLE IF EXISTS tab_oficios;
-DROP TABLE IF EXISTS tab_clientes;
 DROP TABLE IF EXISTS tab_monedas;
 DROP TABLE IF EXISTS tab_idiomas;
+DROP TABLE IF EXISTS tab_imagenes;
 DROP TABLE IF EXISTS tab_productores;
 DROP TABLE IF EXISTS tab_pais_tipos_doc;
 DROP TABLE IF EXISTS tab_grupos;
@@ -212,27 +214,25 @@ CREATE TABLE IF NOT EXISTS tab_grupos
     is_deleted              BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_grupo)
 );
-
-
 -- Tabla de productores
 CREATE TABLE IF NOT EXISTS tab_productores
 (
-    id_tipo_doc		   DECIMAL(1,0)  NOT NULL,                           -- Tipo de documento del productor
-    id_productor       DECIMAL(10,0) NOT NULL CHECK (id_productor BETWEEN 1 AND 9999999999), -- Número de documento
-    id_user            INTEGER       NOT NULL,                            -- Usuario asociado en la plataforma
-    dir_prod           VARCHAR       NOT NULL,                            -- Dirección del productor
-    id_pais            DECIMAL(3,0)  NOT NULL DEFAULT 1,                 -- País del productor
-    id_ciudad          DECIMAL(5,0)  NOT NULL,                            -- Ciudad del productor
-    id_departamento    DECIMAL(2,0)  NOT NULL,                            -- Departamento del país
-    id_grupo           DECIMAL(12,0) NOT NULL,                            -- Grupo poblacional
-    id_banco           DECIMAL(2,0)       NOT NULL,                            -- Banco del productor
-    id_cuenta_prod     DECIMAL(20,0) NOT NULL,                            -- Número de cuenta bancaria
-    tipo_cuenta        DECIMAL(1,0)  NOT NULL,                            -- 1. Ahorros 2. Corriente
-    created_by         VARCHAR       NOT NULL DEFAULT current_user,       -- Usuario que creó
+    id_tipo_doc		   DECIMAL(1,0)         NOT NULL,                           -- Tipo de documento del productor
+    id_productor       DECIMAL(10,0)        NOT NULL CHECK (id_productor BETWEEN 1 AND 9999999999), -- Número de documento
+    id_user            INTEGER              NOT NULL,                            -- Usuario asociado en la plataforma
+    dir_prod           VARCHAR              NOT NULL,                            -- Dirección del productor
+    id_pais            DECIMAL(3,0)         NOT NULL DEFAULT 1,                 -- País del productor
+    id_ciudad          DECIMAL(5,0)         NOT NULL,                            -- Ciudad del productor
+    id_departamento    DECIMAL(2,0)         NOT NULL,                            -- Departamento del país
+    id_grupo           DECIMAL(12,0)        NOT NULL,                            -- Grupo poblacional
+    id_banco           DECIMAL(2,0)         NOT NULL,                            -- Banco del productor
+    id_cuenta_prod     DECIMAL(20,0)        NOT NULL,                            -- Número de cuenta bancaria
+    tipo_cuenta        DECIMAL(1,0)         NOT NULL,                            -- 1. Ahorros 2. Corriente
+    created_by         VARCHAR              NOT NULL DEFAULT current_user,       -- Usuario que creó
     created_at         TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
     updated_by         VARCHAR,                                          -- Usuario que modificó
     updated_at         TIMESTAMP WITHOUT TIME ZONE,                      -- Fecha de modificación
-    is_deleted         BOOLEAN       NOT NULL DEFAULT FALSE,              -- Borrado lógico
+    is_deleted         BOOLEAN               NOT NULL DEFAULT FALSE,              -- Borrado lógico
     PRIMARY KEY(id_productor),
     FOREIGN KEY(id_tipo_doc) 						REFERENCES tab_tipos_doc(id_tipo_doc),
     FOREIGN KEY(id_pais)    						REFERENCES tab_paises(id_pais),
@@ -241,6 +241,24 @@ CREATE TABLE IF NOT EXISTS tab_productores
     FOREIGN KEY(id_pais,id_departamento,id_ciudad)  REFERENCES tab_ciudades(id_pais,id_departamento,id_ciudad),
     FOREIGN KEY(id_grupo)          					REFERENCES tab_grupos(id_grupo),
     FOREIGN KEY(id_banco)          					REFERENCES tab_bancos(id_banco)
+);
+
+CREATE TABLE IF NOT EXISTS tab_stand
+(
+    id_productor            DECIMAL(10,0)                   NOT NULL,
+    id_stand                DECIMAL(10,0)                   NOT NULL,
+    nom_stand               VARCHAR                         NOT NULL,
+    slogan_stand            VARCHAR                         NOT NULL,
+    descripcion_stand       VARCHAR                         NOT NULL,
+    img_stand               VARCHAR                         NOT NULL,
+    portada_stand           VARCHAR                         NOT NULL,
+    created_by              VARCHAR                         NOT NULL DEFAULT current_user,
+    created_at              TIMESTAMP WITHOUT TIME ZONE     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by              VARCHAR,
+    updated_at              TIMESTAMP WITHOUT TIME ZONE,
+    is_deleted              BOOLEAN                         NOT NULL DEFAULT FALSE,
+    PRIMARY KEY(id_productor,id_stand),
+    FOREIGN KEY(id_productor) REFERENCES tab_productores(id_productor)   
 );
 
 -- Tabla de idiomas
@@ -268,30 +286,6 @@ CREATE TABLE IF NOT EXISTS tab_monedas
     updated_at TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,                           -- Borrado lógico
     PRIMARY KEY(id_moneda)
-);
-
--- Tabla de clientes
-CREATE TABLE IF NOT EXISTS tab_clientes
-(
-    id_user          INTEGER       NOT NULL,                             -- Usuario dueño de la cuenta
-    tipo_doc_client  DECIMAL(1,0)  NOT NULL,                             -- Tipo de documento del cliente
-    id_client        VARCHAR       NOT NULL,                             -- Identificador del cliente (número/documento)
-    id_pais          DECIMAL(3,0)  NOT NULL,                             -- País del cliente
-    id_departamento  DECIMAL(2,0)  NOT NULL,                             -- Departamento del cliente
-    id_ciudad        DECIMAL(5,0)  NOT NULL,                             -- Ciudad del cliente
-    id_idioma        VARCHAR       NOT NULL,                             -- Idioma preferido
-    id_moneda        VARCHAR       NOT NULL,                             -- Moneda preferida
-    created_by       VARCHAR       NOT NULL DEFAULT current_user,        -- Usuario que creó
-    created_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by       VARCHAR,                                            -- Usuario que modificó
-    updated_at       TIMESTAMP WITHOUT TIME ZONE,                        -- Fecha de modificación
-    is_deleted       BOOLEAN       NOT NULL DEFAULT FALSE,               -- Borrado lógico
-    PRIMARY KEY(id_client),
-    FOREIGN KEY(tipo_doc_client)   REFERENCES tab_tipos_doc(id_tipo_doc),
-    FOREIGN KEY(id_user)           REFERENCES tab_users(id_user),
-    FOREIGN KEY(id_pais,id_departamento,id_ciudad) REFERENCES tab_ciudades(id_pais,id_departamento,id_ciudad),
-    FOREIGN KEY(id_idioma)         REFERENCES tab_idiomas(id_idioma),
-    FOREIGN KEY(id_moneda)         REFERENCES tab_monedas(id_moneda)
 );
 
 -- Tabla de oficios
@@ -336,25 +330,40 @@ CREATE TABLE IF NOT EXISTS tab_categorias
 -- Tabla de productos
 CREATE TABLE IF NOT EXISTS tab_productos
 (
-    id_producto  DECIMAL(12,0) NOT NULL,                                  -- Identificador del producto
-    nom_producto VARCHAR       NOT NULL,                                   -- Nombre del producto
-    stock        DECIMAL(12,0) NOT NULL,                                   -- Stock disponible
-    id_categoria DECIMAL(12,0) NOT NULL,                                   -- Categoría del producto
-    id_color     VARCHAR       NOT NULL,                                   -- Color principal
-    id_oficio    DECIMAL(12,0) NOT NULL,                                   -- Oficio asociado
-    id_materia   DECIMAL(12,0) NOT NULL,                                   -- Materia prima principal
-    created_by   VARCHAR       NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by   VARCHAR,                                                  -- Usuario que modificó
-    updated_at   TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
-    is_deleted   BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_productor            DECIMAL(10,0)                       NOT NULL,                                  -- Identificador del productor
+    id_producto             DECIMAL(12,0)                       NOT NULL,                                  -- Identificador del producto
+    nom_producto            VARCHAR                             NOT NULL,                                   -- Nombre del producto
+    stock_productor         DECIMAL(12,0)                       NOT NULL,                                   -- Stock disponible
+    id_categoria            DECIMAL(12,0)                       NOT NULL,                                   -- Categoría del producto
+    id_color                VARCHAR                             NOT NULL,                                   -- Color principal
+    id_oficio               DECIMAL(12,0)                       NOT NULL,                                   -- Oficio asociado
+    id_materia              DECIMAL(12,0)                       NOT NULL,
+    desc_materia            VARCHAR                             NOT NULL,                                   -- Materia prima principal
+    created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR,                                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
+    is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_producto),
     FOREIGN KEY(id_categoria) REFERENCES tab_categorias(id_categoria),
     FOREIGN KEY(id_color)     REFERENCES tab_color(id_color),
     FOREIGN KEY(id_oficio)    REFERENCES tab_oficios(id_oficio),
-    FOREIGN KEY(id_materia)   REFERENCES tab_materia_prima(id_materia)
+    FOREIGN KEY(id_materia)   REFERENCES tab_materia_prima(id_materia),
+	FOREIGN KEY(id_productor) REFERENCES tab_productores(id_productor)
 );
-
+-- Tabla de imágenes para productos
+CREATE TABLE IF NOT EXISTS tab_imagenes
+(
+        id_producto             DECIMAL(12,0)                       NOT NULL,                                  -- Identificador del producto
+        id_imagen               DECIMAL(12,0)                       NOT NULL,
+        created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
+        created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+        updated_by              VARCHAR,                                                  -- Usuario que modificó
+        updated_at              TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
+        is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+        PRIMARY KEY(id_producto, id_imagen),
+        FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)        
+);
 -- Tabla de producto por productor
 CREATE TABLE IF NOT EXISTS tab_producto_productor
 (
@@ -447,7 +456,7 @@ CREATE TABLE IF NOT EXISTS tab_enc_fact
     is_deleted    BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_factura),
     FOREIGN KEY(id_pago)              REFERENCES tab_formas_pago(id_pago),
-    FOREIGN KEY(id_client)            REFERENCES tab_clientes(id_client),
+
     FOREIGN KEY(id_pais)              REFERENCES tab_paises(id_pais),
     FOREIGN KEY(id_pais,id_departamento,id_ciudad) REFERENCES tab_ciudades(id_pais,id_departamento,id_ciudad)
 );
@@ -529,8 +538,7 @@ CREATE INDEX idx_kardex_producto ON tab_kardex(id_producto);
 CREATE INDEX idx_kardex_productor ON tab_kardex(id_productor);
 CREATE INDEX idx_kardex_fecha ON tab_kardex(fecha_movim);
 
-CREATE INDEX idx_cliente_user ON tab_clientes(id_user);
-CREATE INDEX idx_cliente_ciudad ON tab_clientes(id_ciudad, id_pais);
+
 
 CREATE INDEX idx_productor_user ON tab_productores(id_user);
 
