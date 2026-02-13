@@ -64,6 +64,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        // Validar caracteres en nombre (# * - ' ")
+        if (preg_match('/[#*\-\'"]/', $nombre)) {
+            echo json_encode([
+                "mensaje" => "El nombre no puede contener los caracteres: # * - ' \"",
+                "clase" => "mensaje-error"
+            ]);
+            exit;
+        }
+
+        // Validar caracteres en apellido (' ")
+        if (preg_match('/[\'"]/', $apellido)) {
+            echo json_encode([
+                "mensaje" => "El apellido no puede contener comillas (' \")",
+                "clase" => "mensaje-error"
+            ]);
+            exit;
+        }
+
         // Validar formato de email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             echo json_encode([

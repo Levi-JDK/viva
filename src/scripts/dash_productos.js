@@ -110,72 +110,159 @@ window.showSection = showSection;
 window.toggleSidebar = toggleSidebar;
 
 // ==========================================
-// Product Image Upload Logic
+// Product Image Upload Logic (Multiple)
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
-    const productInput = document.getElementById('product-image-input');
-    const productPreview = document.getElementById('product-image-preview');
-    const uploadForm = document.getElementById('product-upload-form'); // Just in case we need it
+    const productInput = document.getElementById('product-images-input');
+    const uploadForm = document.getElementById('product-upload-form');
+    const gridContainer = document.getElementById('image-preview-grid');
 
-    if (productInput) {
-        productInput.addEventListener('change', function () {
-            if (this.files && this.files[0]) {
-                const file = this.files[0];
+    // Almacenar archivos seleccionados (Array de File objects)
+    let selectedImages = [];
+    const MAX_IMAGES = 4;
+
+    if (productInput && uploadForm && gridContainer) {
+
+        // 1. Manejar selección de archivos
+        productInput.addEventListener('change', function (e) {
+            const files = Array.from(this.files);
+
+            // Validar cantidad
+            if (selectedImages.length + files.length > MAX_IMAGES) {
+                showToast(`Máximo ${MAX_IMAGES} imágenes permitidas.`, 'error');
+                this.value = ''; // Reset input
+                return;
+            }
+
+            // Procesar cada archivo
+            files.forEach(file => {
+                // Validar tipo
                 const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
 
-                // 1. Client-side Validation
                 if (!allowedExtensions.includes(fileExtension)) {
-                    showToast('Formato no permitido. Usa JPG, PNG o WEBP.', 'error');
-                    this.value = ''; // Clear input
-                    productPreview.classList.add('hidden');
+                    showToast(`Formato no permitido: ${file.name}`, 'error');
                     return;
                 }
 
-                if (file.size > 5 * 1024 * 1024) { // 5MB
-                    showToast('La imagen es demasiado pesada (Máx 5MB).', 'error');
-                    this.value = '';
+                // Validar tamaño (5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast(`Archivo muy pesado: ${file.name}`, 'error');
                     return;
                 }
 
-                // 2. Auto-Upload via AJAX
-                const formData = new FormData();
-                formData.append('imagen_producto', file);
+                // Agregar a la lista
+                selectedImages.push(file);
+            });
 
-                // Show loading state (optional)
-                showToast('Subiendo imagen...', 'info');
+            // Limpiar input para permitir seleccionar los mismos archivos de nuevo si se borran
+            this.value = '';
 
-                fetch('src/functions/upload_product.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            showToast('Imagen cargada correctamente.', 'success');
+            renderPreviews();
+        });
 
-                            // Show Preview
-                            const reader = new FileReader();
-                            reader.onload = function (e) {
-                                productPreview.src = e.target.result;
-                                productPreview.classList.remove('hidden');
-                            }
-                            reader.readAsDataURL(file);
+        // 2. Renderizar previsualizaciones
+        function renderPreviews() {
+            gridContainer.innerHTML = ''; // Limpiar todo el grid
 
-                            // Here you would typically store data.path in a hidden input
-                            // const hiddenInput = document.getElementById('product-image-path');
-                            // if(hiddenInput) hiddenInput.value = data.path;
+            // Renderizar Imágenes Seleccionadas
+            selectedImages.forEach((file, index) => {
+                const reader = new FileReader();
 
-                        } else {
-                            showToast(data.message || 'Error al subir la imagen.', 'error');
-                            this.value = ''; // Clear input on error
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        showToast('Error de conexión con el servidor.', 'error');
-                    });
+                // Crear contenedor temporal
+                const slot = document.createElement('div');
+                slot.className = 'bg-gray-100 rounded-lg aspect-square flex items-center justify-center relative overflow-hidden group border border-gray-200';
+
+                // Placeholder de carga
+                slot.innerHTML = '<i class="fas fa-spinner fa-spin text-gray-400"></i>';
+                gridContainer.appendChild(slot);
+
+                reader.onload = function (e) {
+                    slot.innerHTML = `
+                        <img src="${e.target.result}" class="w-full h-full object-cover">
+                        <button type="button" class="absolute top-1 right-1 bg-white text-red-500 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-10" onclick="removeImage(${index})">
+                            <i class="fas fa-times text-xs w-4 h-4 flex items-center justify-center"></i>
+                        </button>
+                        ${index === 0 ? '<span class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] text-center py-1">Principal</span>' : ''}
+                    `;
+                }
+                reader.readAsDataURL(file);
+            });
+
+            // Renderizar Botón de Agregar (si no se ha llegado al límite)
+            if (selectedImages.length < MAX_IMAGES) {
+                const addBtn = document.createElement('div');
+                addBtn.onclick = () => document.getElementById('product-images-input').click();
+                addBtn.className = 'border-2 border-dashed border-naranja-artesanal/30 rounded-lg aspect-square flex flex-col items-center justify-center text-center hover:bg-orange-50 transition-colors cursor-pointer bg-orange-50/30 relative overflow-hidden group';
+                addBtn.innerHTML = `
+                    <i class="fas fa-plus text-2xl text-naranja-artesanal mb-2 group-hover:scale-110 transition-transform"></i>
+                    <span class="text-xs text-naranja-artesanal font-medium">Agregar</span>
+                `;
+                gridContainer.appendChild(addBtn);
             }
+
+            // Rellenar con placeholders vacíos si faltan para completar la grilla
+            // Si queremos mantener siempre 4 espacios visibles en la grilla final
+            // El botón de agregar cuenta como 1 espacio si está visible
+            const itemsVisibles = selectedImages.length + (selectedImages.length < MAX_IMAGES ? 1 : 0);
+            const slotsRestantes = MAX_IMAGES - itemsVisibles;
+
+            for (let i = 0; i < slotsRestantes; i++) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center bg-gray-50 opacity-50';
+                placeholder.innerHTML = '<i class="fas fa-image text-gray-300"></i>';
+                gridContainer.appendChild(placeholder);
+            }
+        }
+
+        // 3. Función global para remover imagen
+        window.removeImage = function (index) {
+            selectedImages.splice(index, 1);
+            renderPreviews();
+        };
+
+        // 4. Manejar envío del formulario
+        uploadForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (selectedImages.length === 0) {
+                showToast('Debes agregar al menos una imagen principal.', 'error');
+                return;
+            }
+
+            const formData = new FormData(this);
+
+            // Reemplazar los archivos del input original con nuestro array gestionado
+            // Nota: formData.delete('imagen_producto[]') no es necesario porque el input se limpió
+            // Pero nos aseguramos de agregar nuestros archivos
+
+            selectedImages.forEach((file, index) => {
+                formData.append('imagen_producto[]', file);
+            });
+
+            showToast('Publicando producto...', 'info');
+
+            fetch('src/functions/upload_product.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Producto publicado exitosamente.', 'success');
+                        // Resetear todo
+                        selectedImages = [];
+                        renderPreviews();
+                        this.reset();
+                        // Opcional: Redirigir o actualizar lista
+                    } else {
+                        showToast(data.message || 'Error al publicar producto.', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error de conexión.', 'error');
+                });
         });
     }
 });

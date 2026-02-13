@@ -1,5 +1,3 @@
--- DROPS
-
 DROP VIEW IF EXISTS bancos_view;
 DROP VIEW IF EXISTS grupos_view;
 DROP VIEW IF EXISTS departamentos_col_view;
@@ -9,9 +7,9 @@ DROP TABLE IF EXISTS tab_envios;
 DROP TABLE IF EXISTS tab_det_fact;
 DROP TABLE IF EXISTS tab_enc_fact;
 DROP TABLE IF EXISTS tab_transito;
-DROP TABLE IF EXISTS tab_clientes;
 DROP TABLE IF EXISTS tab_formas_pago;
 DROP TABLE IF EXISTS tab_transportadoras;
+DROP TABLE IF EXISTS tab_imagenes;
 DROP TABLE IF EXISTS tab_producto_productor;
 DROP TABLE IF EXISTS tab_productos;
 DROP TABLE IF EXISTS tab_categorias;
@@ -19,9 +17,8 @@ DROP TABLE IF EXISTS tab_materia_prima;
 DROP TABLE IF EXISTS tab_oficios;
 DROP TABLE IF EXISTS tab_monedas;
 DROP TABLE IF EXISTS tab_idiomas;
-DROP TABLE IF EXISTS tab_imagenes;
+DROP TABLE IF EXISTS tab_stand;
 DROP TABLE IF EXISTS tab_productores;
-DROP TABLE IF EXISTS tab_pais_tipos_doc;
 DROP TABLE IF EXISTS tab_grupos;
 DROP TABLE IF EXISTS tab_ciudades;
 DROP TABLE IF EXISTS tab_departamentos;

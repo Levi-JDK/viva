@@ -15,6 +15,7 @@
 </head>
 <body>
     <?php include_once ROOT_PATH . "src/views/partials/header.php"; ?>
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
     <!-- Contenedor Principal -->
     <div class="container mx-auto px-4 py-4">
         <!-- Título y Descripción -->
@@ -221,6 +222,9 @@
                                 Número de Cuenta <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="numero_cuenta" required
+                                   oninput="this.value = this.value.replace(/[^0-9]/g, '')"
+                                   pattern="\d+"
+                                   title="Solo se permiten números"
                                    class="w-full px-3 py-2 text-sm bg-fondo-oscuro border-none rounded-lg transition-all"
                                    placeholder="Ej: 1234567890">
                         </div>
@@ -228,14 +232,88 @@
                     </div>
 
                     <!-- Botones de Navegación -->
-                    <div class="flex justify-between mt-5">
+                    <div class="flex justify-end mt-5">
                         <button type="button" onclick="prevStep()" 
-                                class="text-gray-600 hover:text-oscuro px-6 py-2 rounded-full font-bold text-sm uppercase tracking-wide transition-all">
+                                class="text-gray-600 hover:text-oscuro px-6 py-2 rounded-full font-bold text-sm uppercase tracking-wide transition-all mr-auto">
                             <i class="fas fa-arrow-left mr-2"></i> Anterior
                         </button>
+                        <button type="button" onclick="nextStep()" 
+                                class="btn-gradient text-white px-10 py-3 rounded-full font-bold text-sm uppercase tracking-wider">
+                            Siguiente <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PASO 3: Confirmación -->
+                <div class="form-step" data-step="3">
+                    <h3 class="text-xl font-bold text-oscuro mb-2 -mt-6">Confirmar Datos</h3>
+                    <p class="text-gray-600 mb-4 text-sm">Por favor verifica que la información sea correcta antes de enviar.</p>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 space-y-4">
+                        <!-- Resumen Personal -->
+                        <div>
+                            <h4 class="text-xs font-bold text-principal uppercase tracking-wider mb-2 border-b border-gray-100 pb-1">
+                                <i class="fas fa-user mr-2"></i> Información Personal
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                <div>
+                                    <span class="block text-gray-500">Tipo de Documento</span>
+                                    <span id="summary-tipo-doc" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-500">Número de Documento</span>
+                                    <span id="summary-num-doc" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <span class="block text-gray-500">Dirección</span>
+                                    <span id="summary-direccion" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-500">Departamento</span>
+                                    <span id="summary-departamento" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-500">Ciudad</span>
+                                    <span id="summary-ciudad" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <span class="block text-gray-500">Grupo Artesanal</span>
+                                    <span id="summary-grupo" class="font-medium text-gray-800"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Resumen Bancario -->
+                        <div>
+                            <h4 class="text-xs font-bold text-principal uppercase tracking-wider mb-2 border-b border-gray-100 pb-1">
+                                <i class="fas fa-university mr-2"></i> Información Bancaria
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                <div class="md:col-span-2">
+                                    <span class="block text-gray-500">Banco</span>
+                                    <span id="summary-banco" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-500">Tipo de Cuenta</span>
+                                    <span id="summary-tipo-cuenta" class="font-medium text-gray-800"></span>
+                                </div>
+                                <div>
+                                    <span class="block text-gray-500">Número de Cuenta</span>
+                                    <span id="summary-num-cuenta" class="font-medium text-gray-800"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="flex justify-between mt-8">
+                        <button type="button" onclick="prevStep()" 
+                                class="text-gray-600 hover:text-oscuro px-6 py-2 rounded-full font-bold text-sm uppercase tracking-wide transition-all">
+                            <i class="fas fa-arrow-left mr-2"></i> Volver a editar
+                        </button>
                         <button type="submit" 
-                                class="btn-gradient text-white px-8 py-2 rounded-full font-bold text-sm uppercase tracking-wide">
-                            Finalizar <i class="fas fa-check ml-2"></i>
+                                class="btn-gradient text-white px-8 py-3 rounded-full font-bold text-sm uppercase tracking-wide shadow-lg transform hover:-translate-y-0.5 transition-all">
+                            Confirmar y Enviar <i class="fas fa-check-circle ml-2"></i>
                         </button>
                     </div>
                 </div>
@@ -252,6 +330,7 @@
     </div>
 
     
+    <script src="<?= BASE_URL ?>src/scripts/toast.js"></script>
     <script src="<?= BASE_URL ?>src/scripts/consultar_ciudades.js"></script>
     <script src="<?= BASE_URL ?>src/scripts/registro_vendedor.js"></script>
 </body>

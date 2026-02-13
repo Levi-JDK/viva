@@ -82,6 +82,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
+        // Validar caracteres en nombre (# * - ' ")
+        if (preg_match('/[#*\-\'"]/', $nombre)) {
+            echo json_encode(['clase' => 'mensaje-error', 'mensaje' => "El nombre no puede contener los caracteres: # * - ' \""]);
+            exit;
+        }
+
+        // Validar caracteres en apellido (' ")
+        if (preg_match('/[\'"]/', $apellido)) {
+            echo json_encode(['clase' => 'mensaje-error', 'mensaje' => "El apellido no puede contener comillas (' \")"]);
+            exit;
+        }
+
         try {
             // Actualizar perfil usando consulta preparada
             $stmt = $db->ejecutar('actualizarPerfil', [

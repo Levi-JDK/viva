@@ -4,7 +4,35 @@
  */
 
 let currentStep = 1;
-const totalSteps = 2;
+const totalSteps = 3;
+
+function showSummary() {
+    // Helper para obtener texto de select
+    const getText = (name) => {
+        const select = document.querySelector(`select[name="${name}"]`);
+        if (select && select.selectedIndex !== -1) {
+            return select.options[select.selectedIndex].text;
+        }
+        return '';
+    };
+
+    // Helper para obtener valor de input
+    const getValue = (name) => document.querySelector(`input[name="${name}"]`).value;
+
+    // Poblar datos personales
+    document.getElementById('summary-tipo-doc').textContent = getText('tipo_documento');
+    document.getElementById('summary-num-doc').textContent = getValue('numero_documento');
+    document.getElementById('summary-direccion').textContent = getValue('direccion');
+    document.getElementById('summary-departamento').textContent = getText('departamento');
+    const ciudadText = getText('ciudad');
+    document.getElementById('summary-ciudad').textContent = ciudadText === 'Seleccione un departamento...' ? '' : ciudadText;
+    document.getElementById('summary-grupo').textContent = getText('grupo_artesanal');
+
+    // Poblar datos bancarios
+    document.getElementById('summary-banco').textContent = getText('banco');
+    document.getElementById('summary-tipo-cuenta').textContent = getText('tipo_cuenta');
+    document.getElementById('summary-num-cuenta').textContent = getValue('numero_cuenta');
+}
 
 /**
  * Actualiza los indicadores visuales de progreso y pasos del formulario
@@ -56,8 +84,29 @@ function nextStep() {
         }
     });
 
+    // Validación específica para dirección en el paso 1
+    if (isValid && currentStep === 1) {
+        const addressInput = currentFormStep.querySelector('input[name="direccion"]');
+        if (addressInput) {
+            const forbiddenChars = /['"*=]/;
+            if (forbiddenChars.test(addressInput.value)) {
+                if (window.showToast) {
+                    showToast('La dirección no puede contener los caracteres: \' " * =', 'error');
+                } else {
+                    alert('La dirección no puede contener los caracteres: \' " * =');
+                }
+                addressInput.classList.add('border-red-500'); // Opcional: resaltar error
+                addressInput.focus();
+                isValid = false;
+            } else {
+                addressInput.classList.remove('border-red-500');
+            }
+        }
+    }
+
     if (isValid && currentStep < totalSteps) {
         currentStep++;
+        if (currentStep === 3) showSummary();
         updateStepIndicators();
     }
 }
@@ -99,12 +148,25 @@ async function handleFormSubmit(event) {
 
         if (data.success) {
             // Éxito: Mostrar mensaje y redirigir
-            alert(data.message + '\n\nDatos guardados: ' + JSON.stringify(data.debug_params, null, 2));
-            window.location.href = (typeof BASE_URL !== 'undefined' ? BASE_URL : '') + 'mis_productos';
+            // alert('Registro exitoso: ' + data.message); // Opcional, o usar toast
+            if (window.showToast) {
+                showToast(data.message, 'success');
+                setTimeout(() => {
+                    window.location.href = (typeof BASE_URL !== 'undefined' ? BASE_URL : '') + 'mis_productos';
+                }, 1500);
+            } else {
+                alert('Registro exitoso: ' + data.message);
+                window.location.href = (typeof BASE_URL !== 'undefined' ? BASE_URL : '') + 'mis_productos';
+            }
         } else {
             // Error: Mostrar mensaje y datos debug
             console.error('Debug Params:', data.debug_params);
-            alert('Error: ' + data.message + '\n\n[DEBUG] Datos enviados:\n' + JSON.stringify(data.debug_params, null, 2));
+
+            if (window.showToast) {
+                showToast('Error: ' + data.message, 'error');
+            } else {
+                alert('Error: ' + data.message);
+            }
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
             submitBtn.innerHTML = 'Finalizar <i class="fas fa-check ml-2"></i>';
@@ -113,7 +175,13 @@ async function handleFormSubmit(event) {
 
     } catch (error) {
         console.error('Error:', error);
-        alert('Ocurrió un error de conexión.');
+
+        if (window.showToast) {
+            showToast('Ocurrió un error de conexión.', 'error');
+        } else {
+            alert('Ocurrió un error de conexión.');
+        }
+
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     }

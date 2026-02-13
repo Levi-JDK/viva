@@ -194,21 +194,6 @@ BEGIN
   END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION fun_softdel_tab_clientes(
-  p_id tab_clientes.id_client%TYPE,
-  p_deleted tab_clientes.is_deleted%TYPE
-) RETURNS BOOLEAN AS $$
-DECLARE w_id tab_clientes.id_client%TYPE;
-BEGIN
-  SELECT id_client INTO w_id FROM tab_clientes WHERE id_client = p_id;
-  IF NOT FOUND THEN
-    RAISE NOTICE 'No existe cliente %', p_id;
-    RETURN FALSE;
-  ELSE
-    UPDATE tab_clientes SET is_deleted = p_deleted WHERE id_client = p_id;
-    RETURN TRUE;
-  END IF;
-END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION fun_softdel_tab_oficios(
   p_id tab_oficios.id_oficio%TYPE,
@@ -415,26 +400,6 @@ BEGIN
   END IF;
 END; $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION fun_softdel_tab_pais_tipos_doc(
-  p_id_pais     tab_pais_tipos_doc.id_pais%TYPE,
-  p_id_tipo_doc tab_pais_tipos_doc.id_tipo_doc%TYPE,
-  p_deleted     tab_pais_tipos_doc.is_deleted%TYPE
-) RETURNS BOOLEAN AS $$
-DECLARE w_p tab_pais_tipos_doc.id_pais%TYPE;
-BEGIN
-  SELECT id_pais INTO w_p
-    FROM tab_pais_tipos_doc
-   WHERE id_pais = p_id_pais AND id_tipo_doc = p_id_tipo_doc;
-  IF NOT FOUND THEN
-    RAISE NOTICE 'No existe pais_tipo_doc (pais %, tipo_doc %)', p_id_pais, p_id_tipo_doc;
-    RETURN FALSE;
-  ELSE
-    UPDATE tab_pais_tipos_doc
-       SET is_deleted = p_deleted
-     WHERE id_pais = p_id_pais AND id_tipo_doc = p_id_tipo_doc;
-    RETURN TRUE;
-  END IF;
-END; $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION fun_softdel_tab_producto_productor(
   p_id_producto  tab_producto_productor.id_producto%TYPE,

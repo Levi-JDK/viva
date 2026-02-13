@@ -207,29 +207,32 @@
                         <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
                             <form id="product-upload-form" class="space-y-8">
                                 <!-- Image Upload Area -->
+                                <!-- Image Upload Area -->
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Imágenes del Producto</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                        <!-- Main Image Upload -->
-                                        <div onclick="document.getElementById('product-image-input').click()" class="border-2 border-dashed border-naranja-artesanal/30 rounded-lg aspect-square flex flex-col items-center justify-center text-center hover:bg-orange-50 transition-colors cursor-pointer bg-orange-50/30 relative overflow-hidden group">
+                                    <label class="block text-sm font-semibold text-gray-700 mb-3">Imágenes del Producto (Máx 4)</label>
+                                    
+                                    <!-- Hidden Input for File Selection -->
+                                    <input type="file" id="product-images-input" name="imagen_producto[]" accept="image/*" multiple class="hidden">
+
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="image-preview-grid">
+                                        <!-- Content rendered via JS (dash_productos.js) -->
+                                        <!-- Initial State: Button + 3 Placeholders -->
+                                        <div id="add-image-btn-placeholder" onclick="document.getElementById('product-images-input').click()" class="border-2 border-dashed border-naranja-artesanal/30 rounded-lg aspect-square flex flex-col items-center justify-center text-center hover:bg-orange-50 transition-colors cursor-pointer bg-orange-50/30 relative overflow-hidden group">
                                             <i class="fas fa-plus text-2xl text-naranja-artesanal mb-2 group-hover:scale-110 transition-transform"></i>
-                                            <span class="text-xs text-naranja-artesanal font-medium">Principal</span>
-                                            <input type="file" id="product-image-input" name="imagen_producto" accept="image/*" class="hidden">
-                                            <!-- Preview Container -->
-                                            <img id="product-image-preview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
+                                            <span class="text-xs text-naranja-artesanal font-medium">Agregar</span>
                                         </div>
                                         
-                                         <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer opacity-50">
+                                        <div class="preview-slot border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center bg-gray-50 opacity-50">
                                             <i class="fas fa-image text-gray-300"></i>
                                         </div>
-                                        <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer opacity-50">
+                                        <div class="preview-slot border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center bg-gray-50 opacity-50">
                                             <i class="fas fa-image text-gray-300"></i>
                                         </div>
-                                        <div class="border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center hover:border-gray-300 transition-colors cursor-pointer opacity-50">
+                                        <div class="preview-slot border-2 border-dashed border-gray-200 rounded-lg aspect-square flex items-center justify-center bg-gray-50 opacity-50">
                                             <i class="fas fa-image text-gray-300"></i>
                                         </div>
                                     </div>
-                                    <p class="text-xs text-gray-400 mt-2">Formatos permitidos: JPG, PNG, WEBP. Máx 5MB.</p>
+                                    <p class="text-xs text-gray-400 mt-2">Formatos: JPG, PNG, WEBP. Máx 5MB por imagen.</p>
                                 </div>
 
                                 <div class="grid md:grid-cols-2 gap-6">

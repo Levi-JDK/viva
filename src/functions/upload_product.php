@@ -21,40 +21,82 @@ if (!defined('BASE_URL')) {
     define('BASE_URL', $protocolo . "://" . $host . $proyecto_folder . "/");
 }
 
-// Verificar si es una petición POST y hay archivo
+// Verificar si es una petición POST y hay archivos
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_producto'])) {
     
-    // Directorio para productos
     $target_directory = __DIR__ . '/../../images/products/';
     
-    // USAR LA FUNCIÓN GENÉRICA
-    // Prefijo 'prod_' para identificar imágenes de productos, y ruta relativa para BD 'images/products/'
-    $result = handleImageUpload($_FILES['imagen_producto'], $target_directory, 'prod_', 'images/products/');
+    $uploaded_paths = [];
+    $errors = [];
     
-    if ($result['success']) {
-        // Aquí iría la lógica para guardar en BD asociado a un producto
-        // Por ahora, devolvemos JSON para que pueda ser consumido por AJAX en el dashboard
-        header('Content-Type: application/json');
+    // Normalizar estructura de $_FILES (PHP lo entrega agrupado por propiedades)
+    $files = $_FILES['imagen_producto'];
+    $count = is_array($files['name']) ? count($files['name']) : 1;
+
+    // Si es un solo archivo (caso borde o legacy), lo tratamos como array de 1
+    if (!is_array($files['name'])) {
+        $files = [
+            'name' => [$files['name']],
+            'type' => [$files['type']],
+            'tmp_name' => [$files['tmp_name']],
+            'error' => [$files['error']],
+            'size' => [$files['size']]
+        ];
+    }
+
+    for ($i = 0; $i < $count; $i++) {
+        // Construir array de archivo individual para handleImageUpload
+        $current_file = [
+            'name' => $files['name'][$i],
+            'type' => $files['type'][$i],
+            'tmp_name' => $files['tmp_name'][$i],
+            'error' => $files['error'][$i],
+            'size' => $files['size'][$i]
+        ];
+
+        // Ignorar archivos vacíos o con error de subida inicial
+        if ($current_file['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = "Error al subir {$current_file['name']}";
+            continue;
+        }
+
+        // Procesar imagen
+        $result = handleImageUpload($current_file, $target_directory, 'prod_', 'images/products/');
+        
+        if ($result['success']) {
+            $uploaded_paths[] = [
+                'path' => $result['path'],
+                'filename' => $result['filename']
+            ];
+        } else {
+            $errors[] = "{$current_file['name']}: {$result['message']}";
+        }
+    }
+    
+    // Respuesta
+    header('Content-Type: application/json');
+    
+    if (!empty($uploaded_paths)) {
+        // Al menos una imagen se subió
         echo json_encode([
             'success' => true,
-            'message' => 'Imagen de producto subida correctamente',
-            'path' => $result['path'], // Ruta relativa para guardar en BD
-            'filename' => $result['filename']
+            'message' => 'Imágenes procesadas',
+            'uploaded' => $uploaded_paths,
+            'errors' => $errors
         ]);
-        exit;
     } else {
-        // Error
-        header('Content-Type: application/json');
-        http_response_code(400); // Bad Request
+        // Ninguna imagen se pudo subir
+        http_response_code(400);
         echo json_encode([
             'success' => false,
-            'message' => $result['message']
+            'message' => 'No se pudieron subir las imágenes',
+            'errors' => $errors
         ]);
-        exit;
     }
+    exit;
 } else {
     // Acceso directo no permitido
-    header('Location: ' . BASE_URL . 'micuenta'); // O donde corresponda
+    header('Location: ' . BASE_URL . 'micuenta');
     exit;
 }
 ?>

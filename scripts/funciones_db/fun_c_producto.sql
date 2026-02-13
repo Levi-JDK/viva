@@ -1,7 +1,7 @@
 CREATE OR REPLACE FUNCTION fun_c_producto(
   p_id_producto  tab_productos.id_producto%TYPE,
   p_nom_producto tab_productos.nom_producto%TYPE,
-  p_stock        tab_productos.stock%TYPE,
+  p_stock        tab_productos.stock_productor%TYPE,
   p_id_categoria tab_productos.id_categoria%TYPE,
   p_id_color     tab_productos.id_color%TYPE,
   p_id_oficio    tab_productos.id_oficio%TYPE,

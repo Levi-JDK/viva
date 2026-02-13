@@ -32,6 +32,21 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
+        const nombre = formRegistro.querySelector('input[name="nombre"]').value;
+        const apellido = formRegistro.querySelector('input[name="apellido"]').value;
+
+        // Validar nombre (# * - ' ")
+        if (/[#*\-'"]/.test(nombre)) {
+            if (window.showToast) window.showToast("El nombre no puede contener caracteres especiales (# * - ' \")", 'error');
+            return;
+        }
+
+        // Validar apellido (' ")
+        if (/['"]/.test(apellido)) {
+            if (window.showToast) window.showToast("El apellido no puede contener comillas (' \")", 'error');
+            return;
+        }
+
         const formData = new FormData(formRegistro);
         formData.append('accion', 'registro');
 

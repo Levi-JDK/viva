@@ -98,6 +98,18 @@ async function saveProfile() {
     const btnGuardar = document.querySelector('#save-cancel-buttons button:first-child');
     const originalText = btnGuardar.innerHTML;
 
+    // Validar nombre (# * - ' ")
+    if (/[#*\-'"]/.test(nombre)) {
+        showToast("El nombre no puede contener caracteres especiales (# * - ' \")", 'error');
+        return;
+    }
+
+    // Validar apellido (' ")
+    if (/['"]/.test(apellido)) {
+        showToast("El apellido no puede contener comillas (' \")", 'error');
+        return;
+    }
+
     // Mostrar estado de carga
     btnGuardar.disabled = true;
     btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
