@@ -56,6 +56,81 @@ class Database {
             )"
         );
         $this->statements['validarProductor'] = $this->connection->prepare("SELECT fun_val_productor(:id_user)");
+        
+        // Consultas para el formulario de productos
+        $this->statements['obtenerCategorias'] = $this->connection->prepare("SELECT * FROM categorias_view");
+        $this->statements['obtenerColores'] = $this->connection->prepare("SELECT * FROM colores_view");
+        $this->statements['obtenerOficios'] = $this->connection->prepare("SELECT * FROM oficios_view");
+        $this->statements['obtenerMaterias'] = $this->connection->prepare("SELECT * FROM materias_view");
+
+        // Consultas para registrar productos
+        $this->statements['obtenerIdProductor'] = $this->connection->prepare("SELECT id_productor FROM tab_productores WHERE id_user = :id_user");
+        $this->statements['registrarProducto'] = $this->connection->prepare("
+            INSERT INTO tab_productos (
+                id_productor, id_producto, nom_producto, stock_productor, 
+                id_categoria, id_color, id_oficio, id_materia, 
+                precio_producto, descripcion_producto
+            ) VALUES (
+                :id_productor, :id_producto, :nom_producto, :stock_productor, 
+                :id_categoria, :id_color, :id_oficio, :id_materia, 
+                :precio_producto, :descripcion_producto
+            )
+        ");
+        $this->statements['registrarProductoProductor'] = $this->connection->prepare("
+            INSERT INTO tab_producto_productor (
+                id_producto, id_productor, precio_prod, stock_prod, 
+                desc_prod_personal, img_personal, activo
+            ) VALUES (
+                :id_producto, :id_productor, :precio_prod, :stock_prod, 
+                :desc_prod_personal, :img_personal, :activo
+            )
+        ");
+        $this->statements['registrarImagen'] = $this->connection->prepare("
+            INSERT INTO tab_imagenes (id_producto, id_imagen, url_imagen) 
+            VALUES (:id_producto, :id_imagen, :url_imagen)
+        ");
+
+        // Consultas para el catálogo
+        $this->statements['buscarProductos'] = $this->connection->prepare("
+            SELECT 
+                p.id_producto, 
+                p.nom_producto, 
+                p.precio_producto, 
+                p.stock_productor,
+                c.nom_categoria,
+                COALESCE((SELECT img_personal FROM tab_producto_productor pp WHERE pp.id_producto = p.id_producto LIMIT 1), 'images/default_product.png') as imagen
+            FROM tab_productos p
+            JOIN tab_categorias c ON p.id_categoria = c.id_categoria
+            WHERE 
+                (p.nom_producto ILIKE '%' || :search || '%' OR :search IS NULL)
+                AND (p.id_categoria = :categoria OR :categoria IS NULL)
+                AND (p.precio_producto >= :min_precio OR :min_precio IS NULL)
+                AND (p.precio_producto <= :max_precio OR :max_precio IS NULL)
+            ORDER BY p.nom_producto ASC
+                AND (p.precio_producto <= :max_precio OR :max_precio IS NULL)
+            ORDER BY p.nom_producto ASC
+        ");
+
+        $this->statements['obtenerProductosPorProductor'] = $this->connection->prepare("
+            SELECT 
+                p.id_producto, p.nom_producto, p.precio_producto, p.stock_productor, 
+                c.nom_categoria,
+                pp.activo,
+                (SELECT url_imagen FROM tab_imagenes i WHERE i.id_producto = p.id_producto LIMIT 1) as imagen
+            FROM tab_productos p
+            JOIN tab_producto_productor pp ON p.id_producto = pp.id_producto
+            JOIN tab_categorias c ON p.id_categoria = c.id_categoria
+            WHERE pp.id_productor = :id_productor
+            ORDER BY p.created_at DESC
+        ");
+
+        $this->statements['obtenerConteoCategorias'] = $this->connection->prepare("
+            SELECT c.id_categoria, c.nom_categoria, COUNT(p.id_producto) as total
+            FROM tab_categorias c
+            LEFT JOIN tab_productos p ON c.id_categoria = p.id_categoria
+            GROUP BY c.id_categoria, c.nom_categoria
+            ORDER BY c.nom_categoria ASC
+        ");
     }
 
     public function ejecutar($nombre, $params = []) {

@@ -39,6 +39,8 @@ if ($relative_uri === '/' || $relative_uri === '/index.php'){
     require_once ROOT_PATH . "src/controllers/logout.php";
 }else if($relative_uri === '/mis_productos'){
     require_once ROOT_PATH . "src/controllers/mis_productos.php";
+}else if($relative_uri === '/catalogo'){
+    require_once ROOT_PATH . "src/controllers/catalogo.php";
 }else{
     require_once ROOT_PATH . "src/views/404.php";
 }

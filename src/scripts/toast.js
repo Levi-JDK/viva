@@ -21,6 +21,9 @@
         const toastContainer = getToastContainer();
         const toast = document.createElement('div');
 
+
+        
+
         // Colors and icons based on type
         let bgColor, icon;
         if (type === 'success') {
@@ -47,8 +50,6 @@
             toast.classList.remove('toast-enter');
             toast.classList.add('toast-exit');
 
-            // Force remove after animation duration (500ms) plus a small buffer
-            // This is a safety fallback in case animationend doesn't fire
             const removeTimeout = setTimeout(() => {
                 if (toast.parentElement) {
                     toast.remove();

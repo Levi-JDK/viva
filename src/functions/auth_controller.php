@@ -164,14 +164,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
                 if ($usuario) {
-                    $_SESSION['id_user'] = $usuario['id_user'];  // ✅ GUARDAR ID DEL USUARIO
+                    $_SESSION['id_user'] = $usuario['id_user'];  
                     $_SESSION['nombre'] = $usuario['nom_user'];
                 } else {
                     $_SESSION['nombre'] = $email;
                 }
 
                 echo json_encode([
-                    "mensaje" => "✅ Inicio de sesión exitoso",
+                    "mensaje" => "Inicio de sesión exitoso",
                     "clase" => "mensaje-exito"
                 ]);
             } else {

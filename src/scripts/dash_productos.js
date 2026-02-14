@@ -117,6 +117,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const uploadForm = document.getElementById('product-upload-form');
     const gridContainer = document.getElementById('image-preview-grid');
 
+    // 5. Validacion de inputs numericos (Sin negativos)
+    const numericInputs = document.querySelectorAll('input[type="number"]');
+    numericInputs.forEach(input => {
+        input.addEventListener('keydown', function (e) {
+            // Prevenir caracteres inválidos: -, +, e
+            if (['-', '+', 'e', 'E'].includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        input.addEventListener('input', function () {
+            // Asegurar que no sea menor a 1 si tiene valor
+            if (this.value !== '' && parseFloat(this.value) < 0) {
+                this.value = Math.abs(parseFloat(this.value));
+            }
+        });
+    });
+
     // Almacenar archivos seleccionados (Array de File objects)
     let selectedImages = [];
     const MAX_IMAGES = 4;
@@ -264,5 +282,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     showToast('Error de conexión.', 'error');
                 });
         });
+    }
+});
+
+
+const inputSencillo = document.getElementById('miInput');
+
+inputSencillo.addEventListener('keypress', function(e) {
+    // Bloquea el signo menos (código 45) y el punto/coma si solo quieres enteros
+    if (e.key === '-' || e.key === '.' || e.key === ',') {
+        e.preventDefault();
     }
 });

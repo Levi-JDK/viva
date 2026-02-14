@@ -25,30 +25,27 @@
                         <p class="text-xs text-tierra-medio">Artesanías Colombianas</p>
                     </div>
                 </div>
-
                 <!-- Search Bar - Hidden on mobile, shown on md+ -->
-                <div class="hidden md:flex flex-1 max-w-2xl mx-8">
+                <form action="<?= BASE_URL ?>catalogo" method="GET" class="hidden md:flex flex-1 max-w-2xl mx-8">
                     <div class="relative w-full">
                         <input 
                             type="text" 
+                            name="q"
                             placeholder="Buscar artesanías, comunidades, materiales..." 
                             class="w-full px-4 py-3 pl-12 pr-16 border border-gray-300 rounded-full focus:outline-none search-focus"
                         >
                         <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-naranja-artesanal to-tierra-medio text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300">
+                        <button type="submit" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gradient-to-r from-naranja-artesanal to-tierra-medio text-white px-4 py-2 rounded-full hover:shadow-lg transition-all duration-300">
                             <i class="fas fa-search"></i>
                         </button>
                     </div>
-                </div>
-
+                </form>
                 <!-- Navigation - Hidden on mobile -->
                 <nav class="hidden lg:flex items-center space-x-8 pr-10">
                     <a href="#inicio" class="nav-item text-gray-700 hover:text-naranja-artesanal font-medium">Inicio</a>
                     <a href="#categorias" class="nav-item text-gray-700 hover:text-naranja-artesanal font-medium">Categorías</a>
                     <a href="#ofertas" class="nav-item text-gray-700 hover:text-naranja-artesanal font-medium">Ofertas</a>
                 </nav>
-
-                <!-- Login Button -->
                 <!-- Login Button -->
                 <div class="flex items-center space-x-4 pr-10">
                     <div id="user-section">
@@ -65,7 +62,6 @@
         
                                     <i class="fas fa-chevron-down text-sm text-gray-600"></i>
                                 </button>
-                                
                                 <!-- Dropdown Menu -->
                                 <div id="userDropdown" class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 opacity-0 invisible transform scale-95 transition-all duration-200 z-50">
                                     <div class="px-4 py-3 border-b border-gray-100">
@@ -144,7 +140,6 @@
                     </button>
                 </div>
             </div>
-
             <!-- Mobile Search -->
             <div class="md:hidden mt-4">
                 <div class="relative">
@@ -156,7 +151,6 @@
                     <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
             </div>
-
             <!-- Mobile Navigation Menu -->
             <div id="mobileMenu" class="lg:hidden hidden mt-4 pb-4 border-t pt-4">
                 <nav class="flex flex-col space-y-3">
@@ -167,7 +161,6 @@
             </div>
         </div>
     </header>
-
     <!-- Hero Section -->
     <section id="inicio" class="relative min-h-screen flex items-center overflow-hidden">
         <!-- Hero Background -->
@@ -196,7 +189,6 @@
             </div>
         </div>
     </section>
-
     <!-- Trust Section -->
     <section class="bg-beige-suave py-12">
         <div class="container mx-auto px-4">
@@ -225,7 +217,6 @@
             </div>
         </div>
     </section>
-
     <!-- Categories Section -->
     <section id="categorias" class="py-16 bg-gradient-to-b from-tierra-claro to-beige-suave/30">
         <div class="container mx-auto px-4">
@@ -237,13 +228,9 @@
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <!-- Category Cards -->
-                
-        
-
             </div>
         </div>
     </section>
-
     <!-- Categories Section -->
     <section id="categorias" class="py-16 bg-gradient-to-b from-blanco-/30 to-tierra-claro">
         <div class="container mx-auto px-4">
@@ -255,7 +242,6 @@
                     Descubre la rica diversidad de nuestras artesanías tradicionales
                 </p>
             </div>
-
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <!-- Category Cards -->
                 <div class="category-card card-hover rounded-2xl p-6 text-center cursor-pointer h-full flex flex-col items-center justify-center">
@@ -281,7 +267,6 @@
                     <h3 class="font-semibold text-tierra-oscuro">Cerámica</h3>
                     <p class="text-xs text-gray-600 mt-1">87 productos</p>
                 </div>
-
                 <div class="category-card card-hover rounded-2xl p-6 text-center cursor-pointer h-full flex flex-col items-center justify-center">
                     <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
                         <img src="<?= BASE_URL ?>images/joyeria.png" alt="">
@@ -289,17 +274,9 @@
                     <h3 class="font-semibold text-tierra-oscuro">Joyería</h3>
                     <p class="text-xs text-gray-600 mt-1">156 productos</p>
                 </div>
-
             </div>
         </div>
     </section>
-
-    
-
-
-
-
-
     <!-- Featured Products Section -->
     <section id="ofertas" class="py-16 bg-gray-50">
         <div class="container mx-auto px-4">
@@ -311,7 +288,6 @@
                     Las mejores creaciones de nuestros artesanos, seleccionadas especialmente para ti
                 </p>
             </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <!-- Product Cards -->
                 <div class="product-card bg-white rounded-2xl overflow-hidden h-full flex flex-col">
@@ -336,7 +312,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="product-card bg-white rounded-2xl overflow-hidden h-full flex flex-col">
                     <div class="h-48 bg-gradient-to-br from-verde-artesanal to-tierra-claro relative">
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -356,7 +331,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="product-card bg-white rounded-2xl overflow-hidden h-full flex flex-col">
                     <div class="h-48 bg-gradient-to-br from-naranja-artesanal to-tierra-medio relative">
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -377,7 +351,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="product-card bg-white rounded-2xl overflow-hidden h-full flex flex-col">
                     <div class="h-48 bg-gradient-to-br from-tierra-medio to-verde-artesanal relative">
                         <div class="absolute inset-0 flex items-center justify-center">
@@ -398,15 +371,13 @@
                     </div>
                 </div>
             </div>
-
             <div class="text-center mt-8">
                 <button class="btn-primary text-white px-8 py-3 rounded-full font-medium hover:shadow-xl">
-                    Ver todos los productos
+                    <a href="<?= BASE_URL ?>catalogo">Ver todos los productos</a>
                 </button>
             </div>
         </div>
     </section>
-
     <!-- Our Story Section -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4">
@@ -453,7 +424,6 @@
             </div>
         </div>
     </section>
-
     <!-- Newsletter Section -->
     <section class="py-16 bg-gradient-to-r from-tierra-oscuro to-verde-artesanal">
         <div class="container mx-auto px-4 text-center text-white">
@@ -477,7 +447,6 @@
             </div>
         </div>
     </section>
-
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-4">
@@ -509,7 +478,6 @@
                         </a>
                     </div>
                 </div>
-
                 <!-- Quick Links -->
                 <div>
                     <h4 class="font-semibold text-lg mb-4">Enlaces rápidos</h4>
@@ -521,7 +489,6 @@
                         <li><a href="#" class="text-gray-300 hover:text-naranja-artesanal transition-colors">Blog</a></li>
                     </ul>
                 </div>
-
                 <!-- Support -->
                 <div>
                     <h4 class="font-semibold text-lg mb-4">Soporte</h4>
@@ -533,7 +500,6 @@
                     </ul>
                 </div>
             </div>
-
             <!-- Bottom Footer -->
             <div class="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
                 <p class="text-gray-400 text-sm">
@@ -556,15 +522,12 @@
             </div>
         </div>
     </footer>
-
     <!-- Scroll to Top Button -->
     <button id="scrollToTop" class="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-naranja-artesanal to-tierra-medio text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 invisible">
         <i class="fas fa-arrow-up"></i>
     </button>
-    
     <!-- Cart Overlay -->
     <div id="cartOverlay" class="fixed inset-0 bg-black opacity-0 invisible transition-opacity duration-300 z-40"></div>
-    
     <!-- Cart Sidebar -->
 <aside id="cartSidebar" class="fixed top-0 right-0 w-80 h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
     <div class="p-4 border-b flex justify-between items-center">

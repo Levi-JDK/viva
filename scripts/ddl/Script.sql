@@ -2,6 +2,10 @@ DROP VIEW IF EXISTS bancos_view;
 DROP VIEW IF EXISTS grupos_view;
 DROP VIEW IF EXISTS departamentos_col_view;
 DROP VIEW IF EXISTS tipos_col_view;
+DROP VIEW IF EXISTS categorias_view;
+DROP VIEW IF EXISTS colores_view;
+DROP VIEW IF EXISTS oficios_view;
+DROP VIEW IF EXISTS materias_view;
 DROP TABLE IF EXISTS tab_kardex;
 DROP TABLE IF EXISTS tab_envios;
 DROP TABLE IF EXISTS tab_det_fact;
@@ -334,12 +338,13 @@ CREATE TABLE IF NOT EXISTS tab_productos
     id_categoria            DECIMAL(12,0)                       NOT NULL,                                   -- Categoría del producto
     id_color                VARCHAR                             NOT NULL,                                   -- Color principal
     id_oficio               DECIMAL(12,0)                       NOT NULL,                                   -- Oficio asociado
-    id_materia              DECIMAL(12,0)                       NOT NULL,
-    desc_materia            VARCHAR                             NOT NULL,                                   -- Materia prima principal
+    id_materia              DECIMAL(12,0)                       NOT NULL,                                   -- Materia prima principal
+    precio_producto         DECIMAL(12,2)                       NOT NULL,
+    descripcion_producto    VARCHAR(255)                        NOT NULL,                                   -- Precio del producto
     created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by              VARCHAR,                                                  -- Usuario que modificó
-    updated_at              TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
+    created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
+    updated_by              VARCHAR,                                                                        -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE,                                                    -- Fecha de modificación
     is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_producto),
     FOREIGN KEY(id_categoria) REFERENCES tab_categorias(id_categoria),
@@ -353,8 +358,9 @@ CREATE TABLE IF NOT EXISTS tab_imagenes
 (
         id_producto             DECIMAL(12,0)                       NOT NULL,                                  -- Identificador del producto
         id_imagen               DECIMAL(12,0)                       NOT NULL,
+        url_imagen              VARCHAR(255)                        NOT NULL,
         created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
-        created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+        created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
         updated_by              VARCHAR,                                                  -- Usuario que modificó
         updated_at              TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
         is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
@@ -619,3 +625,23 @@ CREATE OR REPLACE VIEW bancos_view AS
 SELECT id_banco as id, nom_banco as nombre
 FROM tab_bancos
 ORDER BY nombre ASC;
+
+CREATE OR REPLACE VIEW categorias_view AS
+SELECT id_categoria, nom_categoria 
+FROM tab_categorias 
+ORDER BY nom_categoria ASC;
+
+CREATE OR REPLACE VIEW colores_view AS
+SELECT id_color, nom_color 
+FROM tab_color 
+ORDER BY nom_color ASC;
+
+CREATE OR REPLACE VIEW oficios_view AS
+SELECT id_oficio, nom_oficio 
+FROM tab_oficios 
+ORDER BY nom_oficio ASC;
+
+CREATE OR REPLACE VIEW materias_view AS
+SELECT id_materia, nom_materia 
+FROM tab_materia_prima 
+ORDER BY nom_materia ASC;
