@@ -1,0 +1,129 @@
+/* 
+ * Estilos para el Formulario de Registro de Vendedor
+ * Usa fuente Inter (mismo que login) y mantiene gradientes personalizados
+ */
+
+:root {
+    --principal: #CD853F;
+    --secundario: #8B4513;
+    --claro: #DEB887;
+    --oscuro: #3E2723;
+    --fondo-claro: #FAFAFA;
+    --fondo-oscuro: #EEEEEE;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-image: linear-gradient(135deg, #00000073, #0000005f)
+    ,url("../../images/background_registro_vender.webp");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.step-indicator {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    background: #e5e7eb;
+    color: #9ca3af;
+}
+
+.step-indicator.active {
+    background: linear-gradient(135deg, var(--principal), var(--secundario));
+    color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(205, 133, 63, 0.4);
+}
+
+.step-indicator.completed {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.form-step {
+    display: none;
+    animation: fadeSlideIn 0.3s ease;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.btn-gradient {
+    background: linear-gradient(135deg, var(--principal), var(--secundario));
+    transition: all 0.3s ease;
+}
+
+.btn-gradient:hover {
+    background: linear-gradient(135deg, var(--secundario), #5D4037);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 69, 19, 0.3);
+}
+
+.form-container {
+    background: white;
+    border-radius: 1.25rem;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    max-height: calc(100vh - 280px);
+    overflow-y: auto;
+}
+
+.form-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.form-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.form-container::-webkit-scrollbar-thumb {
+    background: var(--principal);
+    border-radius: 10px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--principal);
+    box-shadow: 0 0 0 3px rgba(205, 133, 63, 0.1);
+}
+
+.progress-line {
+    position: absolute;
+    top: 1rem;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e5e7eb;
+    z-index: 0;
+}
+
+.progress-line-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--principal), var(--secundario));
+    transition: width 0.5s ease;
+}

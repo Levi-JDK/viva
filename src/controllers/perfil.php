@@ -1,0 +1,171 @@
+<?php 
+// IMPORTANTE: Iniciar sesión ANTES de cualquier verificación
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+// Verificar que el usuario esté autenticado
+// Si hay una sesión antigua sin id_user pero con email, obtener el id_user
+if (!isset($_SESSION['id_user']) && isset($_SESSION['email'])) {
+    // Sesión antigua, obtener id_user desde el email
+    try {
+        require_once ROOT_PATH . 'vendor/autoload.php';
+        require_once ROOT_PATH . 'src/functions/Database.php';
+        
+        $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
+        $dotenv->load();
+        
+        // Usar Singleton pattern
+        $db = Database::getInstance();
+        
+        // Obtener ID de usuario usando consulta preparada
+        $stmt = $db->ejecutar('obtenerIdPorEmail', [':email' => $_SESSION['email']]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($result) {
+            $_SESSION['id_user'] = $result['id_user'];
+        } else {
+            // Usuario no encontrado, cerrar sesión
+            session_destroy();
+            header('Location: ' . BASE_URL . 'login');
+            exit;
+        }
+    } catch (Exception $e) {
+        error_log("Error al migrar sesión antigua: " . $e->getMessage());
+        session_destroy();
+        header('Location: ' . BASE_URL . 'login');
+        exit;
+    }
+}
+
+// Si todavía no hay id_user, redirigir al login
+if (!isset($_SESSION['id_user'])) {
+    header('Location: ' . BASE_URL . 'login');
+    exit;
+}
+
+// Cargar las dependencias necesarias
+require_once ROOT_PATH . 'vendor/autoload.php';
+require_once ROOT_PATH . 'src/functions/Database.php';
+
+// Cargar variables de entorno
+$dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
+$dotenv->load();
+
+// Conectar a la base de datos usando Singleton
+try {
+    $db = Database::getInstance();
+} catch (Exception $e) {
+    die("Error de conexión a base de datos: " . $e->getMessage());
+}
+
+// ============================================================================
+// MANEJAR PETICIONES POST (ACTUALIZAR PERFIL, ETC.)
+// ============================================================================
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    header('Content-Type: application/json');
+    
+    // Verificar sesión nuevamente por seguridad
+    if (!isset($_SESSION['id_user'])) {
+        echo json_encode(['clase' => 'mensaje-error', 'mensaje' => 'Sesión no válida o expirada.']);
+        exit;
+    }
+
+    $accion = $_POST['accion'] ?? '';
+
+    if ($accion === 'update_profile') {
+        $nombre = trim($_POST['nombre'] ?? '');
+        $apellido = trim($_POST['apellido'] ?? '');
+        $id_usuario = $_SESSION['id_user'];
+
+        if (empty($nombre) || empty($apellido)) {
+            echo json_encode(['clase' => 'mensaje-error', 'mensaje' => 'El nombre y apellido son obligatorios.']);
+            exit;
+        }
+
+        // Validar caracteres en nombre (# * - ' ")
+        if (preg_match('/[#*\-\'"]/', $nombre)) {
+            echo json_encode(['clase' => 'mensaje-error', 'mensaje' => "El nombre no puede contener los caracteres: # * - ' \""]);
+            exit;
+        }
+
+        // Validar caracteres en apellido (' ")
+        if (preg_match('/[\'"]/', $apellido)) {
+            echo json_encode(['clase' => 'mensaje-error', 'mensaje' => "El apellido no puede contener comillas (' \")"]);
+            exit;
+        }
+
+        try {
+            // Actualizar perfil usando consulta preparada
+            $stmt = $db->ejecutar('actualizarPerfil', [
+                ':nombre' => $nombre,
+                ':apellido' => $apellido,
+                ':id' => $id_usuario
+            ]);
+
+            // Actualizar variables de sesión para reflejar el cambio inmediatamente
+            $_SESSION['nombre'] = $nombre;
+
+            echo json_encode(['clase' => 'mensaje-exito', 'mensaje' => 'Perfil actualizado correctamente.']);
+            exit;
+        } catch (PDOException $e) {
+            echo json_encode(['clase' => 'mensaje-error', 'mensaje' => 'Error al actualizar: ' . $e->getMessage()]);
+            exit;
+        }
+
+    }
+    
+    // Si la acción no es válida
+    echo json_encode(['clase' => 'mensaje-error', 'mensaje' => 'Acción no reconocida.']);
+    exit;
+}
+
+// Obtener datos del usuario actual
+try {
+    $id_usuario = $_SESSION['id_user'];
+    
+    // Obtener datos del usuario usando consulta preparada
+    $stmt = $db->ejecutar('obtenerUsuarioPorId', [':id' => $id_usuario]);
+    $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    // Si no se encuentra el usuario, cerrar sesión
+    if (!$usuario) {
+        session_destroy();
+        header('Location: ' . BASE_URL . 'login');
+        exit;
+    }
+} catch (PDOException $e) {
+    die("Error al obtener datos del usuario: " . $e->getMessage());
+}
+
+// ============================================================================
+// PROCESAR DATOS DEL USUARIO PARA LA VISTA
+// ============================================================================
+$nombre_usuario = $usuario['nom_user'] ?? 'Usuario';
+$apellido_usuario = $usuario['ape_user'] ?? '';
+$nombre_completo = $nombre_usuario . ' ' . $apellido_usuario;
+$email_usuario = $usuario['mail_user'] ?? '';
+$foto_usuario = $usuario['foto_user'] ?? 'images/default.jpg';
+$fecha_registro = $usuario['created_at'] ?? null;
+
+// Formatear fecha de registro si existe
+if ($fecha_registro) {
+    $fecha_obj = new DateTime($fecha_registro);
+    $fecha_formateada = $fecha_obj->format('F Y'); // Ejemplo: "Febrero 2026"
+    // Traducir meses al español
+    $meses = [
+        'January' => 'Enero', 'February' => 'Febrero', 'March' => 'Marzo',
+        'April' => 'Abril', 'May' => 'Mayo', 'June' => 'Junio',
+        'July' => 'Julio', 'August' => 'Agosto', 'September' => 'Septiembre',
+        'October' => 'Octubre', 'November' => 'Noviembre', 'December' => 'Diciembre'
+    ];
+    $fecha_formateada = str_replace(array_keys($meses), array_values($meses), $fecha_formateada);
+} else {
+    $fecha_formateada = 'Fecha desconocida';
+}
+
+// Obtener la inicial del nombre para el avatar
+$inicial_usuario = strtoupper(substr($nombre_usuario, 0, 1));
+
+// Usamos ROOT_PATH para que el include sea absoluto desde el disco
+require_once ROOT_PATH . "src/views/perfil.view.php";
+?>
