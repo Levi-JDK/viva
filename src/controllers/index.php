@@ -49,7 +49,7 @@ if (isset($_SESSION['id_user'])) {
     }
 }
 
-// Get featured stands for the affiliates section (max 3)
+// Obtener stands destacados para la sección de afiliados (máx 3)
 $featured_stands = [];
 try {
     $db = Database::getInstance();
@@ -60,7 +60,7 @@ try {
     error_log("Error al obtener stands destacados: " . $e->getMessage());
 }
 
-// Get featured products for the landing page (max 4)
+// Obtener productos destacados para el landing (máx 4)
 $featured_products = [];
 try {
     $db = Database::getInstance();

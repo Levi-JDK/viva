@@ -4,8 +4,8 @@
             <div class="flex items-center justify-between">
                 <!-- Logo -->
                 <a href="<?= BASE_URL ?>" class="flex items-center space-x-3 group">
-                    <div class="w-10 h-10 bg-gradient-to-br from-tierra-oscuro to-verde-artesanal rounded-lg flex items-center justify-center group-hover:shadow-md transition-all">
-                        <img src="<?= BASE_URL ?>images/Logo.png" alt="VIVA" class="w-8 h-8 object-contain">
+                    <div class="aspect-square w-8 sm:w-9 md:w-10 lg:w-11 bg-gradient-to-br from-tierra-oscuro to-verde-artesanal rounded-lg flex items-center justify-center group-hover:shadow-md transition-all">
+                        <img src="<?= BASE_URL ?>images/Logo.png" alt="VIVA" class="w-full h-full object-cover">
                     </div>
                     <div>
                         <h1 class="text-xl font-bold text-tierra-oscuro group-hover:text-tierra-medio transition-colors">VIVA</h1>

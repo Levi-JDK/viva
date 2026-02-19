@@ -9,7 +9,6 @@ if (!isset($_SESSION['id_user'])) {
     header('Location: ' . BASE_URL . 'login');
     exit;
 }
-// $id_usuario = $_SESSION['id_user'];
 $id_user = $_SESSION['id_user'];
 require_once(__DIR__ . '/../functions/Database.php');
 try {
@@ -25,28 +24,28 @@ try {
     $stmtUser = $db->ejecutar('obtenerUsuarioPorId', [':id' => $id_user]);
     $usuario = $stmtUser->fetch(PDO::FETCH_ASSOC);
     $nombre_usuario = $usuario['nom_user'] ?? 'Usuario';
-    // Ensure foto_user has a valid path or default
+    // Asegurar que foto_user tenga una ruta válida o usar la imagen por defecto
     $foto_usuario = !empty($usuario['foto_user']) ? $usuario['foto_user'] : 'images/default.jpg';
     
-    // Get Producer ID (needed for inventory and others)
+    // Obtener ID del productor (necesario para el inventario y otras secciones)
     $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $id_user]);
     $id_productor = $stmtProd->fetchColumn();
 
-    // Determine section to load
+    // Determinar qué sección cargar según el parámetro 'view'
     $view = $_GET['view'] ?? 'inventory';
     
     $allowed_views = [
-        'inventory' => 'inventory.php',
-        'add_product' => 'form_add_product.php',
-        'stand' => 'stand.php',
-        'statistics' => 'statistics.php',
+        'inventory'     => 'inventory.php',
+        'add_product'   => 'form_add_product.php',
+        'stand'         => 'stand.php',
+        'statistics'    => 'statistics.php',
         'configuration' => 'configuration.php'
     ];
 
     if (array_key_exists($view, $allowed_views)) {
         $current_controller = __DIR__ . '/mis_productos/' . $allowed_views[$view];
     } else {
-        $current_controller = __DIR__ . '/mis_productos/inventory.php'; // Default
+        $current_controller = __DIR__ . '/mis_productos/inventory.php'; // Vista por defecto
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {

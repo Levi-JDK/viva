@@ -1,14 +1,14 @@
 <?php
 /**
- * PRODUCT CARD PARTIAL - Reusable Product Display Component
+ * PARTIAL: TARJETA DE PRODUCTO — Componente Reutilizable
  * 
- * This partial displays a product as a card with image, name, price (optional), and stand info.
+ * Muestra un producto como una tarjeta con imagen, nombre, precio (opcional) e info del stand.
  * 
  * ==========================================
- * DATABASE STRUCTURE:
+ * ESTRUCTURA DE BASE DE DATOS:
  * ==========================================
  * 
- * The $product array should come from a JOIN query:
+ * El array $product debe provenir de una consulta con JOIN:
  * 
  * SELECT 
  *     p.*,
@@ -19,82 +19,82 @@
  * LEFT JOIN tab_stand s ON p.id_productor = s.id_productor
  * WHERE p.is_deleted = FALSE AND p.is_active = TRUE
  * 
- * Expected columns:
- * - id_producto (DECIMAL)           - Product ID
- * - nom_producto (VARCHAR)          - Product name
- * - precio_producto (DECIMAL)       - Product price
- * - id_productor (DECIMAL)          - Producer ID
- * - nom_stand (VARCHAR)             - Stand name
- * - img_stand (VARCHAR)             - Stand logo
- * - primera_imagen (VARCHAR)        - First product image URL
+ * Columnas esperadas:
+ * - id_producto (DECIMAL)           - ID del producto
+ * - nom_producto (VARCHAR)          - Nombre del producto
+ * - precio_producto (DECIMAL)       - Precio del producto
+ * - id_productor (DECIMAL)          - ID del productor
+ * - nom_stand (VARCHAR)             - Nombre del stand
+ * - img_stand (VARCHAR)             - Logo del stand
+ * - primera_imagen (VARCHAR)        - URL de la primera imagen del producto
  * 
  * ==========================================
- * HOW TO USE:
+ * CÓMO USAR:
  * ==========================================
  * 
- * OPTION 1 - Landing page (without price):
+ * OPCIÓN 1 — Landing page (sin precio):
  * <?php
- * // $show_price = false; // Hide price for landing
+ * // $show_price = false; // Ocultar precio en el landing
  * // foreach ($products as $product) {
  * //     require __DIR__ . '/partials/card_producto.php';
  * // }
  * ?>
  * 
- * OPTION 2 - Catalog (with price):
+ * OPCIÓN 2 — Catálogo (con precio):
  * <?php
- * // $show_price = true; // Show price in catalog
+ * // $show_price = true; // Mostrar precio en el catálogo
  * // foreach ($products as $product) {
  * //     require __DIR__ . '/partials/card_producto.php';
  * // }
  * ?>
  * 
  * ==========================================
- * CUSTOMIZATION:
+ * PERSONALIZACIÓN:
  * ==========================================
  * 
- * Optional variables you can define before including:
- * - $show_price: Whether to show the price (default: true)
- * - $product_url: Custom URL for the product link (default: BASE_URL . 'producto?id=' . $product['id_producto'])
+ * Variables opcionales que puedes definir antes de incluir el partial:
+ * - $show_price: Si se muestra el precio (por defecto: true)
  * 
  */
 
-// Set default values if not provided
+// Valores por defecto si no se proporcionan
 $show_price = $show_price ?? true;
-$product_url = $product_url ?? (BASE_URL . 'producto?id=' . ($product['id_producto'] ?? ''));
+// IMPORTANTE: NO usar ?? aquí — $product_url debe recalcularse en cada iteración del foreach.
+// Usar ?? cachearía el URL del primer producto para todas las tarjetas siguientes.
+$product_url = BASE_URL . 'producto?id=' . ($product['id_producto'] ?? '');
 
-// Ensure $product exists
+// Verificar que $product exista
 if (!isset($product) || empty($product)) {
-    echo '<div class="text-red-500 p-4 border border-red-300 rounded">Error: Product data not provided</div>';
+    echo '<div class="text-red-500 p-4 border border-red-300 rounded">Error: No se proporcionaron datos del producto</div>';
     return;
 }
 
-// Get first image or use placeholder
+// Obtener primera imagen o usar placeholder
 $product_image = !empty($product['primera_imagen']) ? BASE_URL . $product['primera_imagen'] : BASE_URL . 'images/default_product.jpg';
 $stand_logo = !empty($product['img_stand']) ? BASE_URL . $product['img_stand'] : BASE_URL . 'images/default.jpg';
 ?>
 
-<!-- Product Card Component -->
-<a href="<?= htmlspecialchars($product_url) ?>" class="product-card bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col group">
-    <!-- Product Image -->
+<!-- Componente: Tarjeta de Producto -->
+<a href="<?= htmlspecialchars($product_url) ?>" class="product-card bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col group h-full">
+    <!-- Imagen del Producto -->
     <div class="h-64 bg-gradient-to-br from-tierra-claro to-beige-suave relative overflow-hidden">
         <img src="<?= $product_image ?>" 
              alt="<?= htmlspecialchars($product['nom_producto'] ?? 'Producto') ?>"
              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-        
-        <!-- Overlay on hover -->
+        <!-- Overlay al pasar el cursor -->
         <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
     </div>
     
-    <!-- Product Info -->
+    <!-- Información del Producto -->
     <div class="p-5 flex-1 flex flex-col">
-        <!-- Product Name -->
+        <!-- Nombre del Producto -->
         <h3 class="font-bold text-lg text-tierra-oscuro mb-2 line-clamp-2 group-hover:text-naranja-artesanal transition-colors">
             <?= htmlspecialchars($product['nom_producto'] ?? 'Sin nombre') ?>
         </h3>
         
-        <!-- Stand Info (Producer) -->
+        <!-- Información del Stand (Productor) -->
         <div class="flex items-center gap-2 mb-3">
-            <div class="w-6 h-6 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-tierra-claro">
+            <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-tierra-claro">
                 <img src="<?= $stand_logo ?>" 
                      alt="<?= htmlspecialchars($product['nom_stand'] ?? 'Stand') ?>"
                      class="w-full h-full object-cover">
@@ -104,10 +104,10 @@ $stand_logo = !empty($product['img_stand']) ? BASE_URL . $product['img_stand'] :
             </span>
         </div>
         
-        <!-- Spacer -->
+        <!-- Espaciador -->
         <div class="flex-1"></div>
         
-        <!-- Price (conditional) -->
+        <!-- Precio (condicional) -->
         <?php if ($show_price): ?>
             <div class="mt-auto pt-3 border-t border-gray-100">
                 <div class="flex items-center justify-between">
@@ -121,7 +121,7 @@ $stand_logo = !empty($product['img_stand']) ? BASE_URL . $product['img_stand'] :
                 </div>
             </div>
         <?php else: ?>
-            <!-- View More Button for Landing -->
+            <!-- Botón "Ver más" para el Landing -->
             <div class="mt-auto pt-3">
                 <div class="text-center">
                     <span class="inline-flex items-center text-naranja-artesanal font-medium group-hover:text-tierra-oscuro transition-colors">

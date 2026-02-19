@@ -4,7 +4,7 @@
 require_once ROOT_PATH . 'src/functions/image_uploader.php';
 
 // ==========================================
-// HANDLE POST REQUEST (UPDATE/CREATE)
+// MANEJAR PETICIÓN POST (ACTUALIZAR/CREAR)
 // ==========================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $db = Database::getInstance();
 
-        // Get Producer ID
+        // Obtener ID del productor
         $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $_SESSION['id_user']]);
         $id_productor = $stmtProd->fetchColumn();
 
@@ -26,11 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // Check if stand exists
+        // Verificar si ya existe el stand
         $stmtCheck = $db->ejecutar('verificarStand', [':id_p' => $id_productor]);
         $id_stand = $stmtCheck->fetchColumn();
 
-        // Handle image uploads (returns path or null)
+        // Gestionar subida de imágenes (retorna ruta o null)
         $targetDir = ROOT_PATH . 'images/stands/';
         $prefix = 'stand_' . $id_productor . '_';
         
@@ -54,13 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $portada_stand = $res['path'];
         }
 
-        // Get text data
+        // Obtener datos de texto
         $nom_stand = $_POST['nom_stand'] ?? null;
         $slogan_stand = $_POST['slogan_stand'] ?? null;
         $descripcion_stand = $_POST['descripcion_stand'] ?? null;
 
         if ($id_stand) {
-            // UPDATE existing stand
+            // ACTUALIZAR stand existente
             $stmt = $db->ejecutar('actualizarStand', [
                 ':id_productor' => $id_productor,
                 ':id_stand' => $id_stand,
@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $message = 'Stand actualizado correctamente';
         } else {
-            // CREATE new stand with defaults if needed
+            // CREAR nuevo stand con valores por defecto si es necesario
             $stmt = $db->ejecutar('registrarStand', [
                 ':id_productor' => $id_productor,
                 ':nom_stand' => $nom_stand ?: 'Mi Emprendimiento',
@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $message = 'Stand creado correctamente';
         }
 
-        // Check function result
+        // Verificar resultado de la función
         $result = $stmt->fetchColumn();
         if ($result === true || $result === 't') {
             echo json_encode(['success' => true, 'message' => $message]);
@@ -101,10 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // ==========================================
-// HANDLE GET REQUEST (RENDER VIEW)
+// MANEJAR PETICIÓN GET (RENDERIZAR VISTA)
 // ==========================================
 
-// Get stand data ($id_productor is from mis_productos.php)
+// Obtener datos del stand ($id_productor viene de mis_productos.php)
 $stmtStand = $db->ejecutar('obtenerStand', [':id_p' => $id_productor]);
 $stand = $stmtStand->fetch(PDO::FETCH_ASSOC);
 

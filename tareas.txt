@@ -1,0 +1,6 @@
+- ALgunas imagenes no se guardan al subirlas en la portada, hay que revisar 
+problemas con resoluciones y tamaños de archivo. Podria implementar
+compresion de imagen.
+
+- Al subir la misma imagen al producto si me dice que esta muy pesada,
+implementar validacion y toast en stand.

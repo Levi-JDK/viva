@@ -1,8 +1,7 @@
 <?php
 // src/controllers/mis_productos/form_add_product.php
 
-// Ensure DB connection is available
-// $db is expected
+// La conexión $db es provista por el controlador principal
 
 try {
     $categorias = $db->ejecutar('obtenerCategorias')->fetchAll(PDO::FETCH_ASSOC);

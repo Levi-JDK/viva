@@ -30,7 +30,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <?php foreach ($stands as $stand): ?>
                     <?php 
-                    // Enable link to detail page
+                    // Habilitar enlace a la página de detalle
                     $show_link = true;
                     $stand_url = BASE_URL . 'stand?id=' . $stand['id_productor'];
                     require __DIR__ . '/partials/card_stand.php'; 

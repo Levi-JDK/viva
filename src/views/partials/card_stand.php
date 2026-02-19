@@ -1,38 +1,38 @@
 <?php
 /**
- * STAND CARD PARTIAL - Reusable Stand Display Component
+ * PARTIAL: TARJETA DE STAND — Componente Reutilizable
  * 
- * This partial displays a stand as a modern card with cover image, logo, name, slogan, and description.
+ * Muestra un stand como una tarjeta moderna con imagen de portada, logo, nombre, slogan y descripción.
  * 
  * ==========================================
- * DATABASE STRUCTURE (tab_stand):
+ * ESTRUCTURA DE BASE DE DATOS (tab_stand):
  * ==========================================
  * 
- * The $stand array should come directly from a query to tab_stand table:
+ * El array $stand debe provenir directamente de una consulta a la tabla tab_stand:
  * 
  * SELECT * FROM tab_stand WHERE id_productor = :id;
  * 
- * Expected columns:
- * - id_productor (DECIMAL)          - Producer ID
- * - id_stand (DECIMAL)              - Stand ID
- * - nom_stand (VARCHAR)             - Stand name
+ * Columnas esperadas:
+ * - id_productor (DECIMAL)          - ID del productor
+ * - id_stand (DECIMAL)              - ID del stand
+ * - nom_stand (VARCHAR)             - Nombre del stand
  * - slogan_stand (VARCHAR)          - Slogan
- * - descripcion_stand (TEXT)        - Description
- * - img_stand (VARCHAR)             - Logo path (relative to BASE_URL)
- * - portada_stand (VARCHAR)         - Cover image path (relative to BASE_URL)
+ * - descripcion_stand (TEXT)        - Descripción
+ * - img_stand (VARCHAR)             - Ruta del logo (relativa a BASE_URL)
+ * - portada_stand (VARCHAR)         - Ruta de la portada (relativa a BASE_URL)
  * 
  * ==========================================
- * HOW TO USE:
+ * CÓMO USAR:
  * ==========================================
  * 
- * OPTION 1 - Single stand:
+ * OPCIÓN 1 — Stand individual:
  * <?php
  * // $stmt = $db->ejecutar('SELECT * FROM tab_stand WHERE id_productor = :id', [':id' => $id]);
  * // $stand = $stmt->fetch(PDO::FETCH_ASSOC);
  * // require_once __DIR__ . '/partials/card_stand.php';
  * ?>
  * 
- * OPTION 2 - Multiple stands in a grid:
+ * OPCIÓN 2 — Múltiples stands en una grilla:
  * <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
  * <?php
  * // $stmt = $db->ejecutar('SELECT * FROM tab_stand WHERE is_deleted = FALSE');
@@ -43,29 +43,29 @@
  * </div>
  * 
  * ==========================================
- * CUSTOMIZATION:
+ * PERSONALIZACIÓN:
  * ==========================================
  * 
- * Optional variables you can define before including:
- * - $show_link: Whether to show "Ver Stand" button (default: false)
- * - $stand_url: URL for the stand link (if $show_link is true)
+ * Variables opcionales que puedes definir antes de incluir el partial:
+ * - $show_link: Si se muestra el botón "Ver Stand" (por defecto: false)
+ * - $stand_url: URL del enlace al stand (si $show_link es true)
  * 
  */
 
-// Set default values if not provided
+// Valores por defecto si no se proporcionan
 $show_link = $show_link ?? false;
 $stand_url = $stand_url ?? '#';
 
-// Ensure $stand exists
+// Verificar que $stand exista
 if (!isset($stand) || empty($stand)) {
-    echo '<div class="text-red-500 p-4 border border-red-300 rounded">Error: Stand data not provided</div>';
+    echo '<div class="text-red-500 p-4 border border-red-300 rounded">Error: No se proporcionaron datos del stand</div>';
     return;
 }
 ?>
 
-<!-- Stand Card Component -->
+<!-- Componente: Tarjeta de Stand -->
 <div class="w-full bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-    <!-- Cover Image (with proper aspect ratio) -->
+    <!-- Imagen de Portada (con relación de aspecto adecuada) -->
     <div class="h-40 bg-gradient-to-r from-tierra-claro to-beige-suave relative overflow-hidden">
         <?php if (!empty($stand['portada_stand'])): ?>
             <img src="<?= BASE_URL . $stand['portada_stand'] ?>" 
@@ -74,9 +74,9 @@ if (!isset($stand) || empty($stand)) {
         <?php endif; ?>
     </div>
     
-    <!-- Stand Content -->
+    <!-- Contenido del Stand -->
     <div class="relative px-6 pb-6">
-        <!-- Logo (overlapping cover) -->
+        <!-- Logo (superpuesto sobre la portada) -->
         <div class="flex justify-center -mt-12 mb-4">
             <div class="w-24 h-24 bg-white rounded-full p-1 shadow-lg overflow-hidden">
                 <img src="<?= !empty($stand['img_stand']) ? BASE_URL . $stand['img_stand'] : BASE_URL . 'images/default.jpg' ?>" 
@@ -85,7 +85,7 @@ if (!isset($stand) || empty($stand)) {
             </div>
         </div>
         
-        <!-- Stand Info -->
+        <!-- Información del Stand -->
         <div class="text-center">
             <h3 class="text-xl font-bold text-tierra-oscuro mb-1">
                 <?= htmlspecialchars($stand['nom_stand'] ?? 'Sin nombre') ?>
@@ -106,4 +106,3 @@ if (!isset($stand) || empty($stand)) {
         </div>
     </div>
 </div>
-

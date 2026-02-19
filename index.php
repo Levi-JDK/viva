@@ -28,31 +28,33 @@ $relative_uri = '/' . ltrim($relative_uri, '/');
 if ($relative_uri !== '/' && substr($relative_uri, -1) === '/') {
     $relative_uri = rtrim($relative_uri, '/');
 }
+// Definir rutas
+$routes = [
+    '/'             => 'src/controllers/index.php',
+    '/index.php'    => 'src/controllers/index.php',
+    '/login'        => 'src/controllers/login.php',
+    '/dashboard'    => function() {
+        header('Location: ' . BASE_URL . 'perfil');
+        exit;
+    },
+    '/perfil'       => 'src/controllers/perfil.php',
+    '/vender'       => 'src/controllers/registro_vendedor.php',
+    '/logout'       => 'src/controllers/logout.php',
+    '/mis_productos'=> 'src/controllers/mis_productos.php',
+    '/catalogo'     => 'src/controllers/catalogo.php',
+    '/producto'     => 'src/controllers/producto.php',
+    '/stand'        => 'src/controllers/stand_detail.php',
+    '/test-stands'  => 'src/controllers/test_stand_card.php'
+];
 
-if ($relative_uri === '/' || $relative_uri === '/index.php'){
-    require_once ROOT_PATH . "src/controllers/index.php";
-}else if($relative_uri === '/login'){
-    require_once ROOT_PATH . "src/controllers/login.php";
-}else if($relative_uri === '/dashboard'){
-    header('Location: ' . BASE_URL . 'perfil');
-    exit;
-}else if($relative_uri === '/perfil'){
-    require_once ROOT_PATH . "src/controllers/perfil.php";
-}else if($relative_uri === '/vender'){
-    require_once ROOT_PATH . "src/controllers/registro_vendedor.php";
-}else if($relative_uri === '/logout'){
-    require_once ROOT_PATH . "src/controllers/logout.php";
-}else if($relative_uri === '/mis_productos'){
-    require_once ROOT_PATH . "src/controllers/mis_productos.php";
-}else if($relative_uri === '/catalogo'){
-    require_once ROOT_PATH . "src/controllers/catalogo.php";
-}else if($relative_uri === '/producto'){
-    require_once ROOT_PATH . "src/controllers/producto.php";
-}else if($relative_uri === '/stand'){
-    require_once ROOT_PATH . "src/controllers/stand_detail.php";
-}else if($relative_uri === '/test-stands'){
-    require_once ROOT_PATH . "src/controllers/test_stand_card.php";
-}else{
+if (array_key_exists($relative_uri, $routes)) {
+    $route = $routes[$relative_uri];
+    if (is_callable($route)) {
+        $route();
+    } else {
+        require_once ROOT_PATH . $route;
+    }
+} else {
     require_once ROOT_PATH . "src/views/404.php";
 }
 

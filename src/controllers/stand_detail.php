@@ -1,6 +1,6 @@
 <?php
 // src/controllers/stand_detail.php
-// Individual stand detail page - shows full information for a specific stand
+// Página de detalle de stand individual — muestra información completa de un stand específico
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -9,10 +9,10 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../functions/Database.php';
 
 try {
-    // Get stand ID from URL parameter
-    // URL format: /stand?id=productor_id
+    // Obtener el ID del stand desde el parámetro de la URL
+    // Formato de URL: /stand?id=id_productor
     if (!isset($_GET['id']) || empty($_GET['id'])) {
-        // Redirect to test page or show error
+        // Redirigir a la página de prueba o mostrar error
         header('Location: ' . BASE_URL . 'test-stands');
         exit;
     }
@@ -21,21 +21,21 @@ try {
     
     $db = Database::getInstance();
     
-    // Get stand information
+    // Obtener información del stand
     $stmt = $db->ejecutar('obtenerStand', [':id_p' => $id_productor]);
     $stand = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // If stand doesn't exist, redirect
+    // Si el stand no existe, redirigir
     if (!$stand) {
         header('Location: ' . BASE_URL . 'test-stands');
         exit;
     }
     
-    // Get products from this stand (optional - for future enhancement)
-    // $stmtProducts = $db->ejecutar('obtenerProductos', [':id_productor' => $id_productor]);
-    // $products = $stmtProducts->fetchAll(PDO::FETCH_ASSOC);
+    // Obtener productos de este stand (opcional — para mejora futura)
+    // $stmtProductos = $db->ejecutar('obtenerProductos', [':id_productor' => $id_productor]);
+    // $productos = $stmtProductos->fetchAll(PDO::FETCH_ASSOC);
     
-    // Load the view
+    // Cargar la vista
     require_once ROOT_PATH . 'src/views/stand_detail.view.php';
     
 } catch (Exception $e) {

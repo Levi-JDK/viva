@@ -1,6 +1,6 @@
 <?php
 /**
- * Handler for Product Uploads
+ * Manejador de Subida de Productos
  */
 
 require_once 'image_uploader.php';
@@ -21,7 +21,7 @@ if (!defined('BASE_URL')) {
 
 header('Content-Type: application/json');
 
-// 1. Session & Auth Check
+// 1. Verificar sesión y autenticación
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params(0, '/');
     session_start();
@@ -32,13 +32,13 @@ if (!isset($_SESSION['id_user'])) {
     exit;
 }
 
-// 2. Main Logic
+// 2. Lógica principal
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
         $db = Database::getInstance();
         $conn = $db->connection;
 
-        // --- Input Validation ---
+        // --- Validación de campos de entrada ---
         $nom_producto = $_POST['nom_producto'] ?? '';
         $precio = $_POST['precio_producto'] ?? 0;
         $stock = $_POST['stock_productor'] ?? 0;
@@ -52,9 +52,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Faltan campos obligatorios.");
         }
 
-        // --- Server-Side Validation ---
+        // --- Validación del lado del servidor ---
 
-        // 1. Numeric Validation
+        // 1. Validación numérica
         if (!is_numeric($precio) || $precio < 1) {
             throw new Exception("El precio debe ser un número válido mayor a 0.");
         }
@@ -62,23 +62,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("El stock debe ser un número válido mayor a 0.");
         }
 
-        // 2. Text Sanitization & Validation (Prevent Special Characters)
-        // Allow letters, numbers, spaces, and basic punctuation: . , - _
-        if (!preg_match('/^[a-zA-Z0-9\s\.\,\-\_áéíóúÁÉÍÓÚñÑüÜ]+$/u', $nom_producto)) { // Added u modifier for unicode
+        // 2. Sanitización y validación de texto (evitar caracteres especiales)
+        // Se permiten letras, números, espacios y puntuación básica: . , - _
+        if (!preg_match('/^[a-zA-Z0-9\s\.\,\-\_áéíóúÁÉÍÓÚñÑüÜ]+$/u', $nom_producto)) {
             throw new Exception("El nombre del producto contiene caracteres no permitidos.");
         }
 
-        // Allow a wider range of characters for description including newlines, punctuation, etc.
-        // Removed strict regex to allow free text (still sanitized below)
+        // Se permite un rango más amplio de caracteres para la descripción, incluyendo saltos de línea
         if (!empty($desc) && strlen($desc) > 5000) {
             throw new Exception("La descripción es demasiado larga (máx 5000 caracteres).");
         }
 
-        // Sanitize for DB (though PDO binding handles most)
+        // Sanitizar para la BD (aunque el binding de PDO ya lo maneja en su mayoría)
         $nom_producto = strip_tags($nom_producto);
-        $desc = strip_tags($desc); // Basic XSS protection
+        $desc = strip_tags($desc); // Protección básica contra XSS
 
-        // Get id_productor
+        // Obtener id_productor
         $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $_SESSION['id_user']]);
         $id_productor = $stmtProd->fetchColumn();
 
@@ -88,18 +87,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $conn->beginTransaction();
 
-        // 1. Insert Product
+        // 1. Insertar producto
         $stmt = $db->ejecutar('registrarProducto', [
-            ':id_productor' => $id_productor,
-            ':nom_producto' => $nom_producto,
-            ':stock_productor' => $stock,
-            ':id_categoria' => $id_categoria,
-            ':id_color' => $id_color,
-            ':id_oficio' => $id_oficio,
-            ':id_materia' => $id_materia,
-            ':precio_producto' => $precio,
+            ':id_productor'       => $id_productor,
+            ':nom_producto'       => $nom_producto,
+            ':stock_productor'    => $stock,
+            ':id_categoria'       => $id_categoria,
+            ':id_color'           => $id_color,
+            ':id_oficio'          => $id_oficio,
+            ':id_materia'         => $id_materia,
+            ':precio_producto'    => $precio,
             ':descripcion_producto' => $desc,
-            ':is_active' => 'true'
+            ':is_active'          => 'true'
         ]);
 
         $result_insert = $stmt->fetchColumn();
@@ -108,12 +107,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Error al crear el producto en la base de datos.");
         }
 
-        // Recuperar el ID generado (ya que la función ahora devuelve boolean)
-        // NOTA: Esto asume que somos el único insertando. En alta concurrencia podría fallar.
+        // Recuperar el ID generado (ya que la función devuelve boolean)
+        // NOTA: Asume que somos el único insertando. En alta concurrencia podría fallar.
         $stmtId = $conn->query("SELECT MAX(id_producto) FROM tab_productos");
         $id_producto = $stmtId->fetchColumn();
 
-        // 2. Handle Images with the generated ID
+        // 2. Gestionar imágenes con el ID generado
         $uploaded_paths = [];
         $target_directory = __DIR__ . '/../../images/products/';
 
@@ -122,13 +121,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $count = is_array($files['name']) ? count($files['name']) : 1;
 
             if (!is_array($files['name'])) {
-                // Normalize single file
+                // Normalizar archivo único al formato de múltiples archivos
                 $files = [
-                    'name' => [$files['name']],
-                    'type' => [$files['type']],
+                    'name'     => [$files['name']],
+                    'type'     => [$files['type']],
                     'tmp_name' => [$files['tmp_name']],
-                    'error' => [$files['error']],
-                    'size' => [$files['size']]
+                    'error'    => [$files['error']],
+                    'size'     => [$files['size']]
                 ];
             }
 
@@ -137,14 +136,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     continue;
 
                 $current_file = [
-                    'name' => $files['name'][$i],
-                    'type' => $files['type'][$i],
+                    'name'     => $files['name'][$i],
+                    'type'     => $files['type'][$i],
                     'tmp_name' => $files['tmp_name'][$i],
-                    'error' => $files['error'][$i],
-                    'size' => $files['size'][$i]
+                    'error'    => $files['error'][$i],
+                    'size'     => $files['size'][$i]
                 ];
 
-                // Use the DB-generated ID for naming
+                // Usar el ID generado por la BD para nombrar el archivo
                 $result = handleImageUpload($current_file, $target_directory, 'prod_' . $id_producto . '_', 'images/products/');
                 if ($result['success']) {
                     $uploaded_paths[] = $result['path'];
@@ -156,11 +155,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Debe subir al menos una imagen válida.");
         }
 
-        // 3. Insert Images
+        // 3. Insertar imágenes
         foreach ($uploaded_paths as $index => $path) {
             $db->ejecutar('registrarImagen', [
                 ':id_producto' => $id_producto,
-                ':url_imagen' => $path
+                ':url_imagen'  => $path
             ]);
         }
 
