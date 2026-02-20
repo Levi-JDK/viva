@@ -15,12 +15,8 @@ if (!defined('BASE_URL')) {
 }
 
 // Incluir archivos necesarios (estamos en el mismo directorio)
-require_once 'image_uploader.php';
+require_once __DIR__ . '/image_uploader.php';
 
-// Cargar variables de entorno desde .env usando Composer autoload
-require_once __DIR__ . '/../../vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {
     /**

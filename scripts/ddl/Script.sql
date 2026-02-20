@@ -13,6 +13,9 @@ DROP TABLE IF EXISTS tab_enc_fact;
 DROP TABLE IF EXISTS tab_transito;
 DROP TABLE IF EXISTS tab_formas_pago;
 DROP TABLE IF EXISTS tab_transportadoras;
+DROP TABLE IF EXISTS tab_carrito;
+DROP TABLE IF EXISTS tab_favoritos;
+DROP TABLE IF EXISTS tab_resenas;
 DROP TABLE IF EXISTS tab_imagenes;
 DROP TABLE IF EXISTS tab_productos;
 DROP TABLE IF EXISTS tab_categorias;
@@ -371,6 +374,56 @@ CREATE TABLE IF NOT EXISTS tab_imagenes
         
         PRIMARY KEY(id_producto, id_imagen),
         FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)        
+);
+CREATE TABLE IF NOT EXISTS tab_imagenes
+(
+        id_producto             DECIMAL(12,0)                       NOT NULL,                                  -- Identificador del producto
+        id_imagen               DECIMAL(12,0)                       NOT NULL,
+        url_imagen              VARCHAR(255)                        NOT NULL,
+        created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
+        created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
+        updated_by              VARCHAR,                                                  -- Usuario que modificó
+        updated_at              TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
+        is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+        
+        PRIMARY KEY(id_producto, id_imagen),
+        FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)        
+);
+CREATE TABLE IF NOT EXISTS tab_carrito(
+    id_user         INTEGER         NOT NULL,                           -- Usuario dueño del carrito
+    id_producto     DECIMAL(12,0)   NOT NULL,                           -- Producto en el carrito
+    cantidad        INTEGER         NOT NULL CHECK(cantidad > 0),       -- Cantidad (mínimo 1)
+    agregado_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de agregado
+    PRIMARY KEY(id_user, id_producto),
+    FOREIGN KEY(id_user)    REFERENCES tab_users(id_user),
+    FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)
+);
+CREATE TABLE IF NOT EXISTS tab_favoritos(
+    id_user         INTEGER         NOT NULL,
+    id_producto     INTEGER         NOT NULL,
+    created_by      VARCHAR         NOT NULL DEFAULT current_user,
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by      VARCHAR,
+    updated_at      TIMESTAMP,
+    is_deleted      BOOLEAN         NOT NULL DEFAULT FALSE,
+    PRIMARY KEY(id_user, id_producto),
+    FOREIGN KEY(id_user) REFERENCES tab_users(id_user),
+    FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)
+);
+
+-- Tabla de reseñas de productos
+CREATE TABLE IF NOT EXISTS tab_resenas(
+    id_resena       SERIAL          PRIMARY KEY,
+    id_user         INTEGER         NOT NULL,
+    id_producto     DECIMAL(12,0)   NOT NULL,
+    calificacion    INTEGER         NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
+    texto_resena    TEXT            NOT NULL CHECK (LENGTH(TRIM(texto_resena)) > 0),
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP,
+    is_deleted      BOOLEAN         NOT NULL DEFAULT FALSE,
+    FOREIGN KEY(id_user) REFERENCES tab_users(id_user),
+    FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto),
+    CONSTRAINT unq_usuario_producto UNIQUE(id_user, id_producto)
 );
 -- Tabla de transportadoras
 CREATE TABLE IF NOT EXISTS tab_transportadoras

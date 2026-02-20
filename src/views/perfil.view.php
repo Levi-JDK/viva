@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Cuenta | VIVA - Artesanías Colombianas</title>
-    <?php require_once __DIR__ . '/partials/tailwind_head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/web.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/perfil.css">
-</head>
-<body class="bg-gray-50 font-sans antialiased">
+<?php 
+$page_title = "Mi Cuenta | VIVA - Artesanías Colombianas";
+$body_class = "bg-gray-50 font-sans antialiased";
+require_once __DIR__ . '/partials/base_head.php'; 
+?>
     <div class="flex h-screen overflow-hidden">
         <!-- Sidebar Navigation -->
         <aside id="sidebar" class="w-64 bg-white shadow-xl h-full flex-shrink-0 flex flex-col z-20 hidden lg:flex border-r border-gray-100">
@@ -127,7 +121,7 @@
                                     </div>
                                     
                                     <!-- Formulario oculto para upload automático -->
-                                    <form id="profile-upload-form" action="<?= BASE_URL ?>src/functions/upload.php" method="POST" enctype="multipart/form-data" class="hidden">
+                                    <form id="profile-upload-form" action="<?= BASE_URL ?>api/upload" method="POST" enctype="multipart/form-data" class="hidden">
                                         <input type="file" id="profile-image-input" name="imagen_perfil" accept="image/*">
                                     </form>
                                 </div>
@@ -235,42 +229,20 @@
                         </div>
                         
                         <!-- Favorites Grid -->
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Favorite Item -->
-                            <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all group">
-                                <div class="relative">
-                                    <img src="<?= BASE_URL ?>images/wayuu.jpg" alt="Producto" class="w-full h-48 object-cover">
-                                    <button class="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-red-50 transition-all">
-                                        <i class="fas fa-heart text-red-500"></i>
-                                    </button>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-800 mb-1">Canasto Wayuu Tradicional</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Comunidad Wayuu</p>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-lg font-bold text-tierra-oscuro">$120.000</span>
-                                        <button class="btn-primary text-white px-4 py-2 rounded-lg text-sm">Agregar</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="favoritos-grid">
+                            <!-- Los favoritos se renderizan aquí dinámicamente vía JS -->
+                        </div>
 
-                            <!-- Another Favorite -->
-                            <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all group">
-                                <div class="relative">
-                                    <img src="<?= BASE_URL ?>images/mochila-arhuaca.jpg" alt="Producto" class="w-full h-48 object-cover">
-                                    <button class="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-red-50 transition-all">
-                                        <i class="fas fa-heart text-red-500"></i>
-                                    </button>
-                                </div>
-                                <div class="p-4">
-                                    <h3 class="font-semibold text-gray-800 mb-1">Mochila Arhuaca Original</h3>
-                                    <p class="text-sm text-gray-500 mb-2">Comunidad Arhuaca</p>
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-lg font-bold text-tierra-oscuro">$280.000</span>
-                                        <button class="btn-primary text-white px-4 py-2 rounded-lg text-sm">Agregar</button>
-                                    </div>
-                                </div>
+                        <!-- Estado vacío de favoritos -->
+                        <div id="favoritos-vacio" class="hidden text-center py-16">
+                            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fa-regular fa-heart text-3xl text-gray-300"></i>
                             </div>
+                            <h3 class="text-lg font-medium text-oscuro mb-1">Aún no tienes favoritos</h3>
+                            <p class="text-gray-500 mb-4 text-sm">Explora el catálogo y guarda los productos que más te gusten.</p>
+                            <a href="<?= BASE_URL ?>catalogo" class="btn-primary text-white px-6 py-2 rounded-lg font-medium inline-block">
+                                Ver catálogo
+                            </a>
                         </div>
                     </div>
                 </section>

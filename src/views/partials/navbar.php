@@ -1,5 +1,5 @@
     <!-- Header -->
-    <header class="bg-white shadow-lg sticky top-0 z-50">
+    <header class="bg-white shadow-lg sticky top-0 z-50 font-sans">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-between">
                 <!-- Logo -->
@@ -125,10 +125,14 @@
                         <?php endif; ?>
                     </div>
 
-                    <!-- Cart Button -->
-                    <button id="cartBtn" class="relative text-gray-700 hover:text-naranja-artesanal transition-colors p-2">
-                         <i class="fas fa-shopping-cart text-xl"></i>
-                        <span id="cartCount" class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white transform scale-0 transition-transform duration-300">0</span>
+                    <!-- Botón Carrito -->
+                    <button onclick="toggleCarrito()"
+                            class="relative text-gray-700 hover:text-naranja-artesanal transition-colors p-2"
+                            aria-label="Abrir carrito">
+                        <i class="fas fa-shopping-cart text-xl"></i>
+                        <span class="navbar-carrito-badge hidden absolute top-0 right-0 bg-principal text-white
+                                     text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full
+                                     border-2 border-white">0</span>
                     </button>
 
                     <!-- Mobile menu button -->

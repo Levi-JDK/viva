@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Página no encontrada | VIVA</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-</head>
-<body class="bg-gradient-to-br from-orange-50 to-amber-50 min-h-screen flex items-center justify-center px-4">
+<?php 
+$page_title = "404 - Página no encontrada | VIVA";
+$body_class = "bg-gradient-to-br from-orange-50 to-amber-50 min-h-screen flex items-center justify-center px-4";
+require_once __DIR__ . '/partials/base_head.php'; 
+?>
     <div class="text-center max-w-2xl">
         <!-- Icono de error -->
         <div class="mb-8">

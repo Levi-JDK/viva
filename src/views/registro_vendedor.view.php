@@ -1,23 +1,17 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Vendedor - VIVA</title>
-    <script>const BASE_URL = '<?= BASE_URL ?>';</script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/web.css?v=2">
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/registro_vendedor.css?v=2">
-</head>
-<body>
+<?php 
+$page_title = "Registro de Vendedor - VIVA";
+$body_class = "flex flex-col min-h-screen font-sans text-oscuro bg-fondo-claro";
+require_once __DIR__ . '/partials/base_head.php'; 
+?>
     <?php include_once ROOT_PATH . "src/views/partials/header.php"; ?>
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
-    <!-- Contenedor Principal -->
-    <div class="container mx-auto px-4 py-4">
+    
+    <!-- Wrapper do background -->
+    <div class="flex-1 w-full relative bg-cover bg-center bg-fixed bg-no-repeat" style="background-image: url('<?= BASE_URL ?>images/background_registro_vender.webp');">
+        <!-- Overlay oscuro para resaltar el texto blanco -->
+        <div class="absolute inset-0 bg-black/40"></div>
+        <!-- Contenedor Principal -->
+        <div class="container mx-auto px-4 py-4 relative z-10">
         <!-- Título y Descripción -->
         <div class="text-center mb-4">
             <br>
@@ -327,6 +321,7 @@
                 ¿Necesitas ayuda? <a href="#" class="font-semibold hover:underline">Contáctanos</a>
             </p>
         </div>
+    </div>
     </div>
 
     

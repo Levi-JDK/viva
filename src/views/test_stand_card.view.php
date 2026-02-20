@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test - Stand Cards | VIVA</title>
-    <?php require_once __DIR__ . '/partials/tailwind_head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/web.css">
-</head>
-<body class="bg-gray-50 font-sans antialiased">
+<?php 
+$page_title = "Test - Stand Cards | VIVA";
+$body_class = "bg-gray-50 font-sans antialiased";
+require_once __DIR__ . '/partials/base_head.php'; 
+?>
     
     <div class="container mx-auto px-4 py-12">
         <!-- Page Header -->

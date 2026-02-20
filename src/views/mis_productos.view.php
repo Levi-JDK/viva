@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Vendedor | VIVA - Artesanías Colombianas</title>
-    <?php require_once __DIR__ . '/partials/tailwind_head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/web.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/dash_productos.css">
-</head>
-<body class="bg-gray-100 font-sans antialiased">
+<?php 
+$page_title = "Panel de Vendedor | VIVA - Artesanías Colombianas";
+$body_class = "bg-gray-100 font-sans antialiased";
+require_once __DIR__ . '/partials/base_head.php'; 
+?>
     
     <div class="flex h-screen overflow-hidden">
         
@@ -19,7 +13,7 @@
             <?php require_once __DIR__ . '/mis_productos/header.view.php'; ?>
             
             <!-- Main Scrollable Content -->
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 bg-[linear-gradient(to_bottom,rgba(0,0,0,0.8),transparent),url('<?= BASE_URL ?>images/background_registro_vender.webp')] bg-cover bg-center">   
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-6 bg-cover bg-center" style="background-image: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent), url('<?= BASE_URL ?>images/background_registro_vender.webp');">   
                 <?php 
                     if (isset($current_controller) && file_exists($current_controller)) {
                         require_once $current_controller;

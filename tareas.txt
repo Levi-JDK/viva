@@ -4,3 +4,17 @@ compresion de imagen.
 
 - Al subir la misma imagen al producto si me dice que esta muy pesada,
 implementar validacion y toast en stand.
+
+Pasos a seguir:
+1. Modulo de carrito sincronizado con base de datos.
+2. Modulo de favoritos sincronizado con base de datos.
+3. Rediseñar la pagina de producto y stand.
+    3.0. Crear tabla `tab_resenas`, endpoints e inserción (Reseñas no nulas, 1 a 5 estrellas).
+    3.1. (Producto) Migas de pan, Trust Signals, Reseñas, Relacionados, Imagen Zoom.
+    3.2. (Stand) Cuadrícula de productos del stand, Promedio de estrellas globales.
+    3.3 Implementar CRUD de productos en dashboard. 
+4. Implementar sistema de pagos.
+5. Generacion de facturas
+6. Movimiento de kardex y pedidos.
+7. Generacion de envios y guia de remision.
+8. Generacion de reportes de ventas y estadisticas.

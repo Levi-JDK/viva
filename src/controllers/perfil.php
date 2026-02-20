@@ -8,11 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['id_user']) && isset($_SESSION['email'])) {
     // Sesión antigua, obtener id_user desde el email
     try {
-        require_once ROOT_PATH . 'vendor/autoload.php';
         require_once ROOT_PATH . 'src/functions/Database.php';
-        
-        $dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
-        $dotenv->load();
         
         // Usar Singleton pattern
         $db = Database::getInstance();
@@ -44,12 +40,7 @@ if (!isset($_SESSION['id_user'])) {
 }
 
 // Cargar las dependencias necesarias
-require_once ROOT_PATH . 'vendor/autoload.php';
 require_once ROOT_PATH . 'src/functions/Database.php';
-
-// Cargar variables de entorno
-$dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
-$dotenv->load();
 
 // Conectar a la base de datos usando Singleton
 try {

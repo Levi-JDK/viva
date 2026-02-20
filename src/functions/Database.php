@@ -6,9 +6,13 @@ class Database {
     private $statements = []; 
 
     private function __construct() {
-        // Environment variables are loaded in index.php
-        
-        
+        // Cargar variables de entorno si no han sido cargadas por index.php
+        if (!isset($_ENV['DB_HOST'])) {
+            require_once __DIR__ . '/../../vendor/autoload.php';
+            $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 2));
+            $dotenv->safeLoad();
+        }
+
         $config = [
             'host' => $_ENV['DB_HOST'],
             'port' => $_ENV['DB_PORT'],
@@ -147,7 +151,92 @@ class Database {
             SELECT * FROM fun_obtener_detalle_producto(:id_producto)
         ");
 
+        // Nuevas consultas para conteos dinámicos en los filtros del catálogo
+        // Nota: Solo se cuentan productos que están activos y no borrados
+        $this->statements['obtenerFiltrosCategorias'] = $this->connection->prepare("
+            SELECT c.id_categoria, c.nom_categoria, COUNT(p.id_producto) as total
+            FROM categorias_view c
+            INNER JOIN tab_productos p ON p.id_categoria = c.id_categoria
+            WHERE p.is_deleted = FALSE AND p.is_active = TRUE
+            GROUP BY c.id_categoria, c.nom_categoria
+            ORDER BY c.nom_categoria ASC
+        ");
 
+        $this->statements['obtenerFiltrosOficios'] = $this->connection->prepare("
+            SELECT o.id_oficio, o.nom_oficio, COUNT(p.id_producto) as total
+            FROM oficios_view o
+            INNER JOIN tab_productos p ON p.id_oficio = o.id_oficio
+            WHERE p.is_deleted = FALSE AND p.is_active = TRUE
+            GROUP BY o.id_oficio, o.nom_oficio
+            ORDER BY o.nom_oficio ASC
+        ");
+
+        $this->statements['obtenerFiltrosMaterias'] = $this->connection->prepare("
+            SELECT m.id_materia, m.nom_materia, COUNT(p.id_producto) as total
+            FROM materias_view m
+            INNER JOIN tab_productos p ON p.id_materia = m.id_materia
+            WHERE p.is_deleted = FALSE AND p.is_active = TRUE
+            GROUP BY m.id_materia, m.nom_materia
+            ORDER BY m.nom_materia ASC
+        ");
+
+        // Consulta del carrito de compras
+        $this->statements['gestionarCarrito'] = $this->connection->prepare(
+            "SELECT fun_carrito(:id_user, :accion, :id_producto, :cantidad)"
+        );
+
+        // Consultar Favoritos
+        $this->statements['agregarFavorito'] = $this->connection->prepare(
+            "SELECT fun_c_favorito(:id_user, :id_producto)"
+        );
+
+        $this->statements['eliminarFavorito'] = $this->connection->prepare(
+            "SELECT fun_d_favoritos(:id_user, :id_producto)"
+        );
+
+        $this->statements['obtenerFavoritosUsuario'] = $this->connection->prepare("
+            SELECT 
+                p.id_producto, p.nom_producto, p.precio_producto, p.descripcion_producto, 
+                s.nom_stand, s.img_stand, 
+                (SELECT url_imagen FROM tab_imagenes WHERE id_producto = p.id_producto ORDER BY id_imagen LIMIT 1) as primera_imagen
+            FROM tab_favoritos f
+            INNER JOIN tab_productos p ON f.id_producto = p.id_producto
+            LEFT JOIN tab_stand s ON p.id_productor = s.id_productor
+            WHERE f.id_user = :id_user AND f.is_deleted = FALSE AND p.is_deleted = FALSE AND p.is_active = TRUE
+            ORDER BY f.created_at DESC
+        ");
+
+        // Reseñas de Productos
+        $this->statements['agregarResena'] = $this->connection->prepare("
+            SELECT fun_c_resena(:id_user, :id_producto, :calificacion, :texto)
+        ");
+
+        $this->statements['obtenerResenasProducto'] = $this->connection->prepare("
+            SELECT 
+                r.id_resena, r.calificacion, r.texto_resena, r.created_at,
+                u.nom_user, u.ape_user, u.foto_user
+            FROM tab_resenas r
+            INNER JOIN tab_users u ON r.id_user = u.id_user
+            WHERE r.id_producto = :id_producto AND r.is_deleted = FALSE
+            ORDER BY r.created_at DESC
+        ");
+
+        $this->statements['obtenerPromedioEstrellasProducto'] = $this->connection->prepare("
+            SELECT 
+                COALESCE(AVG(calificacion), 0) as promedio,
+                COUNT(id_resena) as total_resenas
+            FROM tab_resenas
+            WHERE id_producto = :id_producto AND is_deleted = FALSE
+        ");
+
+        $this->statements['obtenerPromedioEstrellasStand'] = $this->connection->prepare("
+            SELECT 
+                COALESCE(AVG(r.calificacion), 0) as promedio,
+                COUNT(r.id_resena) as total_resenas
+            FROM tab_resenas r
+            INNER JOIN tab_productos p ON r.id_producto = p.id_producto
+            WHERE p.id_productor = :id_productor AND r.is_deleted = FALSE
+        ");
     }
 
     public function ejecutar($nombre, $params = []) {
@@ -172,6 +261,89 @@ class Database {
 
         $stmt->execute();
         return $stmt;
+    }
+
+    /**
+     * Obtiene los productos del catálogo aplicando filtros dinámicos.
+     * Esta función construye la consulta de manera segura utilizando statements no pre-registrados,
+     * dado que la cantidad de parámetros es altamente dinámica.
+     */
+    public function obtenerProductosCatalogoFiltrado($filtros = []) {
+        $sql = "
+            SELECT 
+                p.id_producto,
+                p.id_productor,
+                p.nom_producto,
+                p.precio_producto,
+                p.descripcion_producto,
+                s.nom_stand,
+                s.img_stand,
+                (SELECT url_imagen FROM tab_imagenes WHERE id_producto = p.id_producto ORDER BY id_imagen LIMIT 1) as primera_imagen
+            FROM tab_productos p
+            LEFT JOIN tab_stand s ON p.id_productor = s.id_productor
+            WHERE p.is_deleted = FALSE AND p.is_active = TRUE
+        ";
+        
+        $params = [];
+        $condiciones = [];
+
+        // Filtro por Texto (búsqueda en nombre y descripción)
+        if (!empty($filtros['search'])) {
+            $condiciones[] = "(p.nom_producto ILIKE :search OR p.descripcion_producto ILIKE :search)";
+            $params[':search'] = '%' . $filtros['search'] . '%';
+        }
+
+        // Filtro por Categoría
+        if (!empty($filtros['categoria']) && is_numeric($filtros['categoria'])) {
+            $condiciones[] = "p.id_categoria = :categoria";
+            $params[':categoria'] = (int)$filtros['categoria'];
+        }
+
+        // Filtro por Oficio
+        if (!empty($filtros['oficio']) && is_numeric($filtros['oficio'])) {
+            $condiciones[] = "p.id_oficio = :oficio";
+            $params[':oficio'] = (int)$filtros['oficio'];
+        }
+
+        // Filtro por Materia
+        if (!empty($filtros['materia']) && is_numeric($filtros['materia'])) {
+            $condiciones[] = "p.id_materia = :materia";
+            $params[':materia'] = (int)$filtros['materia'];
+        }
+
+        // Filtro por Precio Mínimo
+        if (isset($filtros['min_price']) && is_numeric($filtros['min_price']) && $filtros['min_price'] > 0) {
+            $condiciones[] = "p.precio_producto >= :min_price";
+            $params[':min_price'] = (float)$filtros['min_price'];
+        }
+
+        // Filtro por Precio Máximo
+        if (isset($filtros['max_price']) && is_numeric($filtros['max_price']) && $filtros['max_price'] > 0) {
+            $condiciones[] = "p.precio_producto <= :max_price";
+            $params[':max_price'] = (float)$filtros['max_price'];
+        }
+
+        // Agregar condiciones al WHERE
+        if (count($condiciones) > 0) {
+            $sql .= " AND " . implode(" AND ", $condiciones);
+        }
+
+        // Orden (por defecto, los más recientes)
+        $sql .= " ORDER BY p.created_at DESC";
+
+        $stmt = $this->connection->prepare($sql);
+        
+        // Bind parameters dinámicos
+        foreach ($params as $key => $value) {
+            if (is_int($value)) {
+                $stmt->bindValue($key, $value, PDO::PARAM_INT);
+            } else {
+                $stmt->bindValue($key, $value, PDO::PARAM_STR);
+            }
+        }
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     private function __clone() {}

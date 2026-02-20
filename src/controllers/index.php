@@ -14,12 +14,7 @@ $email_usuario = '';
 $foto_usuario = 'images/default.jpg';
 
 // Cargar dependencias necesarias (siempre, no solo si hay usuario logueado)
-require_once ROOT_PATH . 'vendor/autoload.php';
 require_once ROOT_PATH . 'src/functions/Database.php';
-
-// Cargar variables de entorno
-$dotenv = Dotenv\Dotenv::createImmutable(ROOT_PATH);
-$dotenv->load();
 
 // Si el usuario está logueado, obtener sus datos
 if (isset($_SESSION['id_user'])) {

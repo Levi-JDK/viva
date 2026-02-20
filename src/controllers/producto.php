@@ -39,6 +39,10 @@ $id_producto = isset($_GET['id']) && is_numeric($_GET['id']) ? $_GET['id'] : nul
 
 $producto = null;
 $error_message = null;
+$resenas = [];
+$promedio_estrellas = 0;
+$total_resenas = 0;
+$productos_relacionados = [];
 
 if ($id_producto) {
     try {
@@ -52,6 +56,37 @@ if ($id_producto) {
              $producto['imagen_principal'] = !empty($producto['imagenes']) && isset($producto['imagenes'][0]['url']) 
                 ? $producto['imagenes'][0]['url'] 
                 : 'images/default_product.png';
+
+            // --- INICIO: Carga de Reseñas y Relacionados ---
+            try {
+                // 1. Obtener Reseñas
+                $stmtResenas = $db->ejecutar('obtenerResenasProducto', [':id_producto' => $id_producto]);
+                $resenas = $stmtResenas->fetchAll(PDO::FETCH_ASSOC);
+
+                // 2. Obtener Promedio de Estrellas
+                $stmtPromedio = $db->ejecutar('obtenerPromedioEstrellasProducto', [':id_producto' => $id_producto]);
+                $promedioRow = $stmtPromedio->fetch(PDO::FETCH_ASSOC);
+                if ($promedioRow) {
+                    $promedio_estrellas = round((float)$promedioRow['promedio'], 1);
+                    $total_resenas = (int)$promedioRow['total_resenas'];
+                }
+
+                // 3. Obtener Productos Relacionados (Mis categoria u oficio)
+                // Usaremos obtenerProductosCatalogoFiltrado con límite manual, excluyendo el actual
+                $relacionadosResult = $db->obtenerProductosCatalogoFiltrado([
+                    'categoria' => $producto['id_categoria']
+                ]);
+                
+                // Filtramos el mismo producto y limitamos a 4
+                $productos_relacionados = array_slice(array_filter($relacionadosResult, function($p) use ($id_producto) {
+                    return $p['id_producto'] != $id_producto;
+                }), 0, 4);
+
+            } catch (Exception $ex) {
+                error_log("Error cargando extras del producto: " . $ex->getMessage());
+            }
+            // --- FIN: Carga de extras ---
+
         } else {
             $error_message = "Producto no encontrado.";
         }

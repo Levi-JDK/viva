@@ -1,16 +1,9 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VIVA | Artesanías Colombianas - Conecta con nuestras raíces</title>
-    <script>const BASE_URL = '<?= BASE_URL ?>';</script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/web.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/responsive.css">
-</head>
-<body class="font-sans bg-white scroll-smooth">
+<?php 
+$page_title = "VIVA | Artesanías Colombianas - Conecta con nuestras raíces";
+$body_class = "font-sans bg-white scroll-smooth";
+$extra_css = '<link rel="stylesheet" href="' . BASE_URL . 'src/styles/responsive.css">';
+require_once __DIR__ . '/partials/base_head.php'; 
+?>
     <!-- Header -->
     <!-- Header -->
     <?php require_once __DIR__ . '/partials/navbar.php'; ?>
@@ -266,30 +259,10 @@
     <button id="scrollToTop" class="fixed bottom-6 right-6 w-12 h-12 bg-gradient-to-r from-naranja-artesanal to-tierra-medio text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 opacity-0 invisible">
         <i class="fas fa-arrow-up"></i>
     </button>
-    <!-- Cart Overlay -->
-    <div id="cartOverlay" class="fixed inset-0 bg-black opacity-0 invisible transition-opacity duration-300 z-40"></div>
-    <!-- Cart Sidebar -->
-<aside id="cartSidebar" class="fixed top-0 right-0 w-80 h-full bg-white shadow-2xl transform translate-x-full transition-transform duration-300 z-50 flex flex-col">
-    <div class="p-4 border-b flex justify-between items-center">
-        <h2 class="text-lg font-bold text-tierra-oscuro">Carrito</h2>
-        <button onclick="toggleCart()" class="text-gray-500 hover:text-red-500">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    <div class="flex-1 overflow-y-auto p-4">
-        <ul id="cartItems" class="space-y-4 text-sm text-gray-700">
-            <li class="text-center text-gray-500 py-8">
-                <i class="fas fa-shopping-cart text-4xl text-gray-300 mb-3"></i>
-                <p>Tu carrito está vacío</p>
-            </li>
-        </ul>
-    </div>
-    <div class="p-4 border-t">
-        <p class="font-bold text-tierra-oscuro mb-2">Total: <span id="cartTotal">$0</span></p>
-        <button class="btn-primary w-full py-2 text-white rounded-lg">Finalizar compra</button>
-    </div>
-</aside>
+    <!-- Drawer del Carrito -->
+    <?php require_once __DIR__ . '/partials/carrito.php'; ?>
     <script src="<?= BASE_URL ?>src/scripts/script1.js?v=4"></script>
     <script src="<?= BASE_URL ?>src/scripts/script_landing.js?v=4"></script>
+    <script src="<?= BASE_URL ?>src/scripts/carrito.js"></script>
 </body>
 </html>

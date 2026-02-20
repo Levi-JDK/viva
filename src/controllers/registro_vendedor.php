@@ -10,7 +10,7 @@ if (!isset($_SESSION['id_user'])) {
 }
 
 // Este controlador SOLO se encarga de cargar los datos necesarios para la vista (GET)
-// NO procesa el formulario de registro. Eso lo hace src/controllers/api/post_registro_vendedor.php
+// NO procesa el formulario de registro. Eso lo hace src/api/post_registro_vendedor.php
 require_once(__DIR__ . '/../functions/Database.php');
 
 

@@ -1,21 +1,4 @@
-// Tailwind Configuration for Custom Colors
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                'tierra-oscuro': '#8B4513',
-                'tierra-medio': '#CD853F',
-                'tierra-claro': '#DEB887',
-                'verde-artesanal': '#6B8E23',
-                'naranja-artesanal': '#D2691E',
-                'beige-suave': '#F5F5DC'
-            },
-            fontFamily: {
-                'sans': ['Inter', 'system-ui', 'sans-serif']
-            }
-        }
-    }
-};
+// Configuración base de Tailwind migrada a CLI
 
 // ===== CART FUNCTIONALITY =====
 let cart = [];

@@ -10,11 +10,9 @@ try {
         throw new Exception("ID de departamento no proporcionado");
     }
 
-    require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
-    $dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 3));
-    $dotenv->safeLoad();
 
-    require_once dirname(__DIR__, 3) . '/src/functions/Database.php';
+
+    require_once dirname(__DIR__, 2) . '/src/functions/Database.php';
     // 3. Obtener instancia de BD
     $db = Database::getInstance();
 

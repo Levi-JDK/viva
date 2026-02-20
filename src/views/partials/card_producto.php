@@ -75,27 +75,39 @@ $stand_logo = !empty($product['img_stand']) ? BASE_URL . $product['img_stand'] :
 ?>
 
 <!-- Componente: Tarjeta de Producto -->
-<a href="<?= htmlspecialchars($product_url) ?>" class="product-card bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col group h-full">
-    <!-- Imagen del Producto -->
-    <div class="h-64 bg-gradient-to-br from-tierra-claro to-beige-suave relative overflow-hidden">
-        <img src="<?= $product_image ?>" 
-             alt="<?= htmlspecialchars($product['nom_producto'] ?? 'Producto') ?>"
-             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-        <!-- Overlay al pasar el cursor -->
-        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
-    </div>
-    
+<div class="product-card bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col group h-full relative">
+
+    <!-- Imagen del Producto — es el link principal -->
+    <a href="<?= htmlspecialchars($product_url) ?>" class="block relative group/img">
+        <div class="h-64 bg-gradient-to-br from-tierra-claro to-beige-suave relative overflow-hidden">
+            <img src="<?= $product_image ?>"
+                 alt="<?= htmlspecialchars($product['nom_producto'] ?? 'Producto') ?>"
+                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300"></div>
+        </div>
+        
+        <!-- Botón de favorito superpuesto -->
+        <button onclick="toggleFavorito(<?= (int)($product['id_producto'] ?? 0) ?>, this, event)"
+                data-id-producto="<?= (int)($product['id_producto'] ?? 0) ?>"
+                class="btn-favorito absolute top-3 right-3 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-all z-10 hover:scale-110"
+                aria-label="Alternar favorito">
+            <i class="fa-regular fa-heart text-gray-400 text-lg"></i>
+        </button>
+    </a>
+
     <!-- Información del Producto -->
     <div class="p-5 flex-1 flex flex-col">
         <!-- Nombre del Producto -->
-        <h3 class="font-bold text-lg text-tierra-oscuro mb-2 line-clamp-2 group-hover:text-naranja-artesanal transition-colors">
-            <?= htmlspecialchars($product['nom_producto'] ?? 'Sin nombre') ?>
-        </h3>
-        
+        <a href="<?= htmlspecialchars($product_url) ?>">
+            <h3 class="font-bold text-lg text-tierra-oscuro mb-2 line-clamp-2 group-hover:text-naranja-artesanal transition-colors">
+                <?= htmlspecialchars($product['nom_producto'] ?? 'Sin nombre') ?>
+            </h3>
+        </a>
+
         <!-- Información del Stand (Productor) -->
         <div class="flex items-center gap-2 mb-3">
             <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-tierra-claro">
-                <img src="<?= $stand_logo ?>" 
+                <img src="<?= $stand_logo ?>"
                      alt="<?= htmlspecialchars($product['nom_stand'] ?? 'Stand') ?>"
                      class="w-full h-full object-cover">
             </div>
@@ -103,33 +115,37 @@ $stand_logo = !empty($product['img_stand']) ? BASE_URL . $product['img_stand'] :
                 <?= htmlspecialchars($product['nom_stand'] ?? 'Stand artesanal') ?>
             </span>
         </div>
-        
+
         <!-- Espaciador -->
         <div class="flex-1"></div>
-        
+
         <!-- Precio (condicional) -->
         <?php if ($show_price): ?>
             <div class="mt-auto pt-3 border-t border-gray-100">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between gap-2">
                     <span class="text-2xl font-bold text-tierra-oscuro">
                         $<?= number_format($product['precio_producto'] ?? 0, 0, ',', '.') ?>
                     </span>
-                    <button class="bg-naranja-artesanal text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-tierra-oscuro transition-colors">
-                        <i class="fas fa-shopping-cart mr-1"></i>
-                        Comprar
+                    <!-- Botón Agregar al Carrito -->
+                    <button
+                        onclick="event.stopPropagation(); agregarAlCarrito(<?= (int)($product['id_producto'] ?? 0) ?>, 1, this)"
+                        class="btn-agregar-carrito bg-naranja-artesanal text-white px-4 py-2 rounded-lg text-sm font-medium
+                               hover:bg-tierra-oscuro active:scale-95 transition-all flex items-center gap-1.5">
+                        <i class="fas fa-shopping-cart text-xs"></i>
+                        Agregar
                     </button>
                 </div>
             </div>
         <?php else: ?>
             <!-- Botón "Ver más" para el Landing -->
             <div class="mt-auto pt-3">
-                <div class="text-center">
+                <a href="<?= htmlspecialchars($product_url) ?>" class="block text-center">
                     <span class="inline-flex items-center text-naranja-artesanal font-medium group-hover:text-tierra-oscuro transition-colors">
                         Ver más
                         <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
                     </span>
-                </div>
+                </a>
             </div>
         <?php endif; ?>
     </div>
-</a>
+</div>

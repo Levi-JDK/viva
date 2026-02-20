@@ -3,11 +3,9 @@
  * Manejador de Subida de Productos
  */
 
-require_once 'image_uploader.php';
-require_once __DIR__ . '/../../vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../../');
-$dotenv->load();
-require_once 'Database.php';
+require_once __DIR__ . '/image_uploader.php';
+
+require_once __DIR__ . '/Database.php';
 
 // Detectar BASE_URL
 $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";

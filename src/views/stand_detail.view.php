@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= htmlspecialchars($stand['nom_stand'] ?? 'Stand') ?> | VIVA</title>
-    <?php require_once __DIR__ . '/partials/tailwind_head.php'; ?>
-    <link rel="stylesheet" href="<?= BASE_URL ?>src/styles/web.css">
-</head>
-<body class="bg-gray-50 font-sans antialiased">
+<?php 
+$page_title = htmlspecialchars($stand['nom_stand'] ?? 'Stand') . " | VIVA";
+$body_class = "bg-gray-50 font-sans antialiased";
+require_once __DIR__ . '/partials/base_head.php'; 
+?>
     
     <!-- Navbar -->
     <?php require_once __DIR__ . '/partials/navbar.php'; ?>
@@ -42,6 +37,19 @@
                             <h1 class="text-3xl md:text-4xl font-bold text-tierra-oscuro mb-2">
                                 <?= htmlspecialchars($stand['nom_stand'] ?? 'Sin nombre') ?>
                             </h1>
+                            
+                            <!-- Stars -->
+                            <?php if($total_resenas_stand > 0): ?>
+                            <div class="flex items-center justify-center md:justify-start mb-2">
+                                <div class="flex text-yellow-400 text-sm mr-2">
+                                    <?php for($i = 1; $i <= 5; $i++): ?>
+                                        <i class="fas fa-star <?= $i <= round($promedio_estrellas_stand) ? '' : 'text-gray-300' ?>"></i>
+                                    <?php endfor; ?>
+                                </div>
+                                <span class="text-sm font-bold text-gray-700"><?= number_format($promedio_estrellas_stand, 1) ?></span>
+                                <span class="text-xs text-blue-600 ml-2">(<?= $total_resenas_stand ?> reseñas globales)</span>
+                            </div>
+                            <?php endif; ?>
                             
                             <?php if (!empty($stand['slogan_stand'])): ?>
                                 <p class="text-lg text-naranja-artesanal font-medium mb-4">
@@ -83,18 +91,29 @@
                     <?php endif; ?>
                 </div>
 
-                <!-- Products Section (Future) -->
-                <!-- 
+                <!-- Products Section -->
                 <div class="bg-white rounded-xl shadow-lg p-6 md:p-8 mt-8">
                     <h2 class="text-2xl font-bold text-tierra-oscuro mb-6 flex items-center">
                         <i class="fas fa-box-open mr-3 text-naranja-artesanal"></i>
-                        Productos
+                        Catálogo del Stand
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        Product cards here
-                    </div>
+                    
+                    <?php if (empty($productos_stand)): ?>
+                        <div class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                            <i class="fas fa-store-slash text-4xl text-gray-300 mb-3"></i>
+                            <p class="text-gray-500">Este artesano aún no tiene productos publicados.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <?php 
+                            $show_price = true;
+                            foreach ($productos_stand as $product): 
+                                require __DIR__ . '/partials/card_producto.php';
+                            endforeach; 
+                            ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
-                -->
             </div>
 
             <!-- Sidebar - Additional Info -->

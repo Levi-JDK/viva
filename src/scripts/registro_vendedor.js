@@ -134,8 +134,8 @@ async function handleFormSubmit(event) {
     submitBtn.disabled = true;
 
     // URL del endpoint API que procesará el registro
-    // Apunta a src/controllers/api/post_registro_vendedor.php
-    const url = (typeof BASE_URL !== 'undefined' ? BASE_URL : '') + 'src/controllers/api/post_registro_vendedor.php';
+    // Apunta a src/api/post_registro_vendedor.php
+    const url = (typeof BASE_URL !== 'undefined' ? BASE_URL : '') + 'src/api/post_registro_vendedor.php';
 
     try {
         // Enviar datos usando fetch (AJAX) - Método asíncrono moderno

@@ -1,27 +1,3 @@
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                principal: '#b15b0a',
-                secundario: '#a04e07',
-                claro: '#F5E9D3',
-                oscuro: '#4A3B2B',
-                'fondo-claro': '#fff',
-                'fondo-oscuro': '#eee',
-                'tierra-oscuro': '#8B4513',
-                'tierra-medio': '#CD853F',
-                'tierra-claro': '#DEB887',
-                'verde-artesanal': '#6B8E23',
-                'naranja-artesanal': '#D2691E',
-                'beige-suave': '#F5F5DC',
-            },
-            fontFamily: {
-                sans: ['Outfit', 'sans-serif'],
-            }
-        }
-    }
-}
-
 let isTransitioning = false;
 const pageTitle = document.getElementById('pageTitle');
 const sidebar = document.getElementById('sidebar');
@@ -260,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             showToast('Publicando producto...', 'info');
 
-            fetch('src/functions/upload_product.php', {
+            fetch(BASE_URL + 'api/upload_product', {
                 method: 'POST',
                 body: formData
             })

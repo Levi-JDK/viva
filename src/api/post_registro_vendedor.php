@@ -14,13 +14,8 @@ if (!isset($_SESSION['id_user'])) {
     exit;
 }
 
-// Cargar variables de entorno
-require_once dirname(__DIR__, 3) . '/vendor/autoload.php';
-$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__, 3));
-$dotenv->safeLoad();
-
 // Cargar Database
-require_once dirname(__DIR__, 3) . '/src/functions/Database.php';
+require_once dirname(__DIR__, 2) . '/src/functions/Database.php';
 
 $params = [];
 

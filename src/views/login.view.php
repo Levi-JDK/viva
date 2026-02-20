@@ -1,9 +1,13 @@
-<?php require_once ROOT_PATH . "/src/views/partials/headhtml.php"; 
-	require_once ROOT_PATH . "/src/views/partials/header.php"; ?>
+<?php 
+$page_title = "VIVA | Iniciar Sesión - Artesanías Colombianas";
+$body_class = "flex flex-col min-h-screen font-sans text-oscuro bg-fondo-claro";
+require_once __DIR__ . '/partials/base_head.php'; 
+require_once __DIR__ . "/partials/header.php"; 
+?>
 	<!-- Toast Container -->
 	<div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
 
-	<div class="center flex-1 w-full flex items-center justify-center py-10 md:py-20 px-4 bg-[url('<?= BASE_URL ?>images/artesanias.png')] bg-cover bg-center bg-fixed bg-no-repeat">
+	<div class="center flex-1 w-full flex items-center justify-center py-10 md:py-20 px-4 bg-cover bg-center bg-fixed bg-no-repeat" style="background-image: url('<?= BASE_URL ?>images/artesanias.png');">
 		<div class="container relative bg-fondo-claro rounded-2xl shadow-2xl overflow-hidden w-full max-w-[768px] min-h-[600px] md:min-h-[550px]" id="container">
 			
 			<!-- Sign Up Container -->

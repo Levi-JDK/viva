@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Realizar petición Fetch al backend
             // Usar BASE_URL si está definida, de lo contrario intentar ruta relativa
             const baseUrl = (typeof BASE_URL !== 'undefined') ? BASE_URL : '';
-            fetch(`${baseUrl}src/controllers/api/get_ciudades.php?id_departamento=${departamentoId}`)
+            fetch(`${baseUrl}src/api/get_ciudades.php?id_departamento=${departamentoId}`)
 
                 .then(response => {
                     if (!response.ok) {
