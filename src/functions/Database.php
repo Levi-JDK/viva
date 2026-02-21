@@ -1,9 +1,8 @@
 <?php
-
 class Database {
     private static $instance = null;
     public $connection;
-    private $statements = []; 
+    private $statements = [];
 
     private function __construct() {
         // Cargar variables de entorno si no han sido cargadas por index.php
@@ -148,17 +147,37 @@ class Database {
 
         // Obtener detalle completo del producto (Producto + Stand + Imágenes + Ubicación)
         $this->statements['obtenerDetalleProducto'] = $this->connection->prepare("
-            SELECT * FROM fun_obtener_detalle_producto(:id_producto)
+            SELECT id_producto, nom_producto, precio_producto, descripcion_producto, stock_productor, 
+                   is_active, id_categoria, nom_categoria, id_color, nom_color, id_oficio, nom_oficio, 
+                   id_materia, nom_materia, id_productor, nom_productor, nom_stand, img_stand, 
+                   slogan_stand, descripcion_stand, portada_stand, ubicacion, imagenes 
+            FROM fun_obtener_detalle_producto(:id_producto)
+        ");
+
+        // Obtener stands activos (Directorio)
+        $this->statements['obtenerStandsActivos'] = $this->connection->prepare("
+            SELECT id_productor, id_stand, nom_stand, slogan_stand, descripcion_stand, img_stand, portada_stand
+            FROM tab_stand
+            WHERE is_deleted = FALSE
+            ORDER BY nom_stand ASC
+        ");
+
+        // Buscar stands activos por nombre o descripción
+        $this->statements['buscarStandsActivos'] = $this->connection->prepare("
+            SELECT id_productor, id_stand, nom_stand, slogan_stand, descripcion_stand, img_stand, portada_stand
+            FROM tab_stand
+            WHERE is_deleted = FALSE AND (nom_stand ILIKE :search OR descripcion_stand ILIKE :search)
+            ORDER BY nom_stand ASC
         ");
 
         // Nuevas consultas para conteos dinámicos en los filtros del catálogo
         // Nota: Solo se cuentan productos que están activos y no borrados
         $this->statements['obtenerFiltrosCategorias'] = $this->connection->prepare("
-            SELECT c.id_categoria, c.nom_categoria, COUNT(p.id_producto) as total
+            SELECT c.id_categoria, c.nom_categoria, c.img_cat, COUNT(p.id_producto) as total
             FROM categorias_view c
             INNER JOIN tab_productos p ON p.id_categoria = c.id_categoria
             WHERE p.is_deleted = FALSE AND p.is_active = TRUE
-            GROUP BY c.id_categoria, c.nom_categoria
+            GROUP BY c.id_categoria, c.nom_categoria, c.img_cat
             ORDER BY c.nom_categoria ASC
         ");
 
@@ -237,6 +256,36 @@ class Database {
             INNER JOIN tab_productos p ON r.id_producto = p.id_producto
             WHERE p.id_productor = :id_productor AND r.is_deleted = FALSE
         ");
+
+        // ── Clientes y Facturación ────────────────────────────────────────────
+
+        // UPSERT de dirección de envío del cliente (desde form de checkout)
+        $this->statements['guardarCliente'] = $this->connection->prepare(
+            "SELECT fun_c_cliente(:id_user, :id_client, :nom, :mail, :dpto, :ciudad, :dir, :barrio)"
+        );
+
+        // Actualizar datos ePayco del cliente tras confirmación de pago
+        $this->statements['actualizarClienteEpayco'] = $this->connection->prepare(
+            "SELECT fun_u_cliente_epayco(:id_user, :id_client, :id_tipo_doc, :tel, :ref, :txn, :banco, :cod_resp)"
+        );
+
+        // Obtener dirección de envío guardada del cliente (para pre-llenar form y para la factura)
+        $this->statements['obtenerDireccionCliente'] = $this->connection->prepare(
+            "SELECT id_departamento, id_ciudad, dir_envio, barrio_envio
+               FROM tab_clientes WHERE id_user = :id_user AND is_deleted = FALSE LIMIT 1"
+        );
+
+        // Facturación completa: enc_fact + det_fact + kardex + limpiar carrito
+        // fun_facturar recibe id_user (busca id_client internamente) y NO necesita ids_productor
+        $this->statements['facturar'] = $this->connection->prepare(
+            "SELECT fun_facturar(
+                :id_user, :id_pago,
+                :dpto, :ciudad, :dir,
+                :epayco_ref, :epayco_txn, :epayco_estado,
+                :ids_producto::INTEGER[],
+                :cantidades::INTEGER[]
+            )"
+        );
     }
 
     public function ejecutar($nombre, $params = []) {

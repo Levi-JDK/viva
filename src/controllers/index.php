@@ -5,44 +5,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Inicializar variables por defecto
-$is_logged_in = false;
-$nombre_usuario = '';
-$apellido_usuario = '';
-$nombre_completo = '';
-$email_usuario = '';
-$foto_usuario = 'images/default.jpg';
+// Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
+require_once ROOT_PATH . 'src/functions/navbar_usuario.php';
+cargar_datos_navbar();
 
-// Cargar dependencias necesarias (siempre, no solo si hay usuario logueado)
-require_once ROOT_PATH . 'src/functions/Database.php';
-
-// Si el usuario está logueado, obtener sus datos
-if (isset($_SESSION['id_user'])) {
-    try {
-        // Usar Singleton pattern
-        $db = Database::getInstance();
-        
-        // Obtener datos del usuario usando consulta preparada
-        $id_usuario = $_SESSION['id_user'];
-        $stmt = $db->ejecutar('obtenerUsuarioPorId', [':id' => $id_usuario]);
-        $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($usuario) {
-            $is_logged_in = true;
-            $nombre_usuario = $usuario['nom_user'] ?? 'Usuario';
-            $apellido_usuario = $usuario['ape_user'] ?? '';
-            $nombre_completo = $nombre_usuario . ' ' . $apellido_usuario;
-            $email_usuario = $usuario['mail_user'] ?? '';
-            $foto_usuario = $usuario['foto_user'] ?? 'images/default.jpg';
-        }
-        // Verificar si es productor
-        $stmt_productor = $db->ejecutar('validarProductor', [':id_user' => $id_usuario]);
-        $es_productor = $stmt_productor->fetchColumn(); 
-    } catch (Exception $e) {
-        // Si hay error, simplemente no mostrar datos de usuario
-        error_log("Error al obtener datos de usuario en index: " . $e->getMessage());
-    }
-}
 
 // Obtener stands destacados para la sección de afiliados (máx 3)
 $featured_stands = [];
@@ -63,6 +29,16 @@ try {
     $featured_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     error_log("Error al obtener productos destacados: " . $e->getMessage());
+}
+
+// Obtener categorías con contador de productos
+$categorias_destacadas = [];
+try {
+    $db = Database::getInstance();
+    $stmt = $db->ejecutar('obtenerFiltrosCategorias');
+    $categorias_destacadas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    error_log("Error al obtener categorías destacadas: " . $e->getMessage());
 }
 
 // Usamos ROOT_PATH para que el include sea absoluto desde el disco

@@ -7,6 +7,7 @@ DROP VIEW IF EXISTS colores_view;
 DROP VIEW IF EXISTS oficios_view;
 DROP VIEW IF EXISTS materias_view;
 DROP TABLE IF EXISTS tab_kardex;
+DROP TABLE IF EXISTS tab_clientes;
 DROP TABLE IF EXISTS tab_envios;
 DROP TABLE IF EXISTS tab_det_fact;
 DROP TABLE IF EXISTS tab_enc_fact;
@@ -322,6 +323,7 @@ CREATE TABLE IF NOT EXISTS tab_categorias
 (
     id_categoria DECIMAL(12,0) NOT NULL,                                  -- Identificador de la categoría
     nom_categoria VARCHAR      NOT NULL,                                   -- Nombre de la categoría
+    img_cat       VARCHAR      NOT NULL DEFAULT 'images/default_category.webp', -- Imagen de la categoría
     created_by    VARCHAR      NOT NULL DEFAULT current_user,              -- Usuario que creó
     created_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
     updated_by    VARCHAR,                                                 -- Usuario que modificó
@@ -475,29 +477,75 @@ CREATE TABLE IF NOT EXISTS tab_transito
     FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)
 );
 
+-- -----------------------------------------------------------------------------
+-- Tabla de clientes compradores
+-- Almacena información de envío/facturación del usuario que realiza la compra.
+-- id_client es el mismo INTEGER que tab_users.id_user (relación 1-a-1).
+-- -----------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS tab_clientes (
+    id_user         INTEGER       NOT NULL,            --tab_users.id_user
+    id_client       VARCHAR(20)   NOT NULL,            -- Documento del cliente  
+    nom_client      VARCHAR       NOT NULL,            -- Nombre completo
+    mail_client     VARCHAR       NOT NULL,            -- Email
+    tel_client      VARCHAR(20),                       -- Teléfono (de ePayco)
+    id_tipo_doc     DECIMAL(1,0),                      -- Tipo de documento (de ePayco)
+    nro_doc         VARCHAR(20),                       -- Número de documento (de ePayco)
+    -- Dirección de envío capturada en el formulario del checkout
+    id_pais         DECIMAL(3,0)  NOT NULL DEFAULT 1,  -- Colombia por defecto
+    id_departamento DECIMAL(2,0)  NOT NULL,
+    id_ciudad       DECIMAL(5,0)  NOT NULL,
+    dir_envio       VARCHAR       NOT NULL,            -- Ej: "Calle 10 # 5-20 Apto 301"
+    barrio_envio    VARCHAR,                           -- Barrio (opcional)
+    -- Último pago ePayco (se sobreescribe en cada compra del mismo cliente)
+    epayco_ref      VARCHAR,                           -- x_ref_payco
+    epayco_txn_id   VARCHAR,                           -- x_transaction_id
+    epayco_banco    VARCHAR,                           -- x_bank_name
+    epayco_cod_resp DECIMAL(1,0),                      -- 1=Aceptada|2=Rechazada|3=Pendiente|4=Fallida
+    -- Auditoría
+    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP WITHOUT TIME ZONE,
+    is_deleted  BOOLEAN NOT NULL DEFAULT FALSE,
+    -- Restricciones
+    PRIMARY KEY (id_client),
+    FOREIGN KEY (id_user)                              REFERENCES tab_users(id_user),
+    FOREIGN KEY (id_pais, id_departamento, id_ciudad)    REFERENCES tab_ciudades(id_pais, id_departamento, id_ciudad),
+    FOREIGN KEY (id_tipo_doc)                            REFERENCES tab_tipos_doc(id_tipo_doc)
+);
+
+CREATE INDEX IF NOT EXISTS idx_clientes_mail   ON tab_clientes(mail_client);
+CREATE INDEX IF NOT EXISTS idx_clientes_ciudad ON tab_clientes(id_pais, id_ciudad);
+
+-- -----------------------------------------------------------------------------
 -- Tabla de encabezado de factura
+-- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS tab_enc_fact
 (
-    id_factura    DECIMAL(7,0)  NOT NULL CHECK(id_factura >= 1),          -- Número de factura
-    fec_factura   DATE          NOT NULL,                                  -- Fecha de emisión
-    val_hora_fact TIME WITHOUT TIME ZONE NOT NULL,                         -- Hora de emisión
-    id_client     VARCHAR       NOT NULL,                                  -- Cliente
-    id_pais          DECIMAL(3,0)  NOT NULL,                             -- País destino
-    id_departamento  DECIMAL(2,0)  NOT NULL,                             -- Departamento destino
-    id_ciudad        DECIMAL(5,0)  NOT NULL,                             -- Ciudad destino
-    val_tot_fact  DECIMAL(12,2) NOT NULL,                                  -- Total factura
-    ind_estado    BOOLEAN       NOT NULL,                                   -- Activa/Anulada
-    id_pago       VARCHAR       NOT NULL,                                   -- Forma de pago
-    created_by    VARCHAR       NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by    VARCHAR,                                                  -- Usuario que modificó
-    updated_at    TIMESTAMP WITHOUT TIME ZONE,                              -- Fecha de modificación
-    is_deleted    BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_factura      DECIMAL(7,0)  NOT NULL CHECK(id_factura >= 1), -- Número de factura
+    fec_factura     DATE          NOT NULL,                         -- Fecha de emisión
+    val_hora_fact   TIME WITHOUT TIME ZONE NOT NULL,                -- Hora de emisión
+    id_client       VARCHAR       NOT NULL,                         -- Cliente (id_user como texto)
+    id_pais         DECIMAL(3,0)  NOT NULL,                         -- País destino
+    id_departamento DECIMAL(2,0)  NOT NULL,                         -- Departamento destino
+    id_ciudad       DECIMAL(5,0)  NOT NULL,                         -- Ciudad destino
+    dir_envio       VARCHAR,                                        -- Dirección de envío (texto libre)
+    val_tot_fact    DECIMAL(12,2) NOT NULL,                         -- Total factura
+    ind_estado      BOOLEAN       NOT NULL,                         -- Activa/Anulada
+    id_pago         VARCHAR       NOT NULL,                         -- Forma de pago
+    -- Datos de trazabilidad ePayco
+    epayco_ref      VARCHAR,                                        -- x_ref_payco
+    epayco_txn_id   VARCHAR,                                        -- x_transaction_id
+    epayco_estado   VARCHAR,                                        -- "Aceptada" / "Rechazada" / "Pendiente"
+    -- Auditoría
+    created_by    VARCHAR       NOT NULL DEFAULT current_user,
+    created_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by    VARCHAR,
+    updated_at    TIMESTAMP WITHOUT TIME ZONE,
+    is_deleted    BOOLEAN       NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id_factura),
-    FOREIGN KEY(id_pago)              REFERENCES tab_formas_pago(id_pago),
-
-    FOREIGN KEY(id_pais)              REFERENCES tab_paises(id_pais),
-    FOREIGN KEY(id_pais,id_departamento,id_ciudad) REFERENCES tab_ciudades(id_pais,id_departamento,id_ciudad)
+    FOREIGN KEY(id_pago)     REFERENCES tab_formas_pago(id_pago),
+    FOREIGN KEY(id_pais)     REFERENCES tab_paises(id_pais),
+    FOREIGN KEY(id_pais, id_departamento, id_ciudad)
+                             REFERENCES tab_ciudades(id_pais, id_departamento, id_ciudad)
 );
 
 -- Tabla de detalle de factura
@@ -544,20 +592,18 @@ CREATE TABLE IF NOT EXISTS tab_envios
 -- Tabla de kardex
 CREATE TABLE IF NOT EXISTS tab_kardex
 (
-    id_kardex    DECIMAL(12,0) NOT NULL,                                   -- Identificador del movimiento
-    id_producto  DECIMAL(12,0) NOT NULL,                                   -- Producto afectado
+    id_kardex    SERIAL        NOT NULL,                                    -- PK autoincrementable
+    id_producto  DECIMAL(7,0)  NOT NULL,                                   -- Producto afectado
     id_productor DECIMAL(10,0) NOT NULL,                                   -- Productor relacionado
-    tipo_movim   BOOLEAN       NOT NULL,                                   -- Tipo (TRUE entrada / FALSE salida)
-    cantidad     DECIMAL(4,0)  NOT NULL CHECK(cantidad >= 1 AND cantidad <= 9999), -- Cantidad
-    fecha_movim  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),        -- Fecha del movimiento
-    created_by   VARCHAR       NOT NULL DEFAULT current_user,               -- Usuario que creó
-    created_at   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by   VARCHAR,                                                   -- Usuario que modificó
-    updated_at   TIMESTAMP WITHOUT TIME ZONE,                               -- Fecha de modificación
-    is_deleted   BOOLEAN       NOT NULL DEFAULT FALSE,                      -- Borrado lógico
+    tipo_movim   BOOLEAN       NOT NULL,                                   -- TRUE=entrada / FALSE=salida (venta)
+    cantidad     DECIMAL(7,0)  NOT NULL CHECK(cantidad >= 1),              -- Cantidad del movimiento
+    ref_factura  DECIMAL(7,0),                                             -- FK trazabilidad → tab_enc_fact
+    created_at   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_deleted   BOOLEAN       NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id_kardex),
-    FOREIGN KEY(id_producto)  REFERENCES tab_productos(id_producto),
-    FOREIGN KEY(id_productor) REFERENCES tab_productores(id_productor)
+    FOREIGN KEY(id_producto)  REFERENCES tab_productos  (id_producto),
+    FOREIGN KEY(id_productor) REFERENCES tab_productores(id_productor),
+    FOREIGN KEY(ref_factura)  REFERENCES tab_enc_fact   (id_factura)
 );
 
 -- INDICES
@@ -650,7 +696,7 @@ FROM tab_bancos
 ORDER BY nombre ASC;
 
 CREATE OR REPLACE VIEW categorias_view AS
-SELECT id_categoria, nom_categoria 
+SELECT id_categoria, nom_categoria, img_cat
 FROM tab_categorias 
 ORDER BY nom_categoria ASC;
 

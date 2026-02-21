@@ -28,7 +28,7 @@ require_once __DIR__ . '/partials/base_head.php';
                     <li>
                         <div class="flex items-center">
                             <i class="fas fa-chevron-right text-xs mx-2"></i>
-                            <a href="<?= BASE_URL ?>catalogo?categoria=<?= $producto['id_categoria'] ?>" class="hover:text-naranja-artesanal transition-colors">
+                            <a href="<?= BASE_URL ?>catalogo?cat=<?= $producto['id_categoria'] ?>" class="hover:text-naranja-artesanal transition-colors">
                                 <?= htmlspecialchars($producto['nom_categoria']) ?>
                             </a>
                         </div>

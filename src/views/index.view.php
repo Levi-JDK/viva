@@ -87,9 +87,8 @@ require_once __DIR__ . '/partials/base_head.php';
                     <?php endforeach; ?>
                 </div>
 
-                <!-- View All Link -->
                 <div class="text-center mt-10">
-                    <a href="<?= BASE_URL ?>test-stands" 
+                    <a href="<?= BASE_URL ?>stands" 
                             class="btn-primary text-white px-8 py-3 rounded-full font-medium text-lg hover:shadow-xl inline-flex items-center transition-all">
                         Ver todos los emprendimientos
                         <i class="fas fa-arrow-right ml-2"></i>
@@ -115,37 +114,30 @@ require_once __DIR__ . '/partials/base_head.php';
                 </p>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Category Cards -->
-                <div class="category-card card-hover rounded-2xl p-6 text-center cursor-pointer h-full flex flex-col items-center justify-center">
-                    <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
-                        <img src="<?= BASE_URL ?>images/cejesteria.png"></img>
-                    </div>
-                    <h3 class="font-semibold text-tierra-oscuro">Cestería</h3>
-                    <p class="text-xs text-gray-600 mt-1">148 productos</p>
-                </div>
-
-                <div class="category-card card-hover rounded-2xl p-6 text-center cursor-pointer h-full flex flex-col items-center justify-center">
-                    <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
-                        <img src="<?= BASE_URL ?>images/tejidos.png" alt="">
-                    </div>
-                    <h3 class="font-semibold text-tierra-oscuro">Tejidos</h3>
-                    <p class="text-xs text-gray-600 mt-1">203 productos</p>
-                </div>
-
-                <div class="category-card card-hover rounded-2xl p-6 text-center cursor-pointer h-full flex flex-col items-center justify-center">
-                    <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
-                        <img src="<?= BASE_URL ?>images/ceramica.png" alt="">
-                    </div>
-                    <h3 class="font-semibold text-tierra-oscuro">Cerámica</h3>
-                    <p class="text-xs text-gray-600 mt-1">87 productos</p>
-                </div>
-                <div class="category-card card-hover rounded-2xl p-6 text-center cursor-pointer h-full flex flex-col items-center justify-center">
-                    <div class="w-24 h-24 bg-white rounded-full mx-auto mb-4 flex items-center justify-center">
-                        <img src="<?= BASE_URL ?>images/joyeria.png" alt="">
-                    </div>
-                    <h3 class="font-semibold text-tierra-oscuro">Joyería</h3>
-                    <p class="text-xs text-gray-600 mt-1">156 productos</p>
-                </div>
+                <!-- Category Cards (Dynamic) -->
+                <?php 
+                if (!empty($categorias_destacadas)) {
+                    // Tomamos un máximo de 8 para no romper el grid ideal
+                    $categorias_mostrar = array_slice($categorias_destacadas, 0, 8);
+                    foreach ($categorias_mostrar as $cat): 
+                        // Usar la imagen de la BD, o la default si está vacía
+                        $img_src = !empty($cat['img_cat']) 
+                            ? BASE_URL . $cat['img_cat'] 
+                            : BASE_URL . 'images/default_category.webp'; 
+                ?>
+                    <a href="<?= BASE_URL ?>catalogo?cat=<?= $cat['id_categoria'] ?>" class="category-card card-hover rounded-2xl p-6 text-center cursor-pointer h-full flex flex-col items-center justify-center transition-all">
+                        <div class="w-24 h-24 bg-white shadow-sm rounded-full mx-auto mb-4 flex items-center justify-center p-2">
+                            <img src="<?= htmlspecialchars($img_src) ?>" alt="<?= htmlspecialchars($cat['nom_categoria']) ?>" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <h3 class="font-semibold text-tierra-oscuro"><?= htmlspecialchars($cat['nom_categoria']) ?></h3>
+                        <p class="text-xs text-gray-600 mt-1"><?= $cat['total'] ?> productos</p>
+                    </a>
+                <?php 
+                    endforeach; 
+                } else {
+                    echo '<p class="col-span-full text-center text-gray-500 py-8">No se encontraron categorías activas.</p>';
+                }
+                ?>
             </div>
         </div>
     </section>
@@ -237,19 +229,6 @@ require_once __DIR__ . '/partials/base_head.php';
                 <h2 class="text-3xl font-bold mb-4">
                     Mantente conectado con nuestras raíces
                 </h2>
-                <p class="text-xl mb-8 opacity-90">
-                    Recibe noticias sobre nuevos productos, historias de artesanos y ofertas especiales
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                    <input 
-                        type="email" 
-                        placeholder="Tu correo electrónico" 
-                        class="flex-1 px-4 py-3 rounded-full text-gray-900 focus:outline-none focus:ring-2 focus:ring-yellow-300"
-                    >
-                    <button class="bg-gradient-to-r from-naranja-artesanal to-tierra-medio text-white px-6 py-3 rounded-full font-medium hover:shadow-lg transition-all">
-                        Suscribirse
-                    </button>
-                </div>
             </div>
         </div>
     </section>

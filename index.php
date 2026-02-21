@@ -4,6 +4,20 @@ require_once __DIR__ . '/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->safeLoad();
 
+// Centralizar sesión aquí para que sea consistente en TODAS las rutas.
+// domain='' evita que la cookie quede atada a 'localhost' o '127.0.0.1' específicamente.
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'domain'   => '',       // Acepta cualquier host (localhost / 127.0.0.1)
+        'secure'   => false,    // true en producción con HTTPS
+        'httponly' => true,
+        'samesite' => 'Lax',    // Lax permite la redirección desde ePayco
+    ]);
+    session_start();
+}
+
 // 1. Detectar el protocolo y host
 $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
 $host = $_SERVER['HTTP_HOST'];
@@ -48,9 +62,13 @@ $routes = [
     '/api/carrito'        => 'src/api/carrito.php',
     '/api/favoritos'      => 'src/api/favoritos.php',
     '/api/resenas'        => 'src/api/resenas.php',
-    '/producto'     => 'src/controllers/producto.php',
-    '/stand'        => 'src/controllers/stand_detail.php',
-    '/test-stands'  => 'src/controllers/test_stand_card.php'
+    '/api/get_ciudades'   => 'src/api/get_ciudades.php',
+    '/api/guardar_cliente'=> 'src/api/guardar_cliente.php',
+    '/producto'           => 'src/controllers/producto.php',
+    '/stand'              => 'src/controllers/stand_detail.php',
+    '/stands'             => 'src/controllers/stands.php',
+    '/checkout'           => 'src/controllers/checkout.php',
+    '/checkout/respuesta' => 'src/controllers/checkout_response.php'
 ];
 
 if (array_key_exists($relative_uri, $routes)) {

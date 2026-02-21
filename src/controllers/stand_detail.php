@@ -9,30 +9,12 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../functions/Database.php';
 
 try {
-    // Inicializar variables de usuario para el header
-    $is_logged_in = false;
-    $nombre_usuario = '';
-    $foto_usuario = 'images/default.jpg';
-    $es_productor = false;
+    // Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
+    require_once __DIR__ . '/../functions/navbar_usuario.php';
+    cargar_datos_navbar();
 
     $db = Database::getInstance();
 
-    if (isset($_SESSION['id_user'])) {
-        $id_user = $_SESSION['id_user'];
-        try {
-            $stmtUser = $db->ejecutar('obtenerUsuarioPorId', [':id' => $id_user]);
-            $usuario = $stmtUser->fetch(PDO::FETCH_ASSOC);
-            if ($usuario) {
-                $is_logged_in = true;
-                $nombre_usuario = $usuario['nom_user'];
-                $foto_usuario = !empty($usuario['foto_user']) ? $usuario['foto_user'] : 'images/default.jpg';
-            }
-            $stmtProductor = $db->ejecutar('validarProductor', [':id_user' => $id_user]);
-            $es_productor = $stmtProductor->fetchColumn();
-        } catch (Exception $e) {
-            error_log("Error cargando usuario: " . $e->getMessage());
-        }
-    }
     // Obtener el ID del stand desde el parámetro de la URL
     // Formato de URL: /stand?id=id_productor
     if (!isset($_GET['id']) || empty($_GET['id'])) {

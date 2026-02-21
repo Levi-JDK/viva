@@ -76,3 +76,10 @@ INSERT INTO tab_color (id_color, nom_color) VALUES
 ('#FFC0CB', 'Rosado'),
 ('#00FFFF', 'Turquesa / Cian'),
 ('MULTICOLOR', 'Multicolor');
+
+-- Formas de pago soportadas (datos maestros)
+INSERT INTO tab_formas_pago (id_pago, nom_pago) VALUES
+('EPAYCO',        'ePayco Pasarela de Pago'),
+('CONTRAENT',     'Pago Contra Entrega'),
+('TRANSFERENCIA', 'Transferecia Bancaria')
+ON CONFLICT (id_pago) DO NOTHING;
