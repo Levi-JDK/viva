@@ -1,9 +1,6 @@
 <?php
 // Dashboard de vendedor - Mis Productos
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/');
-    session_start();
-}
+
 // Verificar que el usuario esté autenticado
 if (!isset($_SESSION['id_user'])) {
     header('Location: ' . BASE_URL . 'login');

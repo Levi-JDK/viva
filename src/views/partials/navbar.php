@@ -1,3 +1,7 @@
+<?php
+require_once __DIR__ . '/../../functions/navbar_usuario.php';
+cargar_datos_navbar();
+?>
     <!-- Header -->
     <header class="bg-white shadow-lg sticky top-0 z-50 font-sans">
         <div class="container mx-auto px-4 py-4">

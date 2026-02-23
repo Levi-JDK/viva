@@ -16,9 +16,7 @@ try {
     $db = Database::getInstance();
     $id_user = $_SESSION['id_user'];
 
-    // Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
-    require_once __DIR__ . '/../functions/navbar_usuario.php';
-    cargar_datos_navbar();
+
 
 
     // 2. Obtener el carrito actual del usuario usando la función PL/pgSQL

@@ -26,7 +26,9 @@ require_once __DIR__ . '/partials/base_head.php';
     </div>
 
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
+    <!-- SweetAlert2 for Delete Confirmation -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<?= BASE_URL ?>src/scripts/toast.js"></script>
-    <script src="<?= BASE_URL ?>src/scripts/dash_productos.js"></script>
+    <script src="<?= BASE_URL ?>src/scripts/dash_productos.js?v=<?= time() ?>"></script>
 </body>
 </html>

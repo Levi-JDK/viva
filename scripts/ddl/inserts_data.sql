@@ -38,7 +38,10 @@ INSERT INTO tab_materia_prima (id_materia, nom_materia) VALUES
 (18, 'Plantas Medicinales'),
 (19, 'Mieles Nativas'),
 (20, 'Café de Origen'),
-(21, 'Viche / Ñeque (Caña)');
+(21, 'Viche / Ñeque (Caña)'),
+(22, 'Bronce'),
+(23, 'Plata');
+;
 
 -- Insertando Oficios (Técnicas Ancestrales)
 INSERT INTO tab_oficios (id_oficio, nom_oficio) VALUES
@@ -77,9 +80,7 @@ INSERT INTO tab_color (id_color, nom_color) VALUES
 ('#00FFFF', 'Turquesa / Cian'),
 ('MULTICOLOR', 'Multicolor');
 
--- Formas de pago soportadas (datos maestros)
+-- Formas de pago 
 INSERT INTO tab_formas_pago (id_pago, nom_pago) VALUES
-('EPAYCO',        'ePayco Pasarela de Pago'),
-('CONTRAENT',     'Pago Contra Entrega'),
-('TRANSFERENCIA', 'Transferecia Bancaria')
-ON CONFLICT (id_pago) DO NOTHING;
+('EPAYCO',        'ePayco Pasarela de Pago');
+

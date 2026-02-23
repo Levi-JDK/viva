@@ -21,7 +21,12 @@ require_once __DIR__ . "/partials/header.php";
 					<input type="text" name="nombre" placeholder="Nombre" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors" />
 					<input type="text" name="apellido" placeholder="Apellido" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors" />
 					<input type="email" name="email" placeholder="Email" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors" />
-					<input type="password" name="contrasena" placeholder="Contraseña" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors" />
+					<div class="relative w-full">
+						<input type="password" name="contrasena" id="reg-pass" placeholder="Contraseña" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors pr-10" />
+						<button type="button" onclick="togglePassword('reg-pass', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-oscuro focus:outline-none" tabindex="-1" aria-label="Mostrar contraseña">
+							<i class="fa fa-eye"></i>
+						</button>
+					</div>
 					<button type="submit" class="rounded-full border border-principal bg-principal text-white text-xs font-bold py-3 px-10 uppercase tracking-wider transition-transform transform hover:bg-secundario hover:-translate-y-0.5 active:scale-95 focus:outline-none mt-6 cursor-pointer">Registrarse</button>
 					
 					<!-- Botón para móviles -->
@@ -40,7 +45,12 @@ require_once __DIR__ . "/partials/header.php";
 					</div>
 					<span class="text-xs mb-4 text-gray-500">o usa tu cuenta</span>
 					<input type="email" name="email" placeholder="Email" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors" />
-					<input type="password" name="contrasena" placeholder="Contraseña" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors" />
+					<div class="relative w-full">
+						<input type="password" name="contrasena" id="login-pass" placeholder="Contraseña" required class="bg-fondo-oscuro border-none p-3 my-3 w-full rounded text-sm focus:outline-none focus:bg-gray-200 transition-colors pr-10" />
+						<button type="button" onclick="togglePassword('login-pass', this)" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-oscuro focus:outline-none" tabindex="-1" aria-label="Mostrar contraseña">
+							<i class="fa fa-eye"></i>
+						</button>
+					</div>
 					<a href="#" class="text-oscuro text-sm no-underline my-4 hover:text-principal transition-colors">¿Olvidaste tu contraseña?</a>
 					<button type="submit" class="rounded-full border border-principal bg-principal text-white text-xs font-bold py-3 px-10 uppercase tracking-wider transition-transform transform hover:bg-secundario hover:-translate-y-0.5 active:scale-95 focus:outline-none mt-6 cursor-pointer">Iniciar Sesión</button>
 
@@ -72,5 +82,18 @@ require_once __DIR__ . "/partials/header.php";
 	<script src="<?= BASE_URL ?>src/scripts/toast.js"></script>
 	<script src="<?= BASE_URL ?>src/scripts/login-ui.js"></script>
 	<script src="<?= BASE_URL ?>src/scripts/auth.js"></script>
+	<script>
+		function togglePassword(inputId, btn) {
+			const input = document.getElementById(inputId);
+			const icon  = btn.querySelector('i');
+			if (input.type === 'password') {
+				input.type = 'text';
+				icon.classList.replace('fa-eye', 'fa-eye-slash');
+			} else {
+				input.type = 'password';
+				icon.classList.replace('fa-eye-slash', 'fa-eye');
+			}
+		}
+	</script>
 </body>
 </html>

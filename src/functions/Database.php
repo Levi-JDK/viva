@@ -85,12 +85,22 @@ class Database {
                 stock_productor,
                 nom_categoria,
                 activo,
+                vistas,
                 imagenes
             FROM fun_obtener_productos(:id_productor)
         ");
 
+        $this->statements['incrementarVistasProducto'] = $this->connection->prepare("
+            UPDATE tab_productos SET vistas = vistas + 1 WHERE id_producto = :id_producto
+        ");
+
         $this->statements['obtenerProductoPorId'] = $this->connection->prepare("
-            SELECT * FROM fun_obtener_producto_por_id(:id_producto)
+            SELECT 
+                id_producto, nom_producto, precio_producto, stock_productor, 
+                descripcion_producto, id_categoria, nom_categoria, id_oficio, nom_oficio, 
+                id_materia, nom_materia, id_color, nom_color, id_productor, 
+                nom_productor, ubicacion, imagenes 
+            FROM fun_obtener_producto_por_id(:id_producto)
         ");
         $this->statements['registrarStand'] = $this->connection->prepare("
             SELECT fun_c_stand(
@@ -101,7 +111,10 @@ class Database {
         
         $this->statements['verificarStand'] = $this->connection->prepare("SELECT id_stand FROM tab_stand WHERE id_productor = :id_p");
         
-        $this->statements['obtenerStand'] = $this->connection->prepare("SELECT * FROM tab_stand WHERE id_productor = :id_p");
+        $this->statements['obtenerStand'] = $this->connection->prepare("
+            SELECT id_productor, id_stand, nom_stand, slogan_stand, descripcion_stand, img_stand, portada_stand 
+            FROM tab_stand WHERE id_productor = :id_p
+        ");
 
         $this->statements['actualizarStand'] = $this->connection->prepare("
             SELECT fun_u_stand(

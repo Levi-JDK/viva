@@ -1,17 +1,12 @@
 <?php
 // Controlador para la vista de catálogo
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/');
-    session_start();
-}
+
 
 require_once(__DIR__ . '/../functions/Database.php');
 
 $db = Database::getInstance();
 
-// Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
-require_once __DIR__ . '/../functions/navbar_usuario.php';
-cargar_datos_navbar();
+
 
 
 // Capturar filtros iniciales de la URL para la primera carga

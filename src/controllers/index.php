@@ -1,14 +1,5 @@
-<?php 
-// Iniciar sesión si no está iniciada
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/');
-    session_start();
-}
-
-// Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
-require_once ROOT_PATH . 'src/functions/navbar_usuario.php';
-cargar_datos_navbar();
-
+<?php
+require_once ROOT_PATH . 'src/functions/Database.php';
 
 // Obtener stands destacados para la sección de afiliados (máx 3)
 $featured_stands = [];
@@ -24,7 +15,6 @@ try {
 // Obtener productos destacados para el landing (máx 4)
 $featured_products = [];
 try {
-    $db = Database::getInstance();
     $stmt = $db->ejecutar('obtenerProductosDestacados', [':limit' => 4]);
     $featured_products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
@@ -34,7 +24,6 @@ try {
 // Obtener categorías con contador de productos
 $categorias_destacadas = [];
 try {
-    $db = Database::getInstance();
     $stmt = $db->ejecutar('obtenerFiltrosCategorias');
     $categorias_destacadas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {

@@ -1,19 +1,12 @@
 <?php
 // Controlador para el detalle de producto
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/');
-    session_start();
-}
+
 
 require_once(__DIR__ . '/../functions/Database.php');
 
 $db = Database::getInstance();
 
-$db = Database::getInstance();
 
-// Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
-require_once __DIR__ . '/../functions/navbar_usuario.php';
-cargar_datos_navbar();
 
 
 // Obtener ID del producto
@@ -38,6 +31,14 @@ if ($id_producto) {
              $producto['imagen_principal'] = !empty($producto['imagenes']) && isset($producto['imagenes'][0]['url']) 
                 ? $producto['imagenes'][0]['url'] 
                 : 'images/default_product.png';
+
+            // Incrementar contador de vistas silenciosamente
+            try {
+                $db->ejecutar('incrementarVistasProducto', [':id_producto' => $id_producto]);
+            } catch (Exception $e) {
+                // No interrumpir la carga por error en vistas
+                error_log("Error incrementando vistas: " . $e->getMessage());
+            }
 
             // --- INICIO: Carga de Reseñas y Relacionados ---
             try {

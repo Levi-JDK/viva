@@ -159,7 +159,30 @@ document.addEventListener('DOMContentLoaded', () => {
         function renderPreviews() {
             gridContainer.innerHTML = ''; // Limpiar todo el grid
 
-            // Renderizar Imágenes Seleccionadas
+            // Si estamos en modo de edición y aún no ha subido imágenes nuevas, mostrar las existentes
+            const isEditMode = uploadForm.getAttribute('data-mode') === 'edit';
+            if (isEditMode && selectedImages.length === 0 && window.existingImages && window.existingImages.length > 0) {
+                // Mostrar alerta informativa
+                const alertInfo = document.createElement('div');
+                alertInfo.className = 'col-span-full mb-2 p-3 bg-blue-50 text-blue-700 text-sm rounded-lg flex items-center gap-2';
+                alertInfo.innerHTML = '<i class="fas fa-info-circle"></i> Sube nuevas imágenes para reemplazar todas las actuales.';
+                gridContainer.parentNode.insertBefore(alertInfo, gridContainer);
+
+                window.existingImages.forEach((imgObj, index) => {
+                    const slot = document.createElement('div');
+                    slot.className = 'bg-gray-100 rounded-lg aspect-square flex items-center justify-center relative overflow-hidden group border border-gray-200';
+                    slot.innerHTML = `
+                        <img src="${BASE_URL + imgObj.url}" class="w-full h-full object-cover">
+                        <button type="button" class="absolute top-1 right-1 bg-white text-red-500 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50 z-10" onclick="removeExistingImage(${index})">
+                            <i class="fas fa-times text-xs w-4 h-4 flex items-center justify-center"></i>
+                        </button>
+                        ${index === 0 ? '<span class="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-[10px] text-center py-1">Principal (Actual)</span>' : ''}
+                    `;
+                    gridContainer.appendChild(slot);
+                });
+            }
+
+            // Renderizar Imágenes Seleccionadas (Nuevas)
             selectedImages.forEach((file, index) => {
                 const reader = new FileReader();
 
@@ -184,7 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             // Renderizar Botón de Agregar (si no se ha llegado al límite)
-            if (selectedImages.length < MAX_IMAGES) {
+            const totalImages = (window.existingImages ? window.existingImages.length : 0) + selectedImages.length;
+            if (totalImages < MAX_IMAGES) {
                 const addBtn = document.createElement('div');
                 addBtn.onclick = () => document.getElementById('product-images-input').click();
                 addBtn.className = 'border-2 border-dashed border-naranja-artesanal/30 rounded-lg aspect-square flex flex-col items-center justify-center text-center hover:bg-orange-50 transition-colors cursor-pointer bg-orange-50/30 relative overflow-hidden group';
@@ -196,9 +220,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Rellenar con placeholders vacíos si faltan para completar la grilla
-            // Si queremos mantener siempre 4 espacios visibles en la grilla final
-            // El botón de agregar cuenta como 1 espacio si está visible
-            const itemsVisibles = selectedImages.length + (selectedImages.length < MAX_IMAGES ? 1 : 0);
+            // Calcular cuántos espacios están ocupados
+            const itemsVisibles = totalImages + (totalImages < MAX_IMAGES ? 1 : 0);
             const slotsRestantes = MAX_IMAGES - itemsVisibles;
 
             for (let i = 0; i < slotsRestantes; i++) {
@@ -209,9 +232,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // 3. Función global para remover imagen
+        // Inicializar vistas al cargar si hay imagenes actuales
+        if (uploadForm.getAttribute('data-mode') === 'edit' && window.existingImages) {
+            renderPreviews();
+        }
+
+        // 3. Función global para remover imagen nueva
         window.removeImage = function (index) {
             selectedImages.splice(index, 1);
+            renderPreviews();
+        };
+
+        // Función global para remover imagen existente
+        window.removeExistingImage = function (index) {
+            window.existingImages.splice(index, 1);
             renderPreviews();
         };
 
@@ -219,38 +253,57 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadForm.addEventListener('submit', function (e) {
             e.preventDefault();
 
-            if (selectedImages.length === 0) {
+            const isEditMode = this.getAttribute('data-mode') === 'edit';
+
+            // Si es nuevo producto, exigimos al menos una imagen
+            if (!isEditMode && selectedImages.length === 0) {
                 showToast('Debes agregar al menos una imagen principal.', 'error');
+                return;
+            }
+
+            // Si es edición, exigimos al menos una imagen en total (existente o nueva)
+            if (isEditMode && selectedImages.length === 0 && (!window.existingImages || window.existingImages.length === 0)) {
+                showToast('Debes mantener o subir al menos una imagen principal.', 'error');
                 return;
             }
 
             const formData = new FormData(this);
 
-            // Reemplazar los archivos del input original con nuestro array gestionado
-            // Nota: formData.delete('imagen_producto[]') no es necesario porque el input se limpió
-            // Pero nos aseguramos de agregar nuestros archivos
-
-            selectedImages.forEach((file, index) => {
+            // Agregar imágenes nuevas (si hay)
+            selectedImages.forEach((file) => {
                 formData.append('imagen_producto[]', file);
             });
 
-            showToast('Publicando producto...', 'info');
+            // Enviar lista de imágenes existentes que sobreviven, para que el backend sepa cuáles NO borrar
+            if (isEditMode && window.existingImages) {
+                formData.append('imagenes_existentes', JSON.stringify(window.existingImages));
+            }
 
-            fetch(BASE_URL + 'api/upload_product', {
+            showToast(isEditMode ? 'Guardando cambios...' : 'Publicando producto...', 'info');
+
+            const apiEndpoint = isEditMode ? 'api/update_product' : 'api/upload_product';
+
+            fetch(BASE_URL + apiEndpoint, {
                 method: 'POST',
                 body: formData
             })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        showToast('Producto publicado exitosamente.', 'success');
-                        // Resetear todo
-                        selectedImages = [];
-                        renderPreviews();
-                        this.reset();
-                        // Opcional: Redirigir o actualizar lista
+                        showToast(isEditMode ? 'Cambios guardados exitosamente.' : 'Producto publicado exitosamente.', 'success');
+
+                        if (!isEditMode) {
+                            selectedImages = [];
+                            renderPreviews();
+                            this.reset();
+                        } else {
+                            // En modo edición, podríamos redirigir al inventario
+                            setTimeout(() => {
+                                window.location.href = '?view=inventory';
+                            }, 1500);
+                        }
                     } else {
-                        showToast(data.message || 'Error al publicar producto.', 'error');
+                        showToast(data.message || 'Error al procesar la solicitud.', 'error');
                     }
                 })
                 .catch(error => {
@@ -260,6 +313,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// ==========================================
+// Product CRUD Actions (Edit / Delete)
+// ==========================================
+window.editarProducto = function (id_producto) {
+    window.location.href = `?view=add_product&id=${id_producto}`;
+};
+
+window.eliminarProducto = function (id_producto) {
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: "¡El producto será eliminado de tu catálogo!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        buttonsStyling: false,
+        customClass: {
+            container: 'z-[9999]',
+            confirmButton: 'bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2',
+            cancelButton: 'bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded'
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(BASE_URL + 'api/delete_product', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id_producto: id_producto })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: '¡Eliminado!',
+                            text: 'Tu producto ha sido eliminado.',
+                            icon: 'success',
+                            buttonsStyling: false,
+                            customClass: {
+                                container: 'z-[9999]',
+                                confirmButton: 'bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded'
+                            }
+                        }).then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        showToast(data.message || 'Error al eliminar.', 'error');
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    showToast('Error de conexión', 'error');
+                });
+        }
+    });
+};
 
 
 

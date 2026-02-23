@@ -46,7 +46,8 @@ BEGIN
 
   UPDATE tab_productos
      SET nom_producto = p_nom_producto,
-         stock        = p_stock,
+         stock_productor = p_stock,
+         is_active    = (p_stock > 0),
          id_categoria = p_id_categoria,
          id_color     = p_id_color,
          id_oficio    = p_id_oficio,

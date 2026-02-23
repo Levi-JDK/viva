@@ -1,8 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/');
-    session_start();
-}
+require_once __DIR__ . '/sesion.php';
 
 
 try {
@@ -31,7 +28,6 @@ try {
 
 // Manejar solicitud GET para verificar sesión
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    session_start();
     
     if (isset($_SESSION['email']) && isset($_SESSION['nombre'])) {
         echo json_encode([

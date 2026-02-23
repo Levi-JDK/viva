@@ -19,11 +19,7 @@ if (!defined('BASE_URL')) {
 
 header('Content-Type: application/json');
 
-// 1. Verificar sesión y autenticación
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/');
-    session_start();
-}
+
 
 if (!isset($_SESSION['id_user'])) {
     echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);

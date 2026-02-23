@@ -2,9 +2,7 @@
 // src/controllers/stands.php
 // Página principal del directorio de artesanos (Stands)
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 
 require_once __DIR__ . '/../functions/Database.php';
 

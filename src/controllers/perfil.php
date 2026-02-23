@@ -1,8 +1,5 @@
 <?php 
-// IMPORTANTE: Iniciar sesión ANTES de cualquier verificación
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 // Verificar que el usuario esté autenticado
 // Si hay una sesión antigua sin id_user pero con email, obtener el id_user
 if (!isset($_SESSION['id_user']) && isset($_SESSION['email'])) {

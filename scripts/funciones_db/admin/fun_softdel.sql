@@ -400,28 +400,6 @@ BEGIN
   END IF;
 END; $$ LANGUAGE plpgsql;
 
-
-CREATE OR REPLACE FUNCTION fun_softdel_tab_producto_productor(
-  p_id_producto  tab_producto_productor.id_producto%TYPE,
-  p_id_productor tab_producto_productor.id_productor%TYPE,
-  p_deleted      tab_producto_productor.is_deleted%TYPE
-) RETURNS BOOLEAN AS $$
-DECLARE w_p tab_producto_productor.id_producto%TYPE;
-BEGIN
-  SELECT id_producto INTO w_p
-    FROM tab_producto_productor
-   WHERE id_producto = p_id_producto AND id_productor = p_id_productor;
-  IF NOT FOUND THEN
-    RAISE NOTICE 'No existe producto_productor (producto %, productor %)', p_id_producto, p_id_productor;
-    RETURN FALSE;
-  ELSE
-    UPDATE tab_producto_productor
-       SET is_deleted = p_deleted
-     WHERE id_producto = p_id_producto AND id_productor = p_id_productor;
-    RETURN TRUE;
-  END IF;
-END; $$ LANGUAGE plpgsql;
-
 CREATE OR REPLACE FUNCTION fun_softdel_tab_det_fact(
   p_id_factura  tab_det_fact.id_factura%TYPE,
   p_id_producto tab_det_fact.id_producto%TYPE,

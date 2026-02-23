@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../functions/sesion.php';
 /**
  * API Endpoint: /api/favoritos
  * 
@@ -12,9 +13,7 @@
  *   Respuesta: { exito: true, mensaje: '...' }
  */
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 
 header('Content-Type: application/json');
 

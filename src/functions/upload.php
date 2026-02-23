@@ -40,10 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {
         // UPDATE A LA BASE DE DATOS
         // ----------------------------------------
         
-        // 1. Iniciar sesión si no está iniciada para obtener el ID del usuario
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+
 
         // Obtener ID del usuario de la sesión (asegurarse de que existe)
         // NOTA: Si tu sistema de login no guarda 'id_user' en $_SESSION, debes ajustarlo.

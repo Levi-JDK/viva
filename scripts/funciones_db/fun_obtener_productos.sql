@@ -8,6 +8,7 @@ RETURNS TABLE (
     stock_productor     tab_productos.stock_productor%TYPE,
     nom_categoria       tab_categorias.nom_categoria%TYPE,
     activo              tab_productos.is_active%TYPE,
+    vistas              tab_productos.vistas%TYPE,
     imagenes            JSON
 ) AS $$
 BEGIN
@@ -19,6 +20,7 @@ BEGIN
         p.stock_productor,
         c.nom_categoria,
         p.is_active,
+        p.vistas,
         COALESCE(
             (
                 SELECT json_agg(json_build_object('url', i.url_imagen))

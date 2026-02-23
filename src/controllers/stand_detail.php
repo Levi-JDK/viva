@@ -2,16 +2,12 @@
 // src/controllers/stand_detail.php
 // Página de detalle de stand individual — muestra información completa de un stand específico
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 
 require_once __DIR__ . '/../functions/Database.php';
 
 try {
-    // Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
-    require_once __DIR__ . '/../functions/navbar_usuario.php';
-    cargar_datos_navbar();
+
 
     $db = Database::getInstance();
 
@@ -24,8 +20,6 @@ try {
     }
 
     $id_productor = (int)$_GET['id'];
-    
-    $db = Database::getInstance();
     
     // Obtener información del stand
     $stmt = $db->ejecutar('obtenerStand', [':id_p' => $id_productor]);

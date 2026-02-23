@@ -147,9 +147,7 @@ if ($ref_payco) {
     $error = "No se recibió ninguna referencia de pago.";
 }
 
-// Cargar variables del navbar (is_logged_in, nombre_usuario, etc.)
-require_once __DIR__ . '/../functions/navbar_usuario.php';
-cargar_datos_navbar();
+
 
 // Cargar la vista de resultados
 require_once ROOT_PATH . 'src/views/checkout_response.view.php';

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../functions/sesion.php';
 /**
  * API Endpoint: /api/resenas
  * 
@@ -7,9 +8,7 @@
  *   Body: { id_producto: _, calificacion: _, texto: _ }
  */
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 
 header('Content-Type: application/json');
 

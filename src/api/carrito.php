@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../functions/sesion.php';
 /**
  * API: Carrito de Compras
  * Ruta: POST /api/carrito
@@ -17,11 +18,7 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-// ── Verificar sesión activa ──────────────────────────────────────────────────
-if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(0, '/');
-    session_start();
-}
+
 
 if (!isset($_SESSION['id_user'])) {
     echo json_encode(['exito' => false, 'mensaje' => 'Debes iniciar sesión para usar el carrito']);

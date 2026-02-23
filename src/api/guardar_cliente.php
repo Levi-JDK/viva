@@ -1,11 +1,12 @@
 <?php
+require_once __DIR__ . '/../functions/sesion.php';
 // src/api/guardar_cliente.php
 // Endpoint POST: guarda o actualiza la dirección de envío del cliente en tab_clientes.
 // Usa fun_c_cliente vía Database.php. El botón de pago se habilita en el front tras éxito.
 
 header('Content-Type: application/json');
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

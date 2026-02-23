@@ -18,10 +18,7 @@
 header('Content-Type: application/json; charset=UTF-8');
 header('X-Content-Type-Options: nosniff');
 
-// Iniciar sesión si es necesario
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
 
 require_once(__DIR__ . '/../functions/Database.php');
 
