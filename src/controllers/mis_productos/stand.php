@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
 
     try {
-        if (!isset($_SESSION['id_user'])) {
+        if (!$id_user) {
             echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);
             exit;
         }
@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $db = Database::getInstance();
 
         // Obtener ID del productor
-        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $_SESSION['id_user']]);
+        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $id_user]);
         $id_productor = $stmtProd->fetchColumn();
 
         if (!$id_productor) {

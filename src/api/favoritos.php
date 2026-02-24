@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../functions/sesion.php';
+
 /**
  * API Endpoint: /api/favoritos
  * 
@@ -17,15 +17,8 @@ require_once __DIR__ . '/../functions/sesion.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['id_user'])) {
-    // Si la request era POST, devolvemos redirect
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        echo json_encode(['exito' => false, 'mensaje' => 'Debes iniciar sesión para gestionar favoritos', 'redirect' => true]);
-    } else {
-        echo json_encode(['exito' => false, 'mensaje' => 'No autorizado']);
-    }
-    exit;
-}
+require_once __DIR__ . '/../functions/auth_helper.php';
+$userData = AuthHelper::protectRoute();
 
 try {
     // Nota: El vendor/autoload.php y el Dotenv::createImmutable ya se cargaron globalmente en index.php
@@ -34,7 +27,7 @@ try {
     require_once __DIR__ . '/../functions/Database.php';
 
     $db = Database::getInstance();
-    $id_user = (int)$_SESSION['id_user'];
+    $id_user = (int)$userData->id_user;
 
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         // Lógica GET: Obtener lista de favoritos

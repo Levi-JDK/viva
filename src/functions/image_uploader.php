@@ -47,9 +47,9 @@ function handleImageUpload($file, $target_dir, $prefix = 'img_', $web_path_folde
     $file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
     
     // Formatos permitidos
-    $allowed_formats = ['jpg', 'jpeg', 'png', 'webp'];
+    $allowed_formats = ['jpg', 'jpeg', 'webp'];
     if (!in_array($file_extension, $allowed_formats)) {
-        return ['success' => false, 'message' => 'Formato no permitido. Use: JPG, PNG o WEBP'];
+        return ['success' => false, 'message' => 'Formato no permitido. Use: JPG o WEBP'];
     }
 
     // Validar tamaño máximo (5MB)

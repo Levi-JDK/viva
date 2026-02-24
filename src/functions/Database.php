@@ -140,6 +140,18 @@ class Database {
             ORDER BY p.created_at ASC
             LIMIT :limit
         ");
+
+        // Funciones de Seguridad - Control de Accesos (Navegación Dinámica)
+        $this->statements['obtenerNavegacionUsuario'] = $this->connection->prepare("
+            SELECT id_menu, nom_menu, url_menu, icono_menu, orden_menu 
+            FROM fun_obtener_navegacion_usuario(:id_user)
+        ");
+        $this->statements['asignarMenuUsuario'] = $this->connection->prepare("
+            SELECT fun_asignar_menu(:id_user, :id_menu)
+        ");
+        $this->statements['revocarMenuUsuario'] = $this->connection->prepare("
+            SELECT fun_revocar_menu(:id_user, :id_menu)
+        "); 
         
         // Obtener todos los productos para catálogo
         $this->statements['obtenerProductosCatalogo'] = $this->connection->prepare("
@@ -226,6 +238,34 @@ class Database {
             "SELECT fun_d_favoritos(:id_user, :id_producto)"
         );
 
+        $this->statements['eliminarResena'] = $this->connection->prepare(
+            "DELETE FROM tab_resenas WHERE id_user = :id_user AND id_producto = :id_producto"
+        );
+        
+        $this->statements['obtenerPedidosCliente'] = $this->connection->prepare("
+            SELECT 
+                f.id_factura,
+                f.fec_factura,
+                f.val_tot_fact,
+                f.epayco_estado,
+                p.nom_pago,
+                COALESCE(
+                    (SELECT sum(val_cantidad) FROM tab_det_fact WHERE id_factura = f.id_factura), 0
+                ) as total_productos,
+                (
+                    SELECT url_imagen 
+                    FROM tab_imagenes i 
+                    JOIN tab_det_fact d ON i.id_producto = d.id_producto 
+                    WHERE d.id_factura = f.id_factura 
+                    ORDER BY i.id_imagen ASC LIMIT 1
+                ) as primera_imagen
+            FROM tab_enc_fact f
+            JOIN tab_clientes c ON f.id_client = c.id_client
+            JOIN tab_formas_pago p ON f.id_pago = p.id_pago
+            WHERE c.id_user = :id_user
+            ORDER BY f.fec_factura DESC, f.val_hora_fact DESC
+        ");
+
         $this->statements['obtenerFavoritosUsuario'] = $this->connection->prepare("
             SELECT 
                 p.id_producto, p.nom_producto, p.precio_producto, p.descripcion_producto, 
@@ -245,18 +285,27 @@ class Database {
 
         $this->statements['obtenerResenasProducto'] = $this->connection->prepare("
             SELECT 
-                r.id_resena, r.calificacion, r.texto_resena, r.created_at,
-                u.nom_user, u.ape_user, u.foto_user
-            FROM tab_resenas r
-            INNER JOIN tab_users u ON r.id_user = u.id_user
-            WHERE r.id_producto = :id_producto AND r.is_deleted = FALSE
-            ORDER BY r.created_at DESC
+                r.calificacion, 
+                r.texto_resena, 
+                r.created_at,
+                u.nom_user, 
+                u.ape_user, 
+                u.foto_user
+            FROM 
+                tab_resenas r, 
+                tab_users u
+            WHERE 
+                r.id_user = u.id_user 
+                AND r.id_producto = :id_producto 
+                AND r.is_deleted = FALSE
+            ORDER BY 
+                r.created_at DESC
         ");
 
         $this->statements['obtenerPromedioEstrellasProducto'] = $this->connection->prepare("
             SELECT 
                 COALESCE(AVG(calificacion), 0) as promedio,
-                COUNT(id_resena) as total_resenas
+                COUNT(id_producto) as total_resenas
             FROM tab_resenas
             WHERE id_producto = :id_producto AND is_deleted = FALSE
         ");
@@ -264,7 +313,7 @@ class Database {
         $this->statements['obtenerPromedioEstrellasStand'] = $this->connection->prepare("
             SELECT 
                 COALESCE(AVG(r.calificacion), 0) as promedio,
-                COUNT(r.id_resena) as total_resenas
+                COUNT(r.id_producto) as total_resenas
             FROM tab_resenas r
             INNER JOIN tab_productos p ON r.id_producto = p.id_producto
             WHERE p.id_productor = :id_productor AND r.is_deleted = FALSE

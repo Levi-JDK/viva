@@ -17,10 +17,9 @@ if (!defined('BASE_URL')) {
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['id_user'])) {
-    echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);
-    exit;
-}
+require_once __DIR__ . '/auth_helper.php';
+$userData = AuthHelper::protectRoute();
+$id_user = $userData->id_user;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -36,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         // Obtener id_productor actual
-        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $_SESSION['id_user']]);
+        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $id_user]);
         $id_productor = $stmtProd->fetchColumn();
 
         if (!$id_productor) {

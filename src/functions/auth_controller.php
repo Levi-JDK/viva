@@ -1,194 +1,140 @@
 <?php
-require_once __DIR__ . '/sesion.php';
+require_once __DIR__ . '/auth_helper.php';
+require_once __DIR__ . '/Database.php';
 
-
-try {
-    require_once(__DIR__ . '/Database.php');
-} catch (Error $e) {
-    header('Content-Type: application/json');
-    echo json_encode([
-        "mensaje" => "Error crítico de carga: " . $e->getMessage(),
-        "clase" => "mensaje-error"
-    ]);
-    exit;
-}
 header('Content-Type: application/json');
 
 try {
-    // Usar Singleton pattern
     $db = Database::getInstance();
 } catch (Exception $e) {
     echo json_encode([
         "mensaje" => "Error al inicializar la base de datos: " . $e->getMessage(),
-        "clase" => "mensaje-error"
+        "clase"   => "mensaje-error"
     ]);
     exit;
 }
 
 
-// Manejar solicitud GET para verificar sesión
+// ── GET: Verificar sesión actual via JWT ─────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    
-    if (isset($_SESSION['email']) && isset($_SESSION['nombre'])) {
+    $userData = AuthHelper::verifyToken();
+
+    if ($userData) {
         echo json_encode([
             'loggedIn' => true,
-            'nombre' => $_SESSION['nombre'],
-            'email' => $_SESSION['email']
+            'nombre'   => $userData->nombre ?? '',
+            'email'    => $userData->email  ?? ''
         ]);
     } else {
-        echo json_encode([
-            'loggedIn' => false
-        ]);
+        echo json_encode(['loggedIn' => false]);
     }
     exit;
 }
 
+
+// ── POST: Registro, Login o Logout ───────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accion = $_POST['accion'] ?? '';
 
+    // ── Registro ─────────────────────────────────────────────────────────────
     if ($accion === 'registro') {
-        // Registro
-        $nombre = $_POST['nombre'] ?? '';
-        $apellido = $_POST['apellido'] ?? '';
-        $email = $_POST['email'] ?? '';
-        $contrasena = $_POST['contrasena'] ?? '';
+        $nombre    = trim($_POST['nombre']    ?? '');
+        $apellido  = trim($_POST['apellido']  ?? '');
+        $email     = trim($_POST['email']     ?? '');
+        $contrasena = $_POST['contrasena']    ?? '';
 
         if (empty($nombre) || empty($apellido) || empty($email) || empty($contrasena)) {
-            echo json_encode([
-                "mensaje" => "Todos los campos son obligatorios.",
-                "clase" => "mensaje-error"
-            ]);
+            echo json_encode(["mensaje" => "Todos los campos son obligatorios.", "clase" => "mensaje-error"]);
             exit;
         }
 
-        // Validar caracteres en nombre (# * - ' ")
         if (preg_match('/[#*\-\'"]/', $nombre)) {
-            echo json_encode([
-                "mensaje" => "El nombre no puede contener los caracteres: # * - ' \"",
-                "clase" => "mensaje-error"
-            ]);
+            echo json_encode(["mensaje" => "El nombre no puede contener los caracteres: # * - ' \"", "clase" => "mensaje-error"]);
             exit;
         }
 
-        // Validar caracteres en apellido (' ")
-        if (preg_match('/[\'"]/', $apellido)) {
-            echo json_encode([
-                "mensaje" => "El apellido no puede contener comillas (' \")",
-                "clase" => "mensaje-error"
-            ]);
+        if (preg_match('/[\'\"]/', $apellido)) {
+            echo json_encode(["mensaje" => "El apellido no puede contener comillas (' \")", "clase" => "mensaje-error"]);
             exit;
         }
 
-        // Validar formato de email
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode([
-                "mensaje" => "El correo electrónico no es válido.",
-                "clase" => "mensaje-error"
-            ]);
+            echo json_encode(["mensaje" => "El correo electrónico no es válido.", "clase" => "mensaje-error"]);
             exit;
         }
 
         $hash = password_hash($contrasena, PASSWORD_ARGON2ID);
 
         try {
-            // Validar email usando consulta preparada
-            $stmtcheck = $db->ejecutar('validarEmail', [':email' => $email]);
-            $result = $stmtcheck->fetchColumn();
+            // Validar que el email no exista
+            $stmtCheck = $db->ejecutar('validarEmail', [':email' => $email]);
+            $isAvailable = $stmtCheck->fetchColumn();
 
-            if (!$result) {
-                echo json_encode([
-                    "mensaje" => "El correo ya está registrado.",
-                    "clase" => "mensaje-error"
-                ]);
+            if (!$isAvailable) {
+                echo json_encode(["mensaje" => "El correo ya está registrado.", "clase" => "mensaje-error"]);
                 exit;
             }
 
-            // Crear usuario usando consulta preparada
-            $stmt = $db->ejecutar('crearUsuario', [
-                ':email' => $email,
+            // Crear usuario
+            $db->ejecutar('crearUsuario', [
+                ':email'      => $email,
                 ':contrasena' => $hash,
-                ':nombre' => $nombre,
-                ':apellido' => $apellido
+                ':nombre'     => $nombre,
+                ':apellido'   => $apellido
             ]);
 
-            echo json_encode([
-                "mensaje" => "Usuario registrado correctamente.",
-                "clase" => "mensaje-exito"
-            ]);
+            echo json_encode(["mensaje" => "Usuario registrado correctamente.", "clase" => "mensaje-exito"]);
+
         } catch (PDOException $e) {
-            echo json_encode([
-                "mensaje" => "Error en el registro: " . $e->getMessage(),
-                "clase" => "mensaje-error"
-            ]);
+            echo json_encode(["mensaje" => "Error en el registro: " . $e->getMessage(), "clase" => "mensaje-error"]);
         }
 
+    // ── Login ─────────────────────────────────────────────────────────────────
     } elseif ($accion === 'login') {
-        // Login
-        $email = $_POST['email'] ?? '';
-        $contrasena = $_POST['contrasena'] ?? '';
+        $email      = trim($_POST['email']     ?? '');
+        $contrasena = $_POST['contrasena']     ?? '';
 
         if (empty($email) || empty($contrasena)) {
-            echo json_encode([
-                "mensaje" => "Todos los campos son obligatorios.",
-                "clase" => "mensaje-error"
-            ]);
+            echo json_encode(["mensaje" => "Todos los campos son obligatorios.", "clase" => "mensaje-error"]);
             exit;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode([
-                "mensaje" => "El correo electrónico no es válido.",
-                "clase" => "mensaje-error"
-            ]);
+            echo json_encode(["mensaje" => "El correo electrónico no es válido.", "clase" => "mensaje-error"]);
             exit;
         }
 
         try {
-            // Obtener hash de contraseña usando consulta preparada
             $stmt = $db->ejecutar('obtenerHashLogin', [':email' => $email]);
             $hash = $stmt->fetchColumn();
 
             if ($hash && password_verify($contrasena, $hash)) {
-                // Iniciar sesión
-                // Iniciar sesión (ya iniciada arriba)
-                if (session_status() === PHP_SESSION_NONE) {
-                    session_start();
-                }
-                $_SESSION['email'] = $email;
-
-                // Obtener datos del usuario usando consulta preparada
                 $stmtUsuario = $db->ejecutar('obtenerUsuarioPorEmail', [':email' => $email]);
                 $usuario = $stmtUsuario->fetch(PDO::FETCH_ASSOC);
 
-                if ($usuario) {
-                    $_SESSION['id_user'] = $usuario['id_user'];  
-                    $_SESSION['nombre'] = $usuario['nom_user'];
-                } else {
-                    $_SESSION['nombre'] = $email;
-                }
+                $token = AuthHelper::generateToken([
+                    'id_user' => $usuario['id_user'],
+                    'nombre'  => $usuario['nom_user'],
+                    'email'   => $email
+                ]);
+                AuthHelper::setAuthCookie($token);
 
-                echo json_encode([
-                    "mensaje" => "Inicio de sesión exitoso",
-                    "clase" => "mensaje-exito"
-                ]);
+                echo json_encode(["mensaje" => "Inicio de sesión exitoso", "clase" => "mensaje-exito"]);
             } else {
-                echo json_encode([
-                    "mensaje" => "❌ Correo o contraseña incorrectos",
-                    "clase" => "mensaje-error"
-                ]);
+                echo json_encode(["mensaje" => "❌ Correo o contraseña incorrectos", "clase" => "mensaje-error"]);
             }
+
         } catch (PDOException $e) {
-            echo json_encode([
-                "mensaje" => "Error en la base de datos: " . $e->getMessage(),
-                "clase" => "mensaje-error"
-            ]);
+            echo json_encode(["mensaje" => "Error en la base de datos: " . $e->getMessage(), "clase" => "mensaje-error"]);
         }
 
+    // ── Logout ────────────────────────────────────────────────────────────────
+    } elseif ($accion === 'logout') {
+        AuthHelper::clearAuthCookie();
+        echo json_encode(["mensaje" => "Sesión cerrada.", "clase" => "mensaje-exito"]);
+
     } else {
-        echo json_encode([
-            "mensaje" => "Acción no válida.",
-            "clase" => "mensaje-error"
-        ]);
+        echo json_encode(["mensaje" => "Acción no válida.", "clase" => "mensaje-error"]);
     }
 }
 ?>

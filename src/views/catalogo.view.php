@@ -156,7 +156,7 @@ require_once __DIR__ . '/partials/base_head.php';
     
     <?php require_once __DIR__ . '/partials/footer.php'; ?>
     <!-- Lógica de Filtrado Asíncrono (Fetch API) -->
-    <script src="<?= BASE_URL ?>src/js/catalogo.js"></script>
+    <script src="<?= BASE_URL ?>src/scripts/catalogo.js"></script>
     <!-- Drawer del Carrito -->
     <?php require_once __DIR__ . '/partials/carrito.php'; ?>
     <script src="<?= BASE_URL ?>src/scripts/carrito.js"></script>

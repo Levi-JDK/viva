@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../functions/sesion.php';
+
 /**
  * API Endpoint: /api/resenas
  * 
@@ -12,10 +12,8 @@ require_once __DIR__ . '/../functions/sesion.php';
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['id_user'])) {
-    echo json_encode(['exito' => false, 'mensaje' => 'Debes iniciar sesión para dejar una reseña']);
-    exit;
-}
+require_once __DIR__ . '/../functions/auth_helper.php';
+$userData = AuthHelper::protectRoute();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(['exito' => false, 'mensaje' => 'Método no permitido']);
@@ -32,7 +30,7 @@ if (!$input) {
 $id_producto = isset($input['id_producto']) ? (int)$input['id_producto'] : 0;
 $calificacion = isset($input['calificacion']) ? (int)$input['calificacion'] : 0;
 $texto = trim($input['texto'] ?? '');
-$id_user = (int)$_SESSION['id_user'];
+$id_user = (int)$userData->id_user;
 
 // Validaciones estrictas del backend
 if (empty($id_producto)) {
@@ -57,13 +55,6 @@ try {
     // Validar si el usuario es el mismo productor (no puede auto-reseñarse)
     $stmtProd = $db->ejecutar('obtenerDetalleProducto', [':id_producto' => $id_producto]);
     $prod = $stmtProd->fetch(PDO::FETCH_ASSOC);
-
-    // OJO: Asumiremos que el id_productor se extrajo con éxito. Pero no queremos un hard block
-    // a menos que sea el mismo id_user. Un usuario podría ser el dueño o no. En este caso 
-    // tab_productores.id_user  nos daría si es el mismo, pero lo dejaremos simple por ahora, 
-    // tab_productos trae id_productor. Necesitaríamos JOIN tab_productores. 
-    // Para simplificar, omitimos esto por el momento y permitimos reseñar a todos.
-
     $stmt = $db->ejecutar('agregarResena', [
         ':id_user' => $id_user,
         ':id_producto' => $id_producto,

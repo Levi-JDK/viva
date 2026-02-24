@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Procesar cada archivo
             files.forEach(file => {
                 // Validar tipo
-                const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+                const allowedExtensions = ['jpg', 'jpeg', 'webp'];
                 const fileExtension = file.name.split('.').pop().toLowerCase();
 
                 if (!allowedExtensions.includes(fileExtension)) {
@@ -269,7 +269,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const formData = new FormData(this);
 
-            // Agregar imágenes nuevas (si hay)
+            // IMPORTANTE: Eliminar las imágenes capturadas automáticamente por el 'FormData' 
+            // ya que pueden contener la foto rechazada de 5MB que el navegador dejó en el input.
+            formData.delete('imagen_producto[]');
+
+            // Agregar ÚNICAMENTE las imágenes validadas por el frontend (si hay)
             selectedImages.forEach((file) => {
                 formData.append('imagen_producto[]', file);
             });

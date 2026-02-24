@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../functions/sesion.php';
+
 /**
  * API: Carrito de Compras
  * Ruta: POST /api/carrito
@@ -17,13 +17,9 @@ require_once __DIR__ . '/../functions/sesion.php';
  */
 
 header('Content-Type: application/json; charset=utf-8');
-
-
-
-if (!isset($_SESSION['id_user'])) {
-    echo json_encode(['exito' => false, 'mensaje' => 'Debes iniciar sesión para usar el carrito']);
-    exit;
-}
+require_once __DIR__ . '/../functions/auth_helper.php';
+$userData = AuthHelper::protectRoute();
+$id_user = $userData->id_user;
 
 // ── Solo aceptar POST ────────────────────────────────────────────────────────
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -32,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // ── Leer parámetros (soporta JSON body y form-data) ─────────────────────────
-$input = json_decode(file_get_contents('php://input'), true);
+$input = json_decode(file_get_contents('php://input'), true) ?? [];
 
 $accion      = $input['accion']      ?? $_POST['accion']      ?? null;
 $id_producto = $input['id_producto'] ?? $_POST['id_producto'] ?? null;
@@ -55,7 +51,7 @@ try {
     $db = Database::getInstance();
 
     $params = [
-        ':id_user'     => $_SESSION['id_user'],
+        ':id_user'     => $id_user,
         ':accion'      => $accion,
         ':id_producto' => $id_producto ? (int) $id_producto : null,
         ':cantidad'    => $cantidad    ? (int) $cantidad    : null,

@@ -42,10 +42,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['imagen_perfil'])) {
         
 
 
-        // Obtener ID del usuario de la sesión (asegurarse de que existe)
-        // NOTA: Si tu sistema de login no guarda 'id_user' en $_SESSION, debes ajustarlo.
-        // Por defecto asumimos que existe o usamos 1 para pruebas si no hay sesión (CUIDADO EN PRODUCCIÓN)
-        $id_usuario = $_SESSION['id_user'] ?? null;
+        // Obtener ID del usuario de la sesión validada
+        require_once __DIR__ . '/auth_helper.php';
+        $userData = AuthHelper::protectRoute();
+        $id_usuario = $userData->id_user;
 
         if ($id_usuario) {
             try {

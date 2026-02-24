@@ -5,16 +5,14 @@
 // Sesión iniciada centralmente en index.php
 
 // 1. Validar autenticación
-if (!isset($_SESSION['id_user'])) {
-    header('Location: ' . BASE_URL . 'login');
-    exit;
-}
+require_once __DIR__ . '/../functions/auth_helper.php';
+$userData = AuthHelper::protectRoute();
+$id_user = $userData->id_user;
 
 require_once __DIR__ . '/../functions/Database.php';
 
 try {
     $db = Database::getInstance();
-    $id_user = $_SESSION['id_user'];
 
 
 

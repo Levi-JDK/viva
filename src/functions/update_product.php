@@ -18,10 +18,9 @@ if (!defined('BASE_URL')) {
 
 header('Content-Type: application/json');
 
-if (!isset($_SESSION['id_user'])) {
-    echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);
-    exit;
-}
+require_once __DIR__ . '/auth_helper.php';
+$userData = AuthHelper::protectRoute();
+$id_user = $userData->id_user;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -61,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $desc = strip_tags($desc);
 
         // Validar propiedad del producto
-        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $_SESSION['id_user']]);
+        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $id_user]);
         $id_productor = $stmtProd->fetchColumn();
 
         if (!$id_productor) {
@@ -73,6 +72,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $checkStmt->execute([$id_producto, $id_productor]);
         if (!$checkStmt->fetchColumn()) {
             throw new Exception("No tienes permiso para editar este producto.");
+        }
+
+        // --- Validación Previa de Nuevas Imágenes ---
+        $files_to_process = [];
+        if (isset($_FILES['imagen_producto'])) {
+            $files = $_FILES['imagen_producto'];
+            $count = is_array($files['name']) ? count($files['name']) : 1;
+
+            if (!is_array($files['name'])) {
+                $files = ['name' => [$files['name']], 'type' => [$files['type']], 'tmp_name' => [$files['tmp_name']], 'error' => [$files['error']], 'size' => [$files['size']]];
+            }
+
+            for ($i = 0; $i < $count; $i++) {
+                if ($files['error'][$i] === UPLOAD_ERR_NO_FILE) continue; 
+                
+                if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                    throw new Exception("Error al subir imagen: " . $files['error'][$i]);
+                }
+
+                $ext = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
+                if (!in_array($ext, ['jpg', 'jpeg', 'webp', 'png'])) {
+                    throw new Exception("Formato inválido: " . $files['name'][$i]);
+                }
+
+                if ($files['size'][$i] > 5 * 1024 * 1024) {
+                    throw new Exception("Excede el límite de 5MB: " . $files['name'][$i]);
+                }
+
+                $files_to_process[] = [
+                    'name' => $files['name'][$i], 'type' => $files['type'][$i], 
+                    'tmp_name' => $files['tmp_name'][$i], 'error' => $files['error'][$i], 'size' => $files['size'][$i]
+                ];
+            }
+        }
+
+        // Obtener imágenes actuales de la BD para la validación final
+        $stmtImg = $conn->prepare("SELECT id_imagen, url_imagen FROM tab_imagenes WHERE id_producto = ?");
+        $stmtImg->execute([$id_producto]);
+        $imagenes_actuales_db = $stmtImg->fetchAll(PDO::FETCH_ASSOC);
+        $urls_actuales_db = array_column($imagenes_actuales_db, 'url_imagen');
+
+        $imagenes_mantenidas_json = $_POST['imagenes_existentes'] ?? '[]';
+        $imagenes_mantenidas = json_decode($imagenes_mantenidas_json, true) ?: [];
+        $urls_mantenidas = array_column($imagenes_mantenidas, 'url');
+
+        // Validación: debe quedar al menos UNA imagen (ya sea persistente o nueva)
+        $total_final_images = count($urls_mantenidas) + count($files_to_process);
+        if ($total_final_images === 0) {
+            throw new Exception("El producto debe tener al menos una imagen.");
         }
 
         $conn->beginTransaction();
@@ -130,46 +178,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $delStmt->execute([$img_borrar['id_imagen']]);
         }
 
-        // B. Subir nuevas imágenes (si hay)
-        if (isset($_FILES['imagen_producto'])) {
+        // B. Subir nuevas imágenes físicas (validadas previamente)
+        $uploaded_paths = [];
+        $target_directory = __DIR__ . '/../../images/products/';
 
-            $uploaded_paths = [];
-            $target_directory = __DIR__ . '/../../images/products/';
-
-            $files = $_FILES['imagen_producto'];
-            $count = is_array($files['name']) ? count($files['name']) : 1;
-
-            if (!is_array($files['name'])) {
-                $files = ['name' => [$files['name']], 'type' => [$files['type']], 'tmp_name' => [$files['tmp_name']], 'error' => [$files['error']], 'size' => [$files['size']]];
+        foreach ($files_to_process as $current_file) {
+            $result = handleImageUpload($current_file, $target_directory, 'prod_' . $id_producto . '_' . time() . '_', 'images/products/');
+            
+            if ($result['success']) {
+                $uploaded_paths[] = $result['path'];
+            } else {
+                throw new Exception("Error al procesar imagen " . $current_file['name'] . ": " . $result['message']);
             }
+        }
 
-            for ($i = 0; $i < $count; $i++) {
-                if ($files['error'][$i] !== UPLOAD_ERR_OK) continue;
-
-                $current_file = ['name' => $files['name'][$i], 'type' => $files['type'][$i], 'tmp_name' => $files['tmp_name'][$i], 'error' => $files['error'][$i], 'size' => $files['size'][$i]];
-                $result = handleImageUpload($current_file, $target_directory, 'prod_' . $id_producto . '_' . time() . '_', 'images/products/');
-                
-                if ($result['success']) {
-                    $uploaded_paths[] = $result['path'];
-                } else {
-                    throw new Exception("Error subiendo imagen " . $current_file['name'] . ": " . $result['message']);
-                }
-            }
-
-            foreach ($uploaded_paths as $index => $path) {
-                $db->ejecutar('registrarImagen', [
-                    ':id_producto' => $id_producto,
-                    ':url_imagen'  => $path
-                ]);
-            }
+        foreach ($uploaded_paths as $path) {
+            $db->ejecutar('registrarImagen', [
+                ':id_producto' => $id_producto,
+                ':url_imagen'  => $path
+            ]);
         }
 
         $conn->commit();
         echo json_encode(['success' => true, 'message' => 'Producto actualizado exitosamente.']);
 
     }
-    catch (Exception $e) {
-        if (isset($conn)) $conn->rollBack();
+    catch (Throwable $e) {
+        if (isset($conn) && $conn->inTransaction()) {
+            $conn->rollBack();
+        }
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 } else {

@@ -250,6 +250,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    showToast('La imagen es demasiado pesada. El tamaño máximo es 5MB.', 'error');
+                    profileInput.value = ''; // Clear input to prevent submission
+                    return;
+                }
+
                 // Submit form automatically if valid
                 profileForm.submit();
             }

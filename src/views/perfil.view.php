@@ -169,51 +169,62 @@ require_once __DIR__ . '/partials/base_head.php';
                         
                         <!-- Orders List -->
                         <div class="space-y-4">
-                            <!-- Order Item -->
-                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
-                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                    <div class="flex items-start space-x-4">
-                                        <div class="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0">
-                                            <img src="<?= BASE_URL ?>images/wayuu.jpg" alt="Producto" class="w-full h-full object-cover rounded-lg">
-                                        </div>
-                                        <div>
-                                            <h3 class="font-semibold text-gray-800">Pedido #12345</h3>
-                                            <p class="text-sm text-gray-500">3 productos • 28 Enero 2025</p>
-                                            <p class="text-sm font-semibold text-tierra-oscuro mt-1">$350.000</p>
-                                        </div>
+                            <?php if (empty($pedidos)): ?>
+                                <div class="text-center py-8">
+                                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <i class="fas fa-shopping-bag text-3xl text-gray-300"></i>
                                     </div>
-                                    <div class="flex flex-col md:items-end space-y-2">
-                                        <span class="inline-block px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
-                                            En Camino
-                                        </span>
-                                        <button class="text-sm text-naranja-artesanal hover:underline">Ver detalles</button>
+                                    <h3 class="text-lg font-medium text-gray-800 mb-1">Aún no tienes pedidos</h3>
+                                    <p class="text-sm text-gray-500 mb-4">Explora nuestro catálogo y realiza tu primera compra.</p>
+                                    <a href="<?= BASE_URL ?>catalogo" class="btn-primary inline-block text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                                        Ver catálogo
+                                    </a>
+                                </div>
+                            <?php else: ?>
+                                <?php foreach ($pedidos as $pedido): 
+                                    $fecha_pedido = new DateTime($pedido['fec_factura']);
+                                    $imagen_pedido = !empty($pedido['primera_imagen']) ? BASE_URL . $pedido['primera_imagen'] : BASE_URL . 'images/default_product.png';
+                                    
+                                    // Determinar color de estado
+                                    $color_estado = 'bg-gray-100 text-gray-700';
+                                    if(strtolower($pedido['epayco_estado']) == 'aceptada') {
+                                        $color_estado = 'bg-green-100 text-green-700';
+                                    } else if(strtolower($pedido['epayco_estado']) == 'pendiente') {
+                                        $color_estado = 'bg-blue-100 text-blue-700';
+                                    } else if(strtolower($pedido['epayco_estado']) == 'rechazada' || strtolower($pedido['epayco_estado']) == 'fallida') {
+                                        $color_estado = 'bg-red-100 text-red-700';
+                                    }
+                                ?>
+                                <!-- Order Item -->
+                                <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
+                                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                                        <div class="flex items-start space-x-4">
+                                            <div class="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0">
+                                                <img src="<?= $imagen_pedido ?>" alt="Producto" class="w-full h-full object-cover rounded-lg">
+                                            </div>
+                                            <div>
+                                                <h3 class="font-semibold text-gray-800">Pedido #<?= htmlspecialchars($pedido['id_factura']) ?></h3>
+                                                <p class="text-sm text-gray-500">
+                                                    <?= $pedido['total_productos'] ?> producto<?= $pedido['total_productos'] != 1 ? 's' : '' ?> • 
+                                                    <?= htmlspecialchars($fecha_pedido->format('d M Y')) ?>
+                                                </p>
+                                                <div class="flex items-center space-x-2 mt-1">
+                                                    <p class="text-sm font-semibold text-tierra-oscuro">$<?= number_format($pedido['val_tot_fact'], 0, ',', '.') ?></p>
+                                                    <span class="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-md"><i class="fas fa-credit-card mr-1 text-gray-400"></i> <?= htmlspecialchars($pedido['nom_pago']) ?></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col md:items-end space-y-2">
+                                            <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full <?= $color_estado ?>">
+                                                <?= ucfirst(htmlspecialchars($pedido['epayco_estado'] ?: 'Recibido')) ?>
+                                            </span>
+                                            <a href="<?= BASE_URL ?>pedido?id=<?= $pedido['id_factura'] ?>" class="text-sm text-naranja-artesanal hover:underline font-medium">Ver detalles</a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Another Order -->
-                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all">
-                                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                                    <div class="flex items-start space-x-4">
-                                        <div class="w-20 h-20 bg-gray-100 rounded-lg flex-shrink-0">
-                                            <img src="<?= BASE_URL ?>images/mochila-arhuaca.jpg" alt="Producto" class="w-full h-full object-cover rounded-lg">
-                                        </div>
-                                        <div>
-                                            <h3 class="font-semibold text-gray-800">Pedido #12344</h3>
-                                            <p class="text-sm text-gray-500">1 producto • 15 Enero 2025</p>
-                                            <p class="text-sm font-semibold text-tierra-oscuro mt-1">$280.000</p>
-                                        </div>
-                                    </div>
-                                    <div class="flex flex-col md:items-end space-y-2">
-                                        <span class="inline-block px-3 py-1 bg-blue-100 text-blue-700 text-xs font-semibold rounded-full">
-                                            Entregado
-                                        </span>
-                                        <button class="text-sm text-naranja-artesanal hover:underline">Ver detalles</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                          
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                            
                         </div>
                     </div>
                 </section>

@@ -1,40 +1,9 @@
 <?php 
 
-// Verificar que el usuario esté autenticado
-// Si hay una sesión antigua sin id_user pero con email, obtener el id_user
-if (!isset($_SESSION['id_user']) && isset($_SESSION['email'])) {
-    // Sesión antigua, obtener id_user desde el email
-    try {
-        require_once ROOT_PATH . 'src/functions/Database.php';
-        
-        // Usar Singleton pattern
-        $db = Database::getInstance();
-        
-        // Obtener ID de usuario usando consulta preparada
-        $stmt = $db->ejecutar('obtenerIdPorEmail', [':email' => $_SESSION['email']]);
-        $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($result) {
-            $_SESSION['id_user'] = $result['id_user'];
-        } else {
-            // Usuario no encontrado, cerrar sesión
-            session_destroy();
-            header('Location: ' . BASE_URL . 'login');
-            exit;
-        }
-    } catch (Exception $e) {
-        error_log("Error al migrar sesión antigua: " . $e->getMessage());
-        session_destroy();
-        header('Location: ' . BASE_URL . 'login');
-        exit;
-    }
-}
-
-// Si todavía no hay id_user, redirigir al login
-if (!isset($_SESSION['id_user'])) {
-    header('Location: ' . BASE_URL . 'login');
-    exit;
-}
+require_once ROOT_PATH . 'src/functions/auth_helper.php';
+// Verificar que el usuario esté autenticado. Si no, redirige.
+$usuarioData = AuthHelper::protectRoute();
+$id_usuario = $usuarioData->id_user;
 
 // Cargar las dependencias necesarias
 require_once ROOT_PATH . 'src/functions/Database.php';
@@ -51,19 +20,12 @@ try {
 // ============================================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json');
-    
-    // Verificar sesión nuevamente por seguridad
-    if (!isset($_SESSION['id_user'])) {
-        echo json_encode(['clase' => 'mensaje-error', 'mensaje' => 'Sesión no válida o expirada.']);
-        exit;
-    }
 
     $accion = $_POST['accion'] ?? '';
 
     if ($accion === 'update_profile') {
         $nombre = trim($_POST['nombre'] ?? '');
         $apellido = trim($_POST['apellido'] ?? '');
-        $id_usuario = $_SESSION['id_user'];
 
         if (empty($nombre) || empty($apellido)) {
             echo json_encode(['clase' => 'mensaje-error', 'mensaje' => 'El nombre y apellido son obligatorios.']);
@@ -90,9 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':id' => $id_usuario
             ]);
 
-            // Actualizar variables de sesión para reflejar el cambio inmediatamente
-            $_SESSION['nombre'] = $nombre;
-
+            // Retornamos exito
             echo json_encode(['clase' => 'mensaje-exito', 'mensaje' => 'Perfil actualizado correctamente.']);
             exit;
         } catch (PDOException $e) {
@@ -109,15 +69,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Obtener datos del usuario actual
 try {
-    $id_usuario = $_SESSION['id_user'];
-    
     // Obtener datos del usuario usando consulta preparada
     $stmt = $db->ejecutar('obtenerUsuarioPorId', [':id' => $id_usuario]);
     $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
     
-    // Si no se encuentra el usuario, cerrar sesión
+    // Si no se encuentra el usuario en la BD, limpiar cookie JWT y redirigir
     if (!$usuario) {
-        session_destroy();
+        AuthHelper::clearAuthCookie();
         header('Location: ' . BASE_URL . 'login');
         exit;
     }
@@ -153,6 +111,15 @@ if ($fecha_registro) {
 
 // Obtener la inicial del nombre para el avatar
 $inicial_usuario = strtoupper(substr($nombre_usuario, 0, 1));
+
+// Obtener pedidos del usuario
+try {
+    $stmtPedidos = $db->ejecutar('obtenerPedidosCliente', [':id_user' => $id_usuario]);
+    $pedidos = $stmtPedidos->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $pedidos = [];
+    error_log("Error al obtener pedidos del usuario: " . $e->getMessage());
+}
 
 // Usamos ROOT_PATH para que el include sea absoluto desde el disco
 require_once ROOT_PATH . "src/views/perfil.view.php";

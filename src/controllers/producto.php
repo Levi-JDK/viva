@@ -31,7 +31,6 @@ if ($id_producto) {
              $producto['imagen_principal'] = !empty($producto['imagenes']) && isset($producto['imagenes'][0]['url']) 
                 ? $producto['imagenes'][0]['url'] 
                 : 'images/default_product.png';
-
             // Incrementar contador de vistas silenciosamente
             try {
                 $db->ejecutar('incrementarVistasProducto', [':id_producto' => $id_producto]);

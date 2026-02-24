@@ -28,9 +28,11 @@ if ($ref_payco) {
                 $partes_factura = explode('-', $transaccion['x_id_invoice']);
                 $id_user_recuperado = isset($partes_factura[2]) ? $partes_factura[2] : null;
                 
-                if ($id_user_recuperado && !isset($_SESSION['id_user'])) {
-                    $_SESSION['id_user'] = $id_user_recuperado;
-                    // Opcionalmente recuperar el resto de info del DB, pero id_user es lo esencial aquí.
+                require_once __DIR__ . '/../functions/auth_helper.php';
+
+                if ($id_user_recuperado && !AuthHelper::verifyToken()) {
+                    $token = AuthHelper::generateToken(['id_user' => $id_user_recuperado]);
+                    AuthHelper::setAuthCookie($token);
                 }
 
                 // 3. Si la transacción fue Aceptada, procesar el pedido
@@ -38,7 +40,8 @@ if ($ref_payco) {
                     require_once __DIR__ . '/../functions/Database.php';
                     $db = Database::getInstance();
 
-                    $id_user_pago = $_SESSION['id_user'] ?? $id_user_recuperado;
+                    $userData = AuthHelper::verifyToken();
+                    $id_user_pago = $userData ? $userData->id_user : $id_user_recuperado;
 
                     // 3.1 Actualizar tab_clientes con datos de ePayco
                     try {

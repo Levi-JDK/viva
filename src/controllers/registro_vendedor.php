@@ -1,10 +1,8 @@
 <?php
 
-
-if (!isset($_SESSION['id_user'])) {
-    header("Location: " . BASE_URL . "login");
-    exit();
-}
+require_once __DIR__ . '/../functions/auth_helper.php';
+$userData = AuthHelper::protectRoute();
+$id_user = $userData->id_user;
 
 // Este controlador SOLO se encarga de cargar los datos necesarios para la vista (GET)
 // NO procesa el formulario de registro. Eso lo hace src/api/post_registro_vendedor.php
@@ -16,7 +14,7 @@ try {
     $db = Database::getInstance();
     
     // Verificar si ya es vendedor
-    $params = [':id_user' => $_SESSION['id_user']];
+    $params = [':id_user' => $id_user];
     $stmt = $db->ejecutar('validarProductor', $params);
     $es_productor = $stmt->fetchColumn();
 

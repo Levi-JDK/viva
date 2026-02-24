@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../functions/sesion.php';
+
 // src/api/guardar_cliente.php
 // Endpoint POST: guarda o actualiza la dirección de envío del cliente en tab_clientes.
 // Usa fun_c_cliente vía Database.php. El botón de pago se habilita en el front tras éxito.
@@ -14,12 +14,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$id_user = $_SESSION['id_user'] ?? null;
-if (!$id_user) {
-    http_response_code(401);
-    echo json_encode(['exito' => false, 'mensaje' => 'No autenticado.']);
-    exit;
-}
+require_once __DIR__ . '/../functions/auth_helper.php';
+$userData = AuthHelper::protectRoute();
+$id_user = $userData->id_user;
 
 // --- Leer y validar campos ---
 $id_departamento = trim($_POST['id_departamento'] ?? '');

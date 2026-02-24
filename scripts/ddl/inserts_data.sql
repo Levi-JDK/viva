@@ -80,7 +80,5 @@ INSERT INTO tab_color (id_color, nom_color) VALUES
 ('#00FFFF', 'Turquesa / Cian'),
 ('MULTICOLOR', 'Multicolor');
 
--- Formas de pago 
-INSERT INTO tab_formas_pago (id_pago, nom_pago) VALUES
-('EPAYCO',        'ePayco Pasarela de Pago');
+
 

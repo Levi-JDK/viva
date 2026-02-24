@@ -1,3 +1,4 @@
+-- DROP DE VISTAS
 DROP VIEW IF EXISTS bancos_view;
 DROP VIEW IF EXISTS grupos_view;
 DROP VIEW IF EXISTS departamentos_col_view;
@@ -6,7 +7,7 @@ DROP VIEW IF EXISTS categorias_view;
 DROP VIEW IF EXISTS colores_view;
 DROP VIEW IF EXISTS oficios_view;
 DROP VIEW IF EXISTS materias_view;
-
+-- DROP DE TABLAS
 DROP TABLE IF EXISTS tab_kardex;
 DROP TABLE IF EXISTS tab_clientes;
 DROP TABLE IF EXISTS tab_envios;
@@ -45,7 +46,6 @@ CREATE TABLE IF NOT EXISTS tab_pmtros
     id_parametro   DECIMAL(1,0)  NOT NULL DEFAULT 1,                   -- Identificador del registro de parámetros
     nom_plataforma VARCHAR       NOT NULL,                              -- Nombre de la plataforma
     dir_contacto   VARCHAR       NOT NULL,                              -- Dirección de contacto
-    tel_contacto   VARCHAR(20)   NOT NULL,                              -- Teléfono de contacto
     correo_contacto VARCHAR      NOT NULL,                              -- Correo de contacto
     val_poriva     DECIMAL(4,2)  NOT NULL DEFAULT 19.00,                -- Porcentaje de IVA por defecto
     val_inifact    DECIMAL(12,0) NOT NULL,                              -- Numeración inicial de facturas
@@ -55,19 +55,18 @@ CREATE TABLE IF NOT EXISTS tab_pmtros
     visitas        INTEGER       NOT NULL DEFAULT 0,                    -- Visitas a la plataforma
     created_by     VARCHAR       NOT NULL DEFAULT current_user,         -- Usuario que creó
     created_at     TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by     VARCHAR DEFAULT 'N/A',                               -- Usuario que modificó
-    updated_at     TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',     -- Fecha de modificación
+    updated_by     VARCHAR NOT NULL DEFAULT 'N/A',                               -- Usuario que modificó
+    updated_at     TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',     -- Fecha de modificación
     is_deleted     BOOLEAN       NOT NULL DEFAULT FALSE,                -- Indicador de borrado lógico
     PRIMARY KEY(id_parametro)
 );
 
 INSERT INTO tab_pmtros (
-  nom_plataforma, dir_contacto, tel_contacto, correo_contacto,
+  nom_plataforma, dir_contacto, correo_contacto,
   val_poriva, val_inifact, val_finfact, val_actfact, val_observa
 ) VALUES (
   'Artesanías Viva',
   'Calle 100 # 15-20, Bogotá',
-  '+57 601 555 1234',
   'contacto@artesaniasviva.com',
   19.00,
   1000,
@@ -76,20 +75,19 @@ INSERT INTO tab_pmtros (
   'Parámetros iniciales de facturación'
 );
 
--- SELECT * FROM tab_users
 -- Tabla de usuarios
 CREATE TABLE IF NOT EXISTS tab_users (
-    id_user         INTEGER   NOT NULL,                                 -- Identificador del usuario
-    mail_user       VARCHAR   NOT NULL,                                  -- Correo del usuario
-    pass_user       VARCHAR   NOT NULL,                                  -- Contraseña (hash)
-    nom_user        VARCHAR   NOT NULL,                                  -- Nombres del usuario
-    ape_user        VARCHAR   NOT NULL,                                  -- Apellidos del usuario
-    foto_user       VARCHAR   DEFAULT ('images/profiles/default.webp'),            -- Foto del usuario
+    id_user         INTEGER   NOT NULL,                                         -- Identificador del usuario
+    mail_user       VARCHAR   NOT NULL,                                         -- Correo del usuario
+    pass_user       VARCHAR   NOT NULL,                                         -- Contraseña (hash)
+    nom_user        VARCHAR   NOT NULL,                                         -- Nombres del usuario
+    ape_user        VARCHAR   NOT NULL,                                         -- Apellidos del usuario
+    foto_user       VARCHAR   DEFAULT ('images/profiles/default.webp'),         -- Foto del usuario
     ult_fec_ingreso TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Último ingreso
     created_by      VARCHAR   NOT NULL DEFAULT current_user,             -- Usuario que creó
     created_at      TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by      VARCHAR DEFAULT 'N/A',                               -- Usuario que modificó
-    updated_at      TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',     -- Fecha de modificación
+    updated_by      VARCHAR NOT NULL DEFAULT 'N/A',                               -- Usuario que modificó
+    updated_at      TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',     -- Fecha de modificación
     is_deleted      BOOLEAN   NOT NULL DEFAULT FALSE,                    -- Borrado lógico
     PRIMARY KEY (id_user)
 );
@@ -97,26 +95,29 @@ CREATE TABLE IF NOT EXISTS tab_users (
 -- Tabla de menú
 CREATE TABLE IF NOT EXISTS tab_menu
 (
-    id_menu    INTEGER  NOT NULL,                                       -- Identificador del menú
-    nom_menu   VARCHAR  NOT NULL,                                       -- Nombre del menú
-    created_by VARCHAR  NOT NULL DEFAULT current_user,                  -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                     -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
-    is_deleted BOOLEAN  NOT NULL DEFAULT FALSE,                         -- Borrado lógico
+    id_menu          INTEGER            NOT NULL,                                       -- Identificador del menú
+    nom_menu         VARCHAR            NOT NULL,                                       -- Nombre del menú
+    url_menu         VARCHAR            DEFAULT '#',                                    -- URL o ruta de acceso
+    icono_menu       VARCHAR            DEFAULT 'fas fa-circle',                        -- Clase CSS del icono (FontAwesome)
+    orden_menu       INTEGER            DEFAULT 0,                                      -- Posición de renderizado
+    created_by       VARCHAR            NOT NULL DEFAULT current_user,                  -- Usuario que creó
+    created_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,    -- Fecha de creación
+    updated_by       VARCHAR NOT NULL DEFAULT 'N/A',                                  -- Usuario que modificó
+    updated_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
+    is_deleted       BOOLEAN  NOT NULL DEFAULT FALSE,                                   -- Borrado lógico
     PRIMARY KEY(id_menu)
 );
 
 -- Tabla de menú por usuario
 CREATE TABLE IF NOT EXISTS tab_menu_user
 (
-    id_user    INTEGER  NOT NULL,                                       -- Usuario
-    id_menu    INTEGER  NOT NULL,                                       -- Menú asignado
-    created_by VARCHAR  NOT NULL DEFAULT current_user,                  -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                     -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
-    is_deleted BOOLEAN  NOT NULL DEFAULT FALSE,                         -- Borrado lógico
+    id_user          INTEGER            NOT NULL,                                       -- Usuario
+    id_menu          INTEGER            NOT NULL,                                       -- Menú asignado
+    created_by       VARCHAR            NOT NULL DEFAULT current_user,                  -- Usuario que creó
+    created_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,    -- Fecha de creación
+    updated_by       VARCHAR NOT NULL DEFAULT 'N/A',                                  -- Usuario que modificó
+    updated_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
+    is_deleted       BOOLEAN            NOT NULL DEFAULT FALSE,                         -- Borrado lógico
     PRIMARY KEY(id_user,id_menu),
     FOREIGN KEY(id_user) REFERENCES tab_users(id_user),
     FOREIGN KEY(id_menu) REFERENCES tab_menu(id_menu)
@@ -125,54 +126,54 @@ CREATE TABLE IF NOT EXISTS tab_menu_user
 -- Tabla de bancos
 CREATE TABLE IF NOT EXISTS tab_bancos
 (
-    id_banco   DECIMAL(2,0)  NOT NULL,                                       -- Código del banco
-    nom_banco  VARCHAR  NOT NULL,                                       -- Nombre del banco
-    created_by VARCHAR  NOT NULL DEFAULT current_user,                  -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                     -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
-    is_deleted BOOLEAN  NOT NULL DEFAULT FALSE,                         -- Borrado lógico
+    id_banco            DECIMAL(2,0)        NOT NULL,                                       -- Código del banco
+    nom_banco           VARCHAR             NOT NULL,                                       -- Nombre del banco
+    created_by          VARCHAR             NOT NULL DEFAULT current_user,                  -- Usuario que creó
+    created_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by          VARCHAR NOT NULL DEFAULT 'N/A',                                  -- Usuario que modificó
+    updated_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
+    is_deleted          BOOLEAN             NOT NULL DEFAULT FALSE,                         -- Borrado lógico
     PRIMARY KEY(id_banco)
 );
 
 -- Tabla de colores
 CREATE TABLE IF NOT EXISTS tab_color
 (
-    id_color   VARCHAR  NOT NULL,                                       -- Código de color (hex RGB)
-    nom_color  VARCHAR  NOT NULL,                                       -- Nombre del color
-    created_by VARCHAR  NOT NULL DEFAULT current_user,                  -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                     -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
-    is_deleted BOOLEAN  NOT NULL DEFAULT FALSE,                         -- Borrado lógico
+    id_color            VARCHAR             NOT NULL,                                       -- Código de color (hex RGB)
+    nom_color           VARCHAR             NOT NULL,                                       -- Nombre del color
+    created_by          VARCHAR             NOT NULL DEFAULT current_user,                  -- Usuario que creó
+    created_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by          VARCHAR NOT NULL DEFAULT 'N/A',                                  -- Usuario que modificó
+    updated_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
+    is_deleted          BOOLEAN             NOT NULL DEFAULT FALSE,                         -- Borrado lógico
     PRIMARY KEY(id_color)
 );
 
 -- Tabla de tipos de documento
 CREATE TABLE IF NOT EXISTS tab_tipos_doc
 (
-    id_tipo_doc DECIMAL(1,0) NOT NULL,                                  -- Identificador del tipo de documento
-    nom_tipo_doc VARCHAR     NOT NULL,                                   -- Nombre/código del tipo de documento (CC, PP, etc.)
-    created_by   VARCHAR     NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by   VARCHAR DEFAULT 'N/A',                                   -- Usuario que modificó
-    updated_at   TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',       -- Fecha de modificación
-    is_deleted   BOOLEAN     NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_tipo_doc             DECIMAL(1,0)        NOT NULL,                                       -- Identificador del tipo de documento
+    nom_tipo_doc            VARCHAR             NOT NULL,                                       -- Nombre/código del tipo de documento (CC, PP, etc.)
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,                  -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                         -- Borrado lógico
     PRIMARY KEY(id_tipo_doc)
 );
 
 -- Tabla de países
 CREATE TABLE IF NOT EXISTS tab_paises
 (
-    id_pais     DECIMAL(3,0) NOT NULL,                                  -- Identificador del país
-    cod_iso     DECIMAL(3,0) NOT NULL,                                  -- Código ISO numérico
-    nom_pais    VARCHAR      NOT NULL,                                   -- Nombre del país
-    arancel_pct DECIMAL(5,2) NOT NULL DEFAULT 0.00,                      -- % arancel desde Colombia
-    created_by  VARCHAR      NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by  VARCHAR DEFAULT 'N/A',                                    -- Usuario que modificó
-    updated_at  TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',        -- Fecha de modificación
-    is_deleted  BOOLEAN      NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_pais                 DECIMAL(3,0)        NOT NULL,                                       -- Identificador del país
+    cod_iso                 DECIMAL(3,0)        NOT NULL,                                       -- Código ISO numérico
+    nom_pais                VARCHAR             NOT NULL,                                       -- Nombre del país
+    arancel_pct             DECIMAL(5,2)        NOT NULL DEFAULT 0.00,                          -- % arancel desde Colombia
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,                  -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                         -- Borrado lógico
     PRIMARY KEY(id_pais)
 );
 
@@ -182,10 +183,10 @@ CREATE TABLE IF NOT EXISTS tab_departamentos
     id_pais                 DECIMAL(3,0)        NOT NULL,                                  -- Identificador del país
     id_departamento         DECIMAL(2,0)        NOT NULL,                                   -- Identificador de la región
     nom_departamento        VARCHAR(50)         NOT NULL,                                   -- Nombre de la región
-    created_by              VARCHAR(50)         NOT NULL            DEFAULT current_user,              -- Usuario que creó
-    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by              VARCHAR(50)         DEFAULT 'N/A',           -- Usuario que modificó
-    updated_at              TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00', -- Fecha de modificación
+    created_by              VARCHAR             NOT NULL            DEFAULT current_user,              -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR             NOT NULL DEFAULT 'N/A',           -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00', -- Fecha de modificación
     is_deleted              BOOLEAN             NOT NULL            DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_pais,id_departamento),
     FOREIGN KEY(id_pais) REFERENCES tab_paises(id_pais)
@@ -198,10 +199,10 @@ CREATE TABLE IF NOT EXISTS tab_ciudades
     id_ciudad               DECIMAL(5,0)        NOT NULL,                                   -- Identificador de la ciudad
     nom_ciudad              VARCHAR(50)         NOT NULL,                                   -- Nombre de la ciudad
     zip_ciudad              VARCHAR(10)         NOT NULL,                                   -- Código postal
-    created_by              VARCHAR(50)         NOT NULL            DEFAULT current_user,              -- Usuario que creó
-    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by              VARCHAR(50)         DEFAULT 'N/A',           -- Usuario que modificó
-    updated_at              TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00', -- Fecha de modificación
+    created_by              VARCHAR             NOT NULL            DEFAULT current_user,              -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR             NOT NULL DEFAULT 'N/A',           -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00', -- Fecha de modificación
     is_deleted BOOLEAN      NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_pais,id_departamento,id_ciudad),
     FOREIGN KEY(id_pais,id_departamento) REFERENCES tab_departamentos(id_pais,id_departamento),
@@ -211,23 +212,23 @@ CREATE TABLE IF NOT EXISTS tab_ciudades
 -- Tabla de grupos poblacionales
 CREATE TABLE IF NOT EXISTS tab_grupos
 (
-    id_grupo                DECIMAL(12,0) NOT NULL,                                  -- Identificador del grupo
-    nom_grupo               VARCHAR       NOT NULL,                                   -- Nombre del grupo
-    created_by              VARCHAR       NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL    DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by              VARCHAR DEFAULT 'N/A',                                                 -- Usuario que modificó
-    updated_at              TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                             -- Fecha de modificación
-    is_deleted              BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_grupo                DECIMAL(12,0)       NOT NULL,                                   -- Identificador del grupo
+    nom_grupo               VARCHAR             NOT NULL,                                   -- Nombre del grupo
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,              -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',         -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_grupo)
 );
 -- Tabla de productores
 CREATE TABLE IF NOT EXISTS tab_productores
 (
-    id_tipo_doc		   DECIMAL(1,0)         NOT NULL,                           -- Tipo de documento del productor
+    id_tipo_doc		   DECIMAL(1,0)         NOT NULL,                            -- Tipo de documento del productor
     id_productor       DECIMAL(10,0)        NOT NULL CHECK (id_productor BETWEEN 1 AND 9999999999), -- Número de documento
     id_user            INTEGER              NOT NULL,                            -- Usuario asociado en la plataforma
     dir_prod           VARCHAR              NOT NULL,                            -- Dirección del productor
-    id_pais            DECIMAL(3,0)         NOT NULL DEFAULT 1,                 -- País del productor
+    id_pais            DECIMAL(3,0)         NOT NULL DEFAULT 1,                  -- País del productor
     id_ciudad          DECIMAL(5,0)         NOT NULL,                            -- Ciudad del productor
     id_departamento    DECIMAL(2,0)         NOT NULL,                            -- Departamento del país
     id_grupo           DECIMAL(12,0)        NOT NULL,                            -- Grupo poblacional
@@ -236,9 +237,9 @@ CREATE TABLE IF NOT EXISTS tab_productores
     tipo_cuenta        DECIMAL(1,0)         NOT NULL,                            -- 1. Ahorros 2. Corriente
     created_by         VARCHAR              NOT NULL DEFAULT current_user,       -- Usuario que creó
     created_at         TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by         VARCHAR DEFAULT 'N/A',                                -- Usuario que modificó
-    updated_at         TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',            -- Fecha de modificación
-    is_deleted         BOOLEAN               NOT NULL DEFAULT FALSE,              -- Borrado lógico
+    updated_by         VARCHAR NOT NULL DEFAULT 'N/A',                       -- Usuario que modificó
+    updated_at         TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',-- Fecha de modificación
+    is_deleted         BOOLEAN              NOT NULL DEFAULT FALSE,              -- Borrado lógico
     PRIMARY KEY(id_productor),
     FOREIGN KEY(id_tipo_doc) 						REFERENCES tab_tipos_doc(id_tipo_doc),
     FOREIGN KEY(id_pais)    						REFERENCES tab_paises(id_pais),
@@ -259,9 +260,9 @@ CREATE TABLE IF NOT EXISTS tab_stand
     img_stand               VARCHAR                         NOT NULL,
     portada_stand           VARCHAR                         NOT NULL,
     created_by              VARCHAR                         NOT NULL DEFAULT current_user,
-    created_at              TIMESTAMP WITHOUT TIME ZONE     NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by              VARCHAR DEFAULT 'N/A',
-    updated_at              TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',
     is_deleted              BOOLEAN                         NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id_productor,id_stand),
     FOREIGN KEY(id_productor) REFERENCES tab_productores(id_productor)   
@@ -270,67 +271,67 @@ CREATE TABLE IF NOT EXISTS tab_stand
 -- Tabla de idiomas
 CREATE TABLE IF NOT EXISTS tab_idiomas
 (
-    id_idioma  VARCHAR NOT NULL,                                         -- Código de idioma (ISO 639-1)
-    nom_idioma VARCHAR NOT NULL,                                         -- Nombre del idioma
-    created_by VARCHAR NOT NULL DEFAULT current_user,                    -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                                  -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,                           -- Borrado lógico
+    id_idioma               VARCHAR             NOT NULL,                                         -- Código de idioma (ISO 639-1)
+    nom_idioma              VARCHAR             NOT NULL,                                         -- Nombre del idioma
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,                    -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                           -- Borrado lógico
     PRIMARY KEY(id_idioma)
 );
 
 -- Tabla de monedas
 CREATE TABLE IF NOT EXISTS tab_monedas
 (
-    id_moneda  VARCHAR NOT NULL,                                         -- Código de moneda (ISO 4217)
-    nom_moneda VARCHAR NOT NULL,                                         -- Nombre de la moneda
-    simbolo    VARCHAR NOT NULL,                                         -- Símbolo de la moneda
-    created_by VARCHAR NOT NULL DEFAULT current_user,                    -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                                  -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,                           -- Borrado lógico
+    id_moneda               VARCHAR             NOT NULL,                                         -- Código de moneda (ISO 4217)
+    nom_moneda              VARCHAR             NOT NULL,                                         -- Nombre de la moneda
+    simbolo                 VARCHAR             NOT NULL,                                         -- Símbolo de la moneda
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,                    -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                           -- Borrado lógico
     PRIMARY KEY(id_moneda)
 );
 
 -- Tabla de oficios
 CREATE TABLE IF NOT EXISTS tab_oficios
 (
-    id_oficio  DECIMAL(12,0) NOT NULL,                                   -- Identificador del oficio
-    nom_oficio VARCHAR       NOT NULL,                                   -- Nombre del oficio
-    created_by VARCHAR       NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                                  -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
-    is_deleted BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_oficio               DECIMAL(12,0)       NOT NULL,                                   -- Identificador del oficio
+    nom_oficio              VARCHAR             NOT NULL,                                   -- Nombre del oficio
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,              -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_oficio)
 );
 
 -- Tabla de materia prima
 CREATE TABLE IF NOT EXISTS tab_materia_prima
 (
-    id_materia  DECIMAL(12,0) NOT NULL,                                  -- Identificador de la materia prima
-    nom_materia VARCHAR       NOT NULL,                                   -- Nombre de la materia prima
-    created_by  VARCHAR       NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by  VARCHAR DEFAULT 'N/A',                                                  -- Usuario que modificó
-    updated_at  TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
-    is_deleted  BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_materia              DECIMAL(12,0)       NOT NULL,                                  -- Identificador de la materia prima
+    nom_materia             VARCHAR             NOT NULL,                                   -- Nombre de la materia prima
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,              -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                                  -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_materia)
 );
 
 -- Tabla de categorías
 CREATE TABLE IF NOT EXISTS tab_categorias
 (
-    id_categoria DECIMAL(12,0) NOT NULL,                                  -- Identificador de la categoría
-    nom_categoria VARCHAR      NOT NULL,                                   -- Nombre de la categoría
-    img_cat       VARCHAR      NOT NULL DEFAULT 'images/default_category.webp', -- Imagen de la categoría
-    created_by    VARCHAR      NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by    VARCHAR DEFAULT 'N/A',                                                 -- Usuario que modificó
-    updated_at    TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                             -- Fecha de modificación
-    is_deleted    BOOLEAN      NOT NULL DEFAULT FALSE,                     -- Borrado lógico
+    id_categoria            DECIMAL(12,0)       NOT NULL,                                  -- Identificador de la categoría
+    nom_categoria           VARCHAR             NOT NULL,                                   -- Nombre de la categoría
+    img_cat                 VARCHAR             NOT NULL DEFAULT 'images/default_category.webp', -- Imagen de la categoría
+    created_by              VARCHAR             NOT NULL DEFAULT current_user,              -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                                 -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                             -- Fecha de modificación
+    is_deleted              BOOLEAN             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_categoria)
 );
 
@@ -350,9 +351,9 @@ CREATE TABLE IF NOT EXISTS tab_productos
     is_active               BOOLEAN                             NOT NULL DEFAULT TRUE,                      -- Visibilidad
     vistas                  INTEGER                             NOT NULL DEFAULT 0,                         -- Estadísticas de visualización
     created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
-    created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
-    updated_by              VARCHAR DEFAULT 'N/A',                                                                        -- Usuario que modificó
-    updated_at              TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                                                    -- Fecha de modificación
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                                                        -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                                                    -- Fecha de modificación
     is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     CONSTRAINT chk_pp_stock_activo CHECK (
         (stock_productor > 0 AND is_active = TRUE) OR
@@ -372,112 +373,102 @@ CREATE TABLE IF NOT EXISTS tab_imagenes
         id_imagen               DECIMAL(12,0)                       NOT NULL,
         url_imagen              VARCHAR(255)                        NOT NULL,
         created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
-        created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
-        updated_by              VARCHAR DEFAULT 'N/A',                                                  -- Usuario que modificó
-        updated_at              TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
+        created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
+        updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                                                  -- Usuario que modificó
+        updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
         is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
         
         PRIMARY KEY(id_producto, id_imagen),
         FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)        
 );
-CREATE TABLE IF NOT EXISTS tab_imagenes
-(
-        id_producto             DECIMAL(12,0)                       NOT NULL,                                  -- Identificador del producto
-        id_imagen               DECIMAL(12,0)                       NOT NULL,
-        url_imagen              VARCHAR(255)                        NOT NULL,
-        created_by              VARCHAR                             NOT NULL DEFAULT current_user,              -- Usuario que creó
-        created_at              TIMESTAMP WITHOUT TIME ZONE         NOT NULL DEFAULT CURRENT_TIMESTAMP,         -- Fecha de creación
-        updated_by              VARCHAR DEFAULT 'N/A',                                                  -- Usuario que modificó
-        updated_at              TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
-        is_deleted              BOOLEAN                             NOT NULL DEFAULT FALSE,                     -- Borrado lógico
-        
-        PRIMARY KEY(id_producto, id_imagen),
-        FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)        
-);
+-- Tabla de carrito
 CREATE TABLE IF NOT EXISTS tab_carrito(
-    id_user         INTEGER         NOT NULL,                           -- Usuario dueño del carrito
-    id_producto     DECIMAL(12,0)   NOT NULL,                           -- Producto en el carrito
-    cantidad        INTEGER         NOT NULL CHECK(cantidad > 0),       -- Cantidad (mínimo 1)
-    agregado_at     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de agregado
-    created_by      VARCHAR         NOT NULL DEFAULT current_user,      -- Usuario que creó
-    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by      VARCHAR         DEFAULT 'N/A',                      -- Usuario que modificó
-    updated_at      TIMESTAMP       DEFAULT '1900-01-01 00:00:00',      -- Fecha de modificación
+    id_user                 INTEGER         NOT NULL,                           -- Usuario dueño del carrito
+    id_producto             DECIMAL(12,0)   NOT NULL,                           -- Producto en el carrito
+    cantidad                INTEGER         NOT NULL CHECK(cantidad > 0),       -- Cantidad (mínimo 1)
+    agregado_at             TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de agregado
+    created_by              VARCHAR         NOT NULL DEFAULT current_user,      -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',                      -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',      -- Fecha de modificación
+    is_deleted              BOOLEAN         NOT NULL DEFAULT FALSE,             -- Borrado lógico
     PRIMARY KEY(id_user, id_producto),
-    FOREIGN KEY(id_user)    REFERENCES tab_users(id_user),
-    FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)
+    FOREIGN KEY(id_user)                    REFERENCES tab_users(id_user),
+    FOREIGN KEY(id_producto)                REFERENCES tab_productos(id_producto)
 );
+-- Tabla de favoritos
 CREATE TABLE IF NOT EXISTS tab_favoritos(
-    id_user         INTEGER         NOT NULL,
-    id_producto     INTEGER         NOT NULL,
-    created_by      VARCHAR         NOT NULL DEFAULT current_user,
-    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by      VARCHAR DEFAULT 'N/A',
-    updated_at      TIMESTAMP DEFAULT '1900-01-01 00:00:00',
-    is_deleted      BOOLEAN         NOT NULL DEFAULT FALSE,
+    id_user                 INTEGER         NOT NULL,
+    id_producto             INTEGER         NOT NULL,
+    created_by              VARCHAR         NOT NULL DEFAULT current_user,
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by              VARCHAR NOT NULL DEFAULT 'N/A',
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',
+    is_deleted              BOOLEAN         NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id_user, id_producto),
-    FOREIGN KEY(id_user) REFERENCES tab_users(id_user),
-    FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)
+    FOREIGN KEY(id_user)                    REFERENCES tab_users(id_user),
+    FOREIGN KEY(id_producto)                REFERENCES tab_productos(id_producto)
 );
 
 -- Tabla de reseñas de productos
 CREATE TABLE IF NOT EXISTS tab_resenas(
-    id_resena       SERIAL          PRIMARY KEY,
-    id_user         INTEGER         NOT NULL,
-    id_producto     DECIMAL(12,0)   NOT NULL,
-    calificacion    INTEGER         NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
-    texto_resena    TEXT            NOT NULL CHECK (LENGTH(TRIM(texto_resena)) > 0),
-    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP DEFAULT '1900-01-01 00:00:00',
-    is_deleted      BOOLEAN         NOT NULL DEFAULT FALSE,
-    FOREIGN KEY(id_user) REFERENCES tab_users(id_user),
-    FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto),
-    CONSTRAINT unq_usuario_producto UNIQUE(id_user, id_producto)
+    id_user                     INTEGER         NOT NULL,
+    id_producto                 DECIMAL(12,0)   NOT NULL,
+    calificacion                INTEGER         NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
+    texto_resena                TEXT            NOT NULL CHECK (LENGTH(TRIM(texto_resena)) > 0),
+    created_by                  VARCHAR         NOT NULL DEFAULT current_user,
+    created_at                  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by                  VARCHAR NOT NULL DEFAULT 'N/A',
+    updated_at                  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',
+    is_deleted                  BOOLEAN         NOT NULL DEFAULT FALSE,
+    PRIMARY KEY(id_user, id_producto),
+    FOREIGN KEY(id_user)                    REFERENCES tab_users(id_user),
+    FOREIGN KEY(id_producto)                REFERENCES tab_productos(id_producto)
 );
 -- Tabla de transportadoras
 CREATE TABLE IF NOT EXISTS tab_transportadoras
 (
-    id_transportador  VARCHAR NOT NULL,                                    -- Código de la transportadora
-    nom_transportador VARCHAR NOT NULL,                                    -- Nombre de la transportadora
-    tipo_transporte   VARCHAR NOT NULL,                                    -- Tipo (Nacional/Internacional/Mixto)
-    tel_contacto      VARCHAR NOT NULL,                                    -- Teléfono de contacto
-    correo_contacto   VARCHAR NOT NULL,                                    -- Correo de contacto
-    sitio_web         VARCHAR NOT NULL,                                    -- Sitio web
-    activo            BOOLEAN NOT NULL DEFAULT TRUE,                       -- Estado activo
-    created_by        VARCHAR NOT NULL DEFAULT current_user,               -- Usuario que creó
-    created_at        TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by        VARCHAR DEFAULT 'N/A',                                             -- Usuario que modificó
-    updated_at        TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                         -- Fecha de modificación
-    is_deleted        BOOLEAN NOT NULL DEFAULT FALSE,                      -- Borrado lógico
+    id_transportador        VARCHAR         NOT NULL,                                    -- Código de la transportadora
+    nom_transportador       VARCHAR         NOT NULL,                                    -- Nombre de la transportadora
+    tipo_transporte         VARCHAR         NOT NULL,                                    -- Tipo (Nacional/Internacional/Mixto)
+    tel_contacto            VARCHAR         NOT NULL,                                    -- Teléfono de contacto
+    correo_contacto         VARCHAR         NOT NULL,                                    -- Correo de contacto
+    sitio_web               VARCHAR         NOT NULL,                                    -- Sitio web
+    activo                  BOOLEAN         NOT NULL DEFAULT TRUE,                       -- Estado activo
+    created_by              VARCHAR         NOT NULL DEFAULT current_user,               -- Usuario que creó
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by              VARCHAR   NOT NULL DEFAULT 'N/A',                                             -- Usuario que modificó
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                         -- Fecha de modificación
+    is_deleted              BOOLEAN   NOT NULL DEFAULT FALSE,                      -- Borrado lógico
     PRIMARY KEY(id_transportador)
 );
 
 -- Tabla de formas de pago
 CREATE TABLE IF NOT EXISTS tab_formas_pago
 (
-    id_pago    VARCHAR NOT NULL,                                           -- Código de la forma de pago
-    nom_pago   VARCHAR NOT NULL,                                           -- Nombre de la forma de pago
-    created_by VARCHAR NOT NULL DEFAULT current_user,                      -- Usuario que creó
-    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by VARCHAR DEFAULT 'N/A',                                                    -- Usuario que modificó
-    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                                -- Fecha de modificación
-    is_deleted BOOLEAN NOT NULL DEFAULT FALSE,                             -- Borrado lógico
+    id_pago             VARCHAR         NOT NULL,                                           -- Código de la forma de pago
+    nom_pago            VARCHAR         NOT NULL,                                           -- Nombre de la forma de pago
+    created_by          VARCHAR         NOT NULL DEFAULT current_user,                      -- Usuario que creó
+    created_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by          VARCHAR         NOT NULL DEFAULT 'N/A',                                                    -- Usuario que modificó
+    updated_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                                -- Fecha de modificación
+    is_deleted          BOOLEAN         NOT NULL DEFAULT FALSE,                             -- Borrado lógico
     PRIMARY KEY(id_pago)
 );
 
 -- Tabla de tránsito de inventario
 CREATE TABLE IF NOT EXISTS tab_transito
 (
-    id_entrada  DECIMAL(12,0) NOT NULL,                                   -- Identificador de la entrada
-    id_producto DECIMAL(12,0) NOT NULL,                                   -- Producto en tránsito
-    fec_entrada TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),        -- Fecha/hora de entrada
-    val_entrada DECIMAL(4,0)  NOT NULL,                                   -- Cantidad de entrada
-    fec_salida  TIMESTAMP WITHOUT TIME ZONE,                               -- Fecha/hora de salida
-    created_by  VARCHAR       NOT NULL DEFAULT current_user,               -- Usuario que creó
-    created_at  TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by  VARCHAR DEFAULT 'N/A',                                                   -- Usuario que modificó
-    updated_at  TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                               -- Fecha de modificación
-    is_deleted  BOOLEAN       NOT NULL DEFAULT FALSE,                      -- Borrado lógico
+    id_entrada          DECIMAL(12,0)           NOT NULL,                                   -- Identificador de la entrada
+    id_producto         DECIMAL(12,0)           NOT NULL,                                   -- Producto en tránsito
+    fec_entrada         TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),        -- Fecha/hora de entrada
+    val_entrada         DECIMAL(4,0)            NOT NULL,                                   -- Cantidad de entrada
+    fec_salida          TIMESTAMP WITHOUT TIME ZONE,                               -- Fecha/hora de salida
+    created_by          VARCHAR                 NOT NULL DEFAULT current_user,               -- Usuario que creó
+    created_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
+    updated_by          VARCHAR       NOT NULL DEFAULT 'N/A',                                                   -- Usuario que modificó
+    updated_at          TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                               -- Fecha de modificación
+    is_deleted          BOOLEAN       NOT NULL DEFAULT FALSE,                      -- Borrado lógico
     PRIMARY KEY(id_entrada),
     FOREIGN KEY(id_producto) REFERENCES tab_productos(id_producto)
 );
@@ -485,7 +476,6 @@ CREATE TABLE IF NOT EXISTS tab_transito
 -- -----------------------------------------------------------------------------
 -- Tabla de clientes compradores
 -- Almacena información de envío/facturación del usuario que realiza la compra.
--- id_client es el mismo INTEGER que tab_users.id_user (relación 1-a-1).
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS tab_clientes (
     id_user         INTEGER       NOT NULL,            --tab_users.id_user
@@ -509,8 +499,8 @@ CREATE TABLE IF NOT EXISTS tab_clientes (
     -- Auditoría
     created_by    VARCHAR       NOT NULL DEFAULT current_user,
     created_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by    VARCHAR DEFAULT 'N/A',
-    updated_at    TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',
+    updated_by    VARCHAR NOT NULL DEFAULT 'N/A',
+    updated_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',
     is_deleted    BOOLEAN       NOT NULL DEFAULT FALSE,
     -- Restricciones
     PRIMARY KEY (id_client),
@@ -518,36 +508,34 @@ CREATE TABLE IF NOT EXISTS tab_clientes (
     FOREIGN KEY (id_pais, id_departamento, id_ciudad)    REFERENCES tab_ciudades(id_pais, id_departamento, id_ciudad),
     FOREIGN KEY (id_tipo_doc)                            REFERENCES tab_tipos_doc(id_tipo_doc)
 );
-
 CREATE INDEX IF NOT EXISTS idx_clientes_mail   ON tab_clientes(mail_client);
 CREATE INDEX IF NOT EXISTS idx_clientes_ciudad ON tab_clientes(id_pais, id_ciudad);
-
 -- -----------------------------------------------------------------------------
 -- Tabla de encabezado de factura
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS tab_enc_fact
 (
-    id_factura      DECIMAL(7,0)  NOT NULL CHECK(id_factura >= 1), -- Número de factura
-    fec_factura     DATE          NOT NULL,                         -- Fecha de emisión
-    val_hora_fact   TIME WITHOUT TIME ZONE NOT NULL,                -- Hora de emisión
-    id_client       VARCHAR       NOT NULL,                         -- Cliente (id_user como texto)
-    id_pais         DECIMAL(3,0)  NOT NULL,                         -- País destino
-    id_departamento DECIMAL(2,0)  NOT NULL,                         -- Departamento destino
-    id_ciudad       DECIMAL(5,0)  NOT NULL,                         -- Ciudad destino
-    dir_envio       VARCHAR,                                        -- Dirección de envío (texto libre)
-    val_tot_fact    DECIMAL(12,2) NOT NULL,                         -- Total factura
-    ind_estado      BOOLEAN       NOT NULL,                         -- Activa/Anulada
-    id_pago         VARCHAR       NOT NULL,                         -- Forma de pago
+    id_factura              DECIMAL(7,0)  NOT NULL CHECK(id_factura >= 1), -- Número de factura
+    fec_factura             DATE          NOT NULL,                         -- Fecha de emisión
+    val_hora_fact           TIME WITHOUT TIME ZONE NOT NULL,                -- Hora de emisión
+    id_client               VARCHAR       NOT NULL,                         -- Cliente (id_user como texto)
+    id_pais                 DECIMAL(3,0)  NOT NULL,                         -- País destino
+    id_departamento         DECIMAL(2,0)  NOT NULL,                         -- Departamento destino
+    id_ciudad               DECIMAL(5,0)  NOT NULL,                         -- Ciudad destino
+    dir_envio               VARCHAR,                                        -- Dirección de envío (texto libre)
+    val_tot_fact            DECIMAL(12,2) NOT NULL,                         -- Total factura
+    ind_estado              BOOLEAN       NOT NULL,                         -- Activa/Anulada
+    id_pago                 VARCHAR       NOT NULL,                         -- Forma de pago
     -- Datos de trazabilidad ePayco
-    epayco_ref      VARCHAR,                                        -- x_ref_payco
-    epayco_txn_id   VARCHAR,                                        -- x_transaction_id
-    epayco_estado   VARCHAR,                                        -- "Aceptada" / "Rechazada" / "Pendiente"
+    epayco_ref              VARCHAR,                                        -- x_ref_payco
+    epayco_txn_id           VARCHAR,                                        -- x_transaction_id
+    epayco_estado           VARCHAR,                                        -- "Aceptada" / "Rechazada" / "Pendiente"
     -- Auditoría
-    created_by    VARCHAR       NOT NULL DEFAULT current_user,
-    created_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_by    VARCHAR DEFAULT 'N/A',
-    updated_at    TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',
-    is_deleted    BOOLEAN       NOT NULL DEFAULT FALSE,
+    created_by              VARCHAR       NOT NULL DEFAULT current_user,
+    created_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_by              VARCHAR       NOT NULL DEFAULT 'N/A',
+    updated_at              TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',
+    is_deleted              BOOLEAN       NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id_factura),
     FOREIGN KEY(id_pago)     REFERENCES tab_formas_pago(id_pago),
     FOREIGN KEY(id_pais)     REFERENCES tab_paises(id_pais),
@@ -566,8 +554,8 @@ CREATE TABLE IF NOT EXISTS tab_det_fact
     val_neto      DECIMAL(12,2) NOT NULL,                                  -- Valor final línea
     created_by    VARCHAR       NOT NULL DEFAULT current_user,              -- Usuario que creó
     created_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by    VARCHAR DEFAULT 'N/A',                                                  -- Usuario que modificó
-    updated_at    TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
+    updated_by    VARCHAR NOT NULL DEFAULT 'N/A',                                                  -- Usuario que modificó
+    updated_at    TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                              -- Fecha de modificación
     is_deleted    BOOLEAN       NOT NULL DEFAULT FALSE,                     -- Borrado lógico
     PRIMARY KEY(id_factura, id_producto),
     FOREIGN KEY(id_factura)   REFERENCES tab_enc_fact(id_factura),
@@ -584,12 +572,10 @@ CREATE TABLE IF NOT EXISTS tab_envios
     id_transportador VARCHAR       NOT NULL,                                -- Transportadora
     num_guia         VARCHAR       NOT NULL,                                -- Número de guía
     estado_envio     VARCHAR       NOT NULL,                                -- Estado del envío
-    direccion_dest   VARCHAR       NOT NULL,                                -- Dirección de destino
-    barrio           VARCHAR       NOT NULL,                                -- Barrio del destino
     created_by       VARCHAR       NOT NULL DEFAULT current_user,           -- Usuario que creó
     created_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP, -- Fecha de creación
-    updated_by       VARCHAR DEFAULT 'N/A',                                              -- Usuario que modificó
-    updated_at       TIMESTAMP WITHOUT TIME ZONE DEFAULT '1900-01-01 00:00:00',                          -- Fecha de modificación
+    updated_by       VARCHAR NOT NULL DEFAULT 'N/A',                                              -- Usuario que modificó
+    updated_at       TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT '1900-01-01 00:00:00',                          -- Fecha de modificación
     is_deleted       BOOLEAN       NOT NULL DEFAULT FALSE,                 -- Borrado lógico
     PRIMARY KEY(id_envio),
     FOREIGN KEY(id_factura)       REFERENCES tab_enc_fact(id_factura),
@@ -640,6 +626,20 @@ CREATE INDEX idx_monedas_nom ON tab_monedas(nom_moneda);
 INSERT INTO tab_tipos_doc (id_tipo_doc, nom_tipo_doc) VALUES
 (1,'Cédula'),(2,'NIT'),(3,'Cédula de Extranjería'),(4,'Pasaporte');
 
+-- Insertando los menús del sistema
+INSERT INTO tab_menu (id_menu, nom_menu, url_menu, icono_menu, orden_menu) VALUES
+(1, 'Admin Dashboard', 'admin_dashboard', 'fas fa-shield-alt', 10),
+(2, 'Vender en VIVA', 'vender', 'fas fa-store', 20),
+(3, 'Mis Productos', 'mis_productos', 'fas fa-box', 30),
+(4, 'Mi Stand', 'mi_stand', 'fas fa-store-alt', 40),
+(5, 'Inicio', '', 'fas fa-home', 1),
+(6, 'Categorías', '#categorias', 'fas fa-th-large', 2),
+(7, 'Catálogo', 'catalogo', 'fas fa-shopping-bag', 3),
+(8, 'Mi Perfil', 'perfil#profile', 'fas fa-user', 4),
+(9, 'Mis Pedidos', 'perfil#orders', 'fas fa-shopping-bag', 5),
+(10, 'Favoritos', 'perfil#favorites', 'fas fa-heart', 6),
+(11, 'Configuración', 'perfil#settings', 'fas fa-cog', 7);
+
 -- Insertando los gremios/grupos de identidad para el marketplace VIVA
 INSERT INTO tab_grupos (id_grupo, nom_grupo) VALUES 
 (1, 'Pueblos Indígenas de Colombia'),
@@ -679,6 +679,9 @@ INSERT INTO tab_bancos (id_banco, nom_banco) VALUES
 (023, 'Dale!'),
 (024, 'Movii'),
 (025, 'Rappipay');
+
+-- Insertar forma de pago ePayco
+INSERT INTO tab_formas_pago (id_pago, nom_pago) VALUES ('EPAYCO', 'Pasarela de Pago ePayco');
 
 -- Vista para mostrar tipos de documento en registro
 CREATE OR REPLACE VIEW tipos_col_view AS

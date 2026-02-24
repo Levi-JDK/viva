@@ -1,7 +1,27 @@
 <?php
 require_once __DIR__ . '/../../functions/navbar_usuario.php';
 cargar_datos_navbar();
+
+// Mostrar errores globales de redirección
+$error_msg = '';
+if (isset($_GET['error']) && $_GET['error'] === 'access_denied') {
+    $error_msg = "No tienes permisos de Administrador para acceder a ese módulo.";
+}
 ?>
+    <?php if ($error_msg): ?>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acceso Denegado',
+                text: '<?= addslashes($error_msg) ?>',
+                confirmButtonColor: '#f26e22'
+            });
+        }
+    });
+    </script>
+    <?php endif; ?>
     <!-- Header -->
     <header class="bg-white shadow-lg sticky top-0 z-50 font-sans">
         <div class="container mx-auto px-4 py-4">
@@ -36,9 +56,13 @@ cargar_datos_navbar();
 
                 <!-- Navigation - Hidden on mobile -->
                 <nav class="hidden lg:flex items-center space-x-8 pr-10">
-                    <a href="<?= BASE_URL ?>#inicio" class="nav-item text-gray-700 hover:text-naranja-artesanal font-medium">Inicio</a>
-                    <a href="<?= BASE_URL ?>#categorias" class="nav-item text-gray-700 hover:text-naranja-artesanal font-medium">Categorías</a>
-                    <a href="<?= BASE_URL ?>catalogo" class="nav-item text-gray-700 hover:text-naranja-artesanal font-medium">Catálogo</a>
+                    <?php if (!empty($navbar_menus)): ?>
+                        <?php foreach ($navbar_menus as $nmenu): ?>
+                            <a href="<?= BASE_URL . htmlspecialchars($nmenu['url_menu']) ?>" class="nav-item text-gray-700 hover:text-naranja-artesanal font-medium">
+                                <?= htmlspecialchars($nmenu['nom_menu']) ?>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </nav>
 
                 <!-- User Actions -->
@@ -64,51 +88,29 @@ cargar_datos_navbar();
                                         <p class="text-xs text-gray-500 truncate"><?= htmlspecialchars($email_usuario ?? '') ?></p>
                                     </div>
                                     <ul class="py-2">
-                                        <li>
-                                            <a href="<?= BASE_URL ?>perfil#profile" class="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal transition-colors">
-                                                <i class="fas fa-user w-6 text-center"></i>
-                                                <span class="ml-2">Mi Perfil</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="<?= BASE_URL ?>perfil#orders" class="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal transition-colors">
-                                                <i class="fas fa-shopping-bag w-6 text-center"></i>
-                                                <span class="ml-2">Mis Pedidos</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="<?= BASE_URL ?>perfil#favorites" class="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal transition-colors">
-                                                <i class="fas fa-heart w-6 text-center"></i>
-                                                <span class="ml-2">Favoritos</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="<?= BASE_URL ?>perfil#settings" class="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal transition-colors">
-                                                <i class="fas fa-cog w-6 text-center"></i>
-                                                <span class="ml-2">Configuración</span>
-                                            </a>
-                                        </li>
-                                        
-                                        <li class="border-t border-gray-100 my-1"></li>
-                                        
-                                        <li class="px-2">
-                                            <?php if (!empty($es_productor)): ?>
-                                                <a href="<?= BASE_URL ?>mis_productos" class="flex items-center justify-between px-4 py-2 text-sm bg-orange-50 text-naranja-artesanal font-semibold hover:bg-orange-100 transition-colors rounded-lg group-menu-item">
-                                                    <div class="flex items-center">
-                                                        <i class="fas fa-box w-6 text-center"></i>
-                                                        <span class="ml-2">Mis productos</span>
-                                                    </div>
-                                                    <i class="fas fa-arrow-right text-xs opacity-0 group-menu-item-hover:opacity-100"></i>
-                                                </a>
-                                            <?php else: ?>
-                                                <a href="<?= BASE_URL ?>vender" class="flex items-center justify-between px-4 py-2 text-sm bg-green-50 text-green-700 font-semibold hover:bg-green-100 transition-colors rounded-lg">
-                                                    <div class="flex items-center">
-                                                        <i class="fas fa-store w-6 text-center"></i>
-                                                        <span class="ml-2">Vender</span>
-                                                    </div>
-                                                </a>
-                                            <?php endif; ?>
-                                        </li>
+                                        <?php if (!empty($dropdown_menus)): ?>
+                                            <?php foreach ($dropdown_menus as $menu): ?>
+                                                <?php if (in_array($menu['id_menu'], [8, 9, 10, 11])): ?>
+                                                    <li>
+                                                        <a href="<?= BASE_URL . htmlspecialchars($menu['url_menu']) ?>" class="flex items-center px-5 py-3 text-sm text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal transition-colors">
+                                                            <i class="<?= htmlspecialchars($menu['icono_menu']) ?> w-6 text-center"></i>
+                                                            <span class="ml-2"><?= htmlspecialchars($menu['nom_menu']) ?></span>
+                                                        </a>
+                                                    </li>
+                                                <?php else: ?>
+                                                    <li class="px-2 space-y-1 mt-1 mb-1">
+                                                        <?php $menu_color = ($menu['id_menu'] == 2) ? 'bg-green-50 text-green-700 hover:bg-green-100' : 'bg-orange-50 text-naranja-artesanal hover:bg-orange-100'; ?>
+                                                        <a href="<?= BASE_URL . htmlspecialchars($menu['url_menu']) ?>" class="flex items-center justify-between px-4 py-2 text-sm <?= $menu_color ?> font-semibold transition-colors rounded-lg group-menu-item">
+                                                            <div class="flex items-center">
+                                                                <i class="<?= htmlspecialchars($menu['icono_menu']) ?> w-6 text-center"></i>
+                                                                <span class="ml-2"><?= htmlspecialchars($menu['nom_menu']) ?></span>
+                                                            </div>
+                                                            <i class="fas fa-arrow-right text-xs opacity-0 group-menu-item-hover:opacity-100"></i>
+                                                        </a>
+                                                    </li>
+                                                <?php endif; ?>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                         
                                         <li class="border-t border-gray-100 my-1"></li>
 
@@ -163,9 +165,13 @@ cargar_datos_navbar();
             <!-- Mobile Navigation Menu -->
             <div id="mobileMenu" class="lg:hidden hidden mt-4 pb-4 border-t border-gray-100 pt-4 animate-fade-in-down">
                 <nav class="flex flex-col space-y-3">
-                    <a href="<?= BASE_URL ?>" class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal rounded-lg font-medium transition-colors">Inicio</a>
-                    <a href="<?= BASE_URL ?>#categorias" class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal rounded-lg font-medium transition-colors">Categorías</a>
-                    <a href="<?= BASE_URL ?>catalogo" class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal rounded-lg font-medium transition-colors">Catálogo</a>
+                    <?php if (!empty($navbar_menus)): ?>
+                        <?php foreach ($navbar_menus as $nmenu): ?>
+                            <a href="<?= BASE_URL . htmlspecialchars($nmenu['url_menu']) ?>" class="block px-4 py-2 text-gray-700 hover:bg-orange-50 hover:text-naranja-artesanal rounded-lg font-medium transition-colors">
+                                <?= htmlspecialchars($nmenu['nom_menu']) ?>
+                            </a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </nav>
             </div>
         </div>

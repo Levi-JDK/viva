@@ -21,10 +21,9 @@ header('Content-Type: application/json');
 
 
 
-if (!isset($_SESSION['id_user'])) {
-    echo json_encode(['success' => false, 'message' => 'Usuario no autenticado']);
-    exit;
-}
+require_once __DIR__ . '/auth_helper.php';
+$userData = AuthHelper::protectRoute();
+$id_user = $userData->id_user;
 
 // 2. Lógica principal
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -72,12 +71,59 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $desc = strip_tags($desc); // Protección básica contra XSS
 
         // Obtener id_productor
-        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $_SESSION['id_user']]);
+        $stmtProd = $db->ejecutar('obtenerIdProductor', [':id_user' => $id_user]);
         $id_productor = $stmtProd->fetchColumn();
 
         if (!$id_productor) {
             throw new Exception("No se encontró el perfil de productor.");
         }
+
+        // --- 3. Validación Inicial de Imágenes ANTES de tocar la BD ---
+        // Esto evita que se cree un producto "fantasma" si las imágenes son inválidas.
+        
+        $files_to_process = [];
+        if (isset($_FILES['imagen_producto'])) {
+            $files = $_FILES['imagen_producto'];
+            $count = is_array($files['name']) ? count($files['name']) : 1;
+
+            if (!is_array($files['name'])) {
+                $files = ['name' => [$files['name']], 'type' => [$files['type']], 'tmp_name' => [$files['tmp_name']], 'error' => [$files['error']], 'size' => [$files['size']]];
+            }
+
+            for ($i = 0; $i < $count; $i++) {
+                if ($files['error'][$i] === UPLOAD_ERR_NO_FILE) continue; // Si algún campo vino vacío
+                
+                if ($files['error'][$i] !== UPLOAD_ERR_OK) {
+                    throw new Exception("Error nativo al subir imagen: " . $files['error'][$i]);
+                }
+
+                // Check extension
+                $ext = strtolower(pathinfo($files['name'][$i], PATHINFO_EXTENSION));
+                if (!in_array($ext, ['jpg', 'jpeg', 'webp', 'png'])) {
+                    throw new Exception("La imagen " . $files['name'][$i] . " tiene un formato no válido.");
+                }
+
+                // Check Size (5MB)
+                $max_size = 5 * 1024 * 1024;
+                if ($files['size'][$i] > $max_size) {
+                    throw new Exception("La imagen " . $files['name'][$i] . " excede el tamaño máximo de 5MB.");
+                }
+
+                $files_to_process[] = [
+                    'name'     => $files['name'][$i],
+                    'type'     => $files['type'][$i],
+                    'tmp_name' => $files['tmp_name'][$i],
+                    'error'    => $files['error'][$i],
+                    'size'     => $files['size'][$i]
+                ];
+            }
+        }
+
+        if (empty($files_to_process)) {
+            throw new Exception("Debe subir al menos una imagen válida.");
+        }
+
+        // --- FIN VALIDACIONES, EJECUTAR INSERCIÓN ---
 
         $conn->beginTransaction();
 
@@ -101,52 +147,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             throw new Exception("Error al crear el producto en la base de datos.");
         }
 
-        // Recuperar el ID generado (ya que la función devuelve boolean)
-        // NOTA: Asume que somos el único insertando. En alta concurrencia podría fallar.
+        // Recuperar el ID generado
         $stmtId = $conn->query("SELECT MAX(id_producto) FROM tab_productos");
         $id_producto = $stmtId->fetchColumn();
 
-        // 2. Gestionar imágenes con el ID generado
+        // 2. Subir imágenes físicas con el ID generado
         $uploaded_paths = [];
         $target_directory = __DIR__ . '/../../images/products/';
 
-        if (isset($_FILES['imagen_producto'])) {
-            $files = $_FILES['imagen_producto'];
-            $count = is_array($files['name']) ? count($files['name']) : 1;
-
-            if (!is_array($files['name'])) {
-                // Normalizar archivo único al formato de múltiples archivos
-                $files = [
-                    'name'     => [$files['name']],
-                    'type'     => [$files['type']],
-                    'tmp_name' => [$files['tmp_name']],
-                    'error'    => [$files['error']],
-                    'size'     => [$files['size']]
-                ];
-            }
-
-            for ($i = 0; $i < $count; $i++) {
-                if ($files['error'][$i] !== UPLOAD_ERR_OK)
-                    continue;
-
-                $current_file = [
-                    'name'     => $files['name'][$i],
-                    'type'     => $files['type'][$i],
-                    'tmp_name' => $files['tmp_name'][$i],
-                    'error'    => $files['error'][$i],
-                    'size'     => $files['size'][$i]
-                ];
-
-                // Usar el ID generado por la BD para nombrar el archivo
-                $result = handleImageUpload($current_file, $target_directory, 'prod_' . $id_producto . '_', 'images/products/');
-                if ($result['success']) {
-                    $uploaded_paths[] = $result['path'];
-                }
+        foreach ($files_to_process as $current_file) {
+            $result = handleImageUpload($current_file, $target_directory, 'prod_' . $id_producto . '_', 'images/products/');
+            if ($result['success']) {
+                $uploaded_paths[] = $result['path'];
+            } else {
+                // Falla crítica: deshacer bd y abortar
+                throw new Exception("Fallo en compresión de imagen: " . $result['message']);
             }
         }
 
+        // Doble chequeo crítico
         if (empty($uploaded_paths)) {
-            throw new Exception("Debe subir al menos una imagen válida.");
+            throw new Exception("Fallo general al procesar las imágenes físicas.");
         }
 
         // 3. Insertar imágenes
@@ -162,8 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     }
     catch (Exception $e) {
-        if (isset($conn))
+        if (isset($conn) && $conn->inTransaction()) {
             $conn->rollBack();
+        }
         echo json_encode(['success' => false, 'message' => $e->getMessage()]);
     }
 }

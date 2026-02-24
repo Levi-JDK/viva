@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (data.clase === 'mensaje-exito') {
                 formLogin.reset();
                 setTimeout(() => {
-                    window.location.href = BASE_URL;
+                    window.location.href = data.redirect || BASE_URL;
                 }, 800);
             }
         } catch (error) {

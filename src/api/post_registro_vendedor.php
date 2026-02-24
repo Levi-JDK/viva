@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../functions/sesion.php';
+
 
 header('Content-Type: application/json');
 
@@ -9,11 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-if (!isset($_SESSION['id_user'])) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'message' => 'Usuario no autenticado. Por favor inicie sesión.']);
-    exit;
-}
+require_once dirname(__DIR__, 2) . '/src/functions/auth_helper.php';
+$userData = AuthHelper::protectRoute();
 
 // Cargar Database
 require_once dirname(__DIR__, 2) . '/src/functions/Database.php';
@@ -22,7 +19,7 @@ $params = [];
 
 try {
     $db = Database::getInstance();
-    $id_user = $_SESSION['id_user'];
+    $id_user = $userData->id_user;
     
     // 1. Recoger datos del formulario
     $tipo_doc = $_POST['tipo_documento'] ?? null;
@@ -65,6 +62,14 @@ try {
     try {
         $stmt = $db->ejecutar('crearProductor', $params);
         $result = $stmt->fetchColumn(); 
+
+        if ($result) {
+            // Asignar los módulos de productor
+            $db->ejecutar('asignarMenuUsuario', [':id_user' => (int)$id_user, ':id_menu' => 3]);
+            
+            // Revocar el módulo de "Vender en VIVA"
+            $db->ejecutar('revocarMenuUsuario', [':id_user' => (int)$id_user, ':id_menu' => 2]);
+        }
     } catch (PDOException $ex) {
         // Loguear error real si falla SQL
         error_log("Error SQL Registro Vendedor: " . $ex->getMessage());

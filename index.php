@@ -56,6 +56,7 @@ $routes = [
     '/logout'       => 'src/controllers/logout.php',
     '/mis_productos'=> 'src/controllers/mis_productos.php',
     '/catalogo'     => 'src/controllers/catalogo.php',
+    '/admin_dashboard'=> 'src/controllers/admin_dashboard.php',
     '/api/productos'      => 'src/api/productos.php',
     '/api/upload_product' => 'src/functions/upload_product.php',
     '/api/update_product' => 'src/functions/update_product.php',
@@ -70,7 +71,8 @@ $routes = [
     '/stand'              => 'src/controllers/stand_detail.php',
     '/stands'             => 'src/controllers/stands.php',
     '/checkout'           => 'src/controllers/checkout.php',
-    '/checkout/respuesta' => 'src/controllers/checkout_response.php'
+    '/checkout/respuesta' => 'src/controllers/checkout_response.php',
+    '/pedido'             => 'src/controllers/pedido.php'
 ];
 
 if (array_key_exists($relative_uri, $routes)) {

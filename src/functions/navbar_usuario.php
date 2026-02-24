@@ -44,9 +44,20 @@ function cargar_datos_navbar(): void
     $GLOBALS['nombre_usuario'] = '';
     $GLOBALS['email_usuario']  = '';
     $GLOBALS['foto_usuario']   = 'images/default.jpg';
-    $GLOBALS['es_productor']   = false;
+    $GLOBALS['navbar_menus']   = [];
+    $GLOBALS['dropdown_menus'] = [];
 
-    $id_user = $_SESSION['id_user'] ?? null;
+    // Cargar los menús de la Navbar Principal para visitantes (Inicio, Categorías, Catálogo)
+    try {
+        require_once __DIR__ . '/Database.php';
+        $db = Database::getInstance();
+        $stmtPublic = $db->connection->query("SELECT id_menu, nom_menu, url_menu, icono_menu, orden_menu FROM tab_menu WHERE id_menu IN (5, 6, 7) ORDER BY orden_menu ASC");
+        $GLOBALS['navbar_menus'] = $stmtPublic->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) { }
+
+    require_once __DIR__ . '/auth_helper.php';
+    $userData = AuthHelper::verifyToken();
+    $id_user = $userData ? $userData->id_user : null;
 
     if (!$id_user) {
         return; // No hay sesión activa, los defaults son suficientes
@@ -70,9 +81,13 @@ function cargar_datos_navbar(): void
                                             : 'images/default.jpg';
         }
 
-        // Verificar si el usuario es productor (para mostrar "Mis productos" o "Vender")
-        $stmtProductor          = $db->ejecutar('validarProductor', [':id_user' => $id_user]);
-        $GLOBALS['es_productor'] = (bool) $stmtProductor->fetchColumn();
+        // Cargar todos los menús autorizados del usuario
+        $stmtMenu = $db->ejecutar('obtenerNavegacionUsuario', [':id_user' => $id_user]);
+        $all_menus = $stmtMenu->fetchAll(PDO::FETCH_ASSOC);
+
+        // Separar Navbar Principal (5, 6, 7) del Dropdown de Perfil
+        $GLOBALS['navbar_menus'] = array_filter($all_menus, fn($m) => in_array($m['id_menu'], [5, 6, 7]));
+        $GLOBALS['dropdown_menus'] = array_filter($all_menus, fn($m) => !in_array($m['id_menu'], [5, 6, 7]));
 
     } catch (Exception $e) {
         // Error no crítico: el navbar simplemente muestra el estado de visitante.
