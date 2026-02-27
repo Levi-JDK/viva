@@ -31,7 +31,7 @@ BEGIN
         ) AS imagenes
     FROM tab_productos p
     JOIN tab_categorias c ON p.id_categoria = c.id_categoria
-    WHERE p.id_productor = p_id_productor
+    WHERE p.id_productor = p_id_productor AND p.is_deleted = FALSE
     ORDER BY p.created_at ASC;
 END;
 $$ LANGUAGE plpgsql;

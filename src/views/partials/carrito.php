@@ -11,6 +11,10 @@
  *   - carrito.js cargado después de este partial
  */
 ?>
+<script>
+    window.USER_IS_LOGGED_IN = <?= isset($is_logged_in) && $is_logged_in ? 'true' : 'false' ?>;
+    window.LOGIN_URL = '<?= BASE_URL ?>login';
+</script>
 
 <!-- ═══════════════════════════════════════════════════════
      OVERLAY: Fondo oscuro al abrir el carrito
@@ -72,9 +76,18 @@
             </span>
         </div>
 
-        <!-- Botón limpiar -->
-        <button onclick="limpiarCarrito()"
-                class="w-full text-sm text-gray-400 hover:text-red-500 transition-colors py-1">
+        <!-- Contenedor confirmación limpiar (oculto por defecto) -->
+        <div id="confirmacion-limpiar" class="hidden flex-col items-center justify-center p-3 rounded-lg bg-red-50 border border-red-100 my-2">
+            <p class="text-xs font-semibold text-red-600 mb-2 text-center"><i class="fas fa-exclamation-triangle mr-1"></i> ¿Vaciar todo el carrito?</p>
+            <div class="flex gap-2 w-full">
+                <button onclick="cancelarLimpiar()" class="flex-1 bg-white border border-red-200 hover:bg-gray-50 text-gray-600 text-xs py-1.5 rounded-md transition-colors font-semibold">Cancelar</button>
+                <button onclick="ejecutarLimpiar()" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs py-1.5 rounded-md transition-colors font-bold shadow-sm">Sí, vaciar</button>
+            </div>
+        </div>
+
+        <!-- Botón limpiar principal -->
+        <button id="btn-limpiar-carrito" onclick="limpiarCarrito()"
+                class="w-full text-sm text-gray-400 hover:text-red-500 transition-colors py-1 block">
             <i class="fas fa-trash-alt mr-1"></i> Vaciar carrito
         </button>
 

@@ -3,7 +3,7 @@
  * Manejador de Borrado Lógico de Productos
  */
 
-require_once __DIR__ . '/Database.php';
+require_once __DIR__ . '/database.php';
 
 // Detectar BASE_URL
 $protocolo = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https" : "http";
@@ -45,9 +45,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $conn->beginTransaction();
 
         // Eliminar lógicamente el producto (Soft Delete) verificando que el productor sea el dueño
-        // Al marcar is_deleted = TRUE, también marcamos is_active = FALSE por seguridad
-        $stmt = $conn->prepare("UPDATE tab_productos SET is_deleted = TRUE, is_active = FALSE WHERE id_producto = ? AND id_productor = ?");
-        $stmt->execute([$id_producto, $id_productor]);
+        // Al marcar is_deleted = TRUE, también marcamos is_active = FALSE y stock_productor = 0 por seguridad y restricciones
+        $stmt = $db->ejecutar('eliminarProductoLogicamente', [
+            ':id_producto'  => $id_producto,
+            ':id_productor' => $id_productor
+        ]);
         
         if ($stmt->rowCount() === 0) {
             throw new Exception("El producto no existe o no tienes permisos para eliminarlo.");

@@ -196,7 +196,7 @@ class AuthHelper {
     public static function checkAccess(int $id_menu): void {
         $userData = self::protectRoute();
         
-        require_once __DIR__ . '/Database.php';
+        require_once __DIR__ . '/database.php';
         $db = Database::getInstance();
         $stmtMenu = $db->ejecutar('obtenerNavegacionUsuario', [':id_user' => $userData->id_user]);
         $user_menus = $stmtMenu->fetchAll(\PDO::FETCH_ASSOC);

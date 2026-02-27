@@ -21,7 +21,7 @@ BEGIN
     IF p_id_user IS NULL THEN RETURN FALSE; END IF;
 
     UPDATE tab_clientes SET
-        id_client       = COALESCE(NULLIF(TRIM(p_id_client), ''), id_client),
+        nro_doc         = COALESCE(NULLIF(TRIM(p_id_client), ''), nro_doc),
         id_tipo_doc     = COALESCE(p_id_tipo_doc, id_tipo_doc),
         tel_client      = COALESCE(NULLIF(TRIM(p_tel_client), ''), tel_client),
         epayco_ref      = p_epayco_ref,

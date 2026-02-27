@@ -16,11 +16,24 @@ if ($ref_payco) {
     try {
         // 2. Consultar la API de validación de ePayco
         $url = 'https://secure.epayco.co/validation/v1/reference/' . $ref_payco;
-        $response = file_get_contents($url);
+        
+        $options = [
+            "http" => [
+                "method" => "GET",
+                "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)\r\n",
+                "ignore_errors" => true
+            ],
+            "ssl" => [
+                "verify_peer"      => false,
+                "verify_peer_name" => false,
+            ]
+        ];
+        $context = stream_context_create($options);
+        $response = @file_get_contents($url, false, $context);
         
         if ($response) {
             $data = json_decode($response, true);
-            if ($data['success']) {
+            if (isset($data['success']) && $data['success']) {
                 $transaccion = $data['data'];
                 
                 // RESTAURAR SESIÓN MÁGICAMENTE DESDE LA FACTURA
@@ -37,7 +50,7 @@ if ($ref_payco) {
 
                 // 3. Si la transacción fue Aceptada, procesar el pedido
                 if ($transaccion['x_cod_response'] == 1) {
-                    require_once __DIR__ . '/../functions/Database.php';
+                    require_once __DIR__ . '/../functions/database.php';
                     $db = Database::getInstance();
 
                     $userData = AuthHelper::verifyToken();

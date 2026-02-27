@@ -2,7 +2,7 @@
 
 // src/api/guardar_cliente.php
 // Endpoint POST: guarda o actualiza la dirección de envío del cliente en tab_clientes.
-// Usa fun_c_cliente vía Database.php. El botón de pago se habilita en el front tras éxito.
+// Usa fun_c_cliente vía database.php. El botón de pago se habilita en el front tras éxito.
 
 header('Content-Type: application/json');
 
@@ -36,7 +36,7 @@ if (!empty($errores)) {
 }
 
 try {
-    require_once dirname(__DIR__) . '/functions/Database.php';
+    require_once dirname(__DIR__) . '/functions/database.php';
     $db = Database::getInstance();
 
     // Obtener nombre y email del usuario para nom_client / mail_client

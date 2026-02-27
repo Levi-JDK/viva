@@ -49,7 +49,7 @@ if (empty($texto)) {
 }
 
 try {
-    require_once __DIR__ . '/../functions/Database.php';
+    require_once __DIR__ . '/../functions/database.php';
     $db = Database::getInstance();
 
     // Validar si el usuario es el mismo productor (no puede auto-reseñarse)

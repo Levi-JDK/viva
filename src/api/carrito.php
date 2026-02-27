@@ -47,7 +47,7 @@ if (!$accion || !in_array($accion, $acciones_validas)) {
 
 // ── Llamar a la función de la BD ─────────────────────────────────────────────
 try {
-    require_once __DIR__ . '/../functions/Database.php';
+    require_once __DIR__ . '/../functions/database.php';
     $db = Database::getInstance();
 
     $params = [
